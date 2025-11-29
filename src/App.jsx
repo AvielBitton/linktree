@@ -82,26 +82,23 @@ function App() {
   }, [])
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden bg-black">
-      {/* Hero Section with Background Image - Fixed height, top only */}
-      <div className="absolute top-0 left-0 right-0 h-[400px] overflow-hidden pointer-events-none">
-        {/* Background Image - only in hero area */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('/linktree/bg.jpg')`,
-            backgroundColor: '#000000',
-          }}
-        />
-        
-        {/* Gradient Overlay - fades image smoothly to black */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(to bottom, transparent 0%, transparent 30%, rgba(0, 0, 0, 0.5) 60%, rgba(0, 0, 0, 0.85) 80%, #000000 100%)',
-          }}
-        />
-      </div>
+    <div className="relative min-h-screen w-full overflow-x-hidden">
+      {/* Background Image */}
+      <div 
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('/linktree/bg.jpg')`,
+          backgroundColor: '#1a1a2e',
+        }}
+      />
+      
+      {/* Gradient Overlay - bottom to top, black to transparent */}
+      <div 
+        className="fixed inset-0"
+        style={{
+          background: 'linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.6) 30%, rgba(0, 0, 0, 0.3) 60%, transparent 100%)',
+        }}
+      />
 
       {/* Content Container */}
       <div className="relative z-10 min-h-screen flex flex-col">
