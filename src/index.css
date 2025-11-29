@@ -11,12 +11,14 @@
 html, body, #root {
   height: 100%;
   width: 100%;
+  background-color: #000000;
 }
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #000000;
 }
 
 /* Custom scrollbar */
