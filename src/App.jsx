@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import LinkButton from './components/LinkButton'
 import SocialIcons from './components/SocialIcons'
-import AsteriskButton from './components/AsteriskButton'
+import RaceCard from './components/RaceCard'
 import Footer from './components/Footer'
+import { parseDate } from './components/Countdown'
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(null)
@@ -28,7 +29,57 @@ function App() {
         </svg>
       ),
     },
+    {
+      id: 'strava',
+      title: 'Strava',
+      url: 'https://strava.app.link/vggrqLo9GYb',
+      icon: (
+        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/>
+        </svg>
+      ),
+    },
   ]
+
+  const races = [
+    {
+      id: 'hever-race',
+      name: 'Hever race',
+      distance: '5 km',
+      date: '27 December 2025',
+      url: 'https://www.runh.co.il/MenuDefault.aspx?Id=9172',
+    },
+    {
+      id: 'dead-sea-marathon',
+      name: 'Dead Sea Marathon',
+      distance: '21 km (Half-Marathon)',
+      date: '7 February 2026',
+      url: 'https://deadsea.run/en/',
+    },
+    {
+      id: 'tel-aviv-marathon',
+      name: 'Tel Aviv Marathon',
+      distance: 'Marathon (42.2 km)',
+      date: '28 February 2026',
+      url: 'https://www.tlvmarathon.co.il/',
+    },
+  ]
+
+  // Sort races: upcoming first (by nearest date), then past (by most recent)
+  const sortedRaces = useMemo(() => {
+    const now = new Date()
+    
+    const upcoming = races.filter(r => parseDate(r.date) >= now)
+    const past = races.filter(r => parseDate(r.date) < now)
+    
+    // Sort upcoming by soonest first
+    upcoming.sort((a, b) => parseDate(a.date) - parseDate(b.date))
+    
+    // Sort past by most recent first
+    past.sort((a, b) => parseDate(b.date) - parseDate(a.date))
+    
+    return [...upcoming, ...past]
+  }, [])
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden">
@@ -51,15 +102,12 @@ function App() {
 
       {/* Content Container */}
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Top-left Asterisk Button */}
-        <AsteriskButton />
-
         {/* Main Content */}
         <main className="flex-1 flex flex-col items-center justify-center px-6 py-16">
           {/* Profile Section */}
           <div className="text-center mb-6">
             <h1 className="text-white text-2xl font-bold tracking-tight mb-2">
-              avielbitton
+              Aviel Bitton
             </h1>
             <p className="text-white/80 text-sm leading-relaxed max-w-[280px]">
               Live boldly as a FREE SPIRIT |<br />
@@ -84,20 +132,23 @@ function App() {
             ))}
           </div>
 
-          {/* Bottom CTA */}
-          <a
-            href="https://linktr.ee"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-10 cta-pulse"
-          >
-            <div className="bg-white text-black text-sm font-semibold px-5 py-2.5 rounded-full flex items-center gap-2 hover:bg-white/90 transition-colors shadow-lg">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M7.953 15.066l-.038.086c-.578 1.228-.073 2.686 1.128 3.316 1.2.631 2.687.188 3.382-.939l.055-.089c.072-.127.078-.27.016-.386-.06-.117-.18-.2-.31-.2h-1.05c-.274 0-.5-.226-.5-.5v-2.5c0-.274.226-.5.5-.5h4.818c.274 0 .5.226.5.5v2.5c0 .274-.226.5-.5.5h-1.05c-.13 0-.25.083-.31.2-.062.115-.056.26.016.387l.055.088c.695 1.127 2.182 1.57 3.382.94 1.2-.631 1.706-2.089 1.128-3.317l-.038-.086c-.059-.133-.043-.285.042-.402.084-.115.22-.18.363-.162l.09.01c1.306.154 2.53-.742 2.762-2.035.232-1.293-.593-2.53-1.882-2.828l-.091-.018c-.137-.028-.253-.124-.303-.254-.05-.13-.03-.277.054-.386l.057-.074c.858-1.032.734-2.564-.283-3.454-1.017-.89-2.555-.822-3.485.158l-.065.072c-.096.113-.246.16-.389.12-.144-.04-.253-.156-.278-.302l-.015-.092c-.203-1.296-1.404-2.218-2.715-2.082-1.311.135-2.286 1.287-2.205 2.6l.006.092c.01.146-.056.286-.175.365-.118.08-.271.085-.396.016l-.08-.046c-1.156-.623-2.61-.161-3.28.986-.67 1.147-.29 2.617.847 3.32l.079.047c.124.072.2.204.2.347 0 .143-.076.275-.2.347l-.08.047c-1.137.702-1.517 2.173-.847 3.32.67 1.147 2.124 1.609 3.281.986l.08-.046c.124-.07.277-.064.395.016.12.079.185.22.175.365l-.006.092c-.057.91.373 1.787 1.104 2.289z"/>
-              </svg>
-              Join avielbitton on Linktree
+          {/* Upcoming & Past Races Section - BELOW LINKS */}
+          <div className="w-full max-w-[340px] mt-10">
+            <h2 className="text-white text-center text-lg font-medium mb-4">
+              Upcoming & Past Races
+            </h2>
+            <div className="space-y-3">
+              {sortedRaces.map((race) => (
+                <RaceCard
+                  key={race.id}
+                  name={race.name}
+                  distance={race.distance}
+                  date={race.date}
+                  url={race.url}
+                />
+              ))}
             </div>
-          </a>
+          </div>
         </main>
 
         {/* Footer */}
@@ -108,4 +159,3 @@ function App() {
 }
 
 export default App
-
