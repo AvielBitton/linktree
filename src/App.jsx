@@ -46,7 +46,7 @@ function App() {
       id: 'hever-race',
       name: 'Hever race',
       distance: '5 km',
-      date: '27 December 2025',
+      date: '5 December 2025',
       url: 'https://www.runh.co.il/MenuDefault.aspx?Id=9172',
     },
     {
