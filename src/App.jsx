@@ -74,7 +74,7 @@ function App() {
             <h1 className="text-white text-2xl font-bold tracking-tight mb-2">
               Aviel Bitton
             </h1>
-            <p className="text-white/70 text-sm font-light leading-relaxed max-w-[280px]">
+            <p className="text-white/70 text-sm font-semibold leading-relaxed max-w-[280px]">
               Live boldly as a FREE SPIRIT |<br />
               Join my journey | MARATHON
             </p>
