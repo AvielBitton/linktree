@@ -49,7 +49,7 @@ function Countdown({ date }) {
 
   if (isPast) {
     return (
-      <p className="text-gray-500 text-xs mt-1">
+      <p className="text-gray-500 text-xs">
         Completed
       </p>
     )
@@ -60,13 +60,13 @@ function Countdown({ date }) {
   }
 
   const parts = []
-  if (timeLeft.days > 0) parts.push(`${timeLeft.days} day${timeLeft.days !== 1 ? 's' : ''}`)
-  if (timeLeft.hours > 0) parts.push(`${timeLeft.hours} hour${timeLeft.hours !== 1 ? 's' : ''}`)
-  if (timeLeft.minutes > 0 || parts.length === 0) parts.push(`${timeLeft.minutes} minute${timeLeft.minutes !== 1 ? 's' : ''}`)
+  if (timeLeft.days > 0) parts.push(`${timeLeft.days}d`)
+  if (timeLeft.hours > 0) parts.push(`${timeLeft.hours}h`)
+  if (timeLeft.minutes > 0 || parts.length === 0) parts.push(`${timeLeft.minutes}m`)
 
   return (
-    <p className="text-white/60 text-xs mt-1">
-      {parts.join(' • ')} left
+    <p className="text-white/60 text-xs">
+      {parts.join(' ')} left
     </p>
   )
 }

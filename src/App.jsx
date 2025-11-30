@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import SocialIcons from './components/SocialIcons'
 import RaceCard from './components/RaceCard'
 import Footer from './components/Footer'
@@ -57,11 +57,11 @@ function App() {
         }}
       />
       
-      {/* Gradient Overlay - bottom to top, black to transparent */}
+      {/* Gradient Overlay - adds contrast for text readability */}
       <div 
         className="fixed inset-0"
         style={{
-          background: 'linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.6) 30%, rgba(0, 0, 0, 0.3) 60%, transparent 100%)',
+          background: 'linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.65) 30%, rgba(0, 0, 0, 0.45) 60%, rgba(0, 0, 0, 0.3) 100%)',
         }}
       />
 
@@ -74,7 +74,7 @@ function App() {
             <h1 className="text-white text-2xl font-bold tracking-tight mb-2">
               Aviel Bitton
             </h1>
-            <p className="text-white/80 text-sm leading-relaxed max-w-[280px]">
+            <p className="text-white/70 text-sm font-light leading-relaxed max-w-[280px]">
               Live boldly as a FREE SPIRIT |<br />
               Join my journey | MARATHON
             </p>
@@ -84,7 +84,7 @@ function App() {
           <SocialIcons />
 
           {/* Upcoming & Past Races Section */}
-          <div className="w-full max-w-[340px] mt-10">
+          <div className="w-full max-w-[340px] mt-6">
             <h2 className="text-white text-center text-lg font-medium mb-4">
               Upcoming & Past Races
             </h2>
