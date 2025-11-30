@@ -4,6 +4,7 @@ import SocialIcons from './components/SocialIcons'
 import RaceCard from './components/RaceCard'
 import Footer from './components/Footer'
 import { parseDate } from './components/Countdown'
+import bgImage from './assets/bg.jpg'
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(null)
@@ -87,7 +88,7 @@ function App() {
       <div 
         className="fixed inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('/linktree/bg.jpg')`,
+          backgroundImage: `url(${bgImage})`,
           backgroundColor: '#1a1a2e',
         }}
       />

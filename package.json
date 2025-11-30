@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "homepage": "https://avielbitton.github.io/linktree",
+  "homepage": "https://aviel.club",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -30,4 +30,3 @@
     "vite": "^5.4.10"
   }
 }
-
