@@ -1,51 +1,23 @@
-import { useMemo } from 'react'
 import SocialIcons from './components/SocialIcons'
-import RaceCard from './components/RaceCard'
-import WeeklyStats from './components/WeeklyStats'
+import Tabs from './components/Tabs'
+import RacesSection from './components/RacesSection'
+import StatsSection from './components/StatsSection'
 import Footer from './components/Footer'
-import { parseDate } from './components/Countdown'
 import bgImage from './assets/bg.jpg'
 
 function App() {
-  const races = [
+  const tabs = [
     {
-      id: 'hever-race',
-      name: 'Hever race',
-      distance: '5 km',
-      date: '5 December 2025',
-      url: 'https://www.runh.co.il/MenuDefault.aspx?Id=9172',
+      id: 'races',
+      label: 'Races',
+      content: <RacesSection />
     },
     {
-      id: 'dead-sea-marathon',
-      name: 'Dead Sea Marathon',
-      distance: '21 km (Half-Marathon)',
-      date: '7 February 2026',
-      url: 'https://deadsea.run/en/',
-    },
-    {
-      id: 'tel-aviv-marathon',
-      name: 'Tel Aviv Marathon',
-      distance: 'Marathon (42.2 km)',
-      date: '28 February 2026',
-      url: 'https://www.tlvmarathon.co.il/',
-    },
+      id: 'stats',
+      label: 'Stats',
+      content: <StatsSection />
+    }
   ]
-
-  // Sort races: upcoming first (by nearest date), then past (by most recent)
-  const sortedRaces = useMemo(() => {
-    const now = new Date()
-    
-    const upcoming = races.filter(r => parseDate(r.date) >= now)
-    const past = races.filter(r => parseDate(r.date) < now)
-    
-    // Sort upcoming by soonest first
-    upcoming.sort((a, b) => parseDate(a.date) - parseDate(b.date))
-    
-    // Sort past by most recent first
-    past.sort((a, b) => parseDate(b.date) - parseDate(a.date))
-    
-    return [...upcoming, ...past]
-  }, [])
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden">
@@ -84,26 +56,10 @@ function App() {
           {/* Social Icons */}
           <SocialIcons />
 
-          {/* Upcoming & Past Races Section */}
-          <div className="w-full max-w-[340px] mt-6">
-            <h2 className="text-white text-center text-lg font-medium mb-4">
-              Upcoming & Past Races
-            </h2>
-            <div className="space-y-3">
-              {sortedRaces.map((race) => (
-                <RaceCard
-                  key={race.id}
-                  name={race.name}
-                  distance={race.distance}
-                  date={race.date}
-                  url={race.url}
-                />
-              ))}
-            </div>
+          {/* Tab-based Content */}
+          <div className="mt-6">
+            <Tabs tabs={tabs} defaultTab="races" />
           </div>
-
-          {/* Weekly Running Stats Section */}
-          <WeeklyStats />
         </main>
 
         {/* Footer */}
