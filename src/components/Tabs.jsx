@@ -13,7 +13,7 @@ function Tabs({ tabs, defaultTab }) {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`
-                relative px-6 py-2 text-sm font-medium rounded-full
+                relative px-5 py-2 text-sm font-medium rounded-full
                 transition-all duration-200 ease-out
                 ${activeTab === tab.id 
                   ? 'text-white bg-white/15' 
