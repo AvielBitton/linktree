@@ -38,11 +38,11 @@ function App() {
         }}
       />
 
-      {/* Content Container */}
+      {/* Content Container - No vertical centering to prevent shifts */}
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Main Content */}
-        <main className="flex-1 flex flex-col items-center justify-center px-6 py-16">
-          {/* Profile Section */}
+        {/* Main Content - Aligned to top with padding */}
+        <main className="flex-1 flex flex-col items-center px-6 pt-16 pb-8">
+          {/* Profile Section - Static, never moves */}
           <div className="text-center mb-6">
             <h1 className="text-white text-2xl font-bold tracking-tight mb-2">
               Aviel Bitton
@@ -53,13 +53,13 @@ function App() {
             </p>
           </div>
 
-          {/* Social Icons */}
-          <SocialIcons />
-
-          {/* Tab-based Content */}
-          <div className="mt-6">
-            <Tabs tabs={tabs} defaultTab="races" />
+          {/* Social Icons - Static, never moves */}
+          <div className="mb-6">
+            <SocialIcons />
           </div>
+
+          {/* Tab-based Content - Only this section changes */}
+          <Tabs tabs={tabs} defaultTab="races" />
         </main>
 
         {/* Footer */}
