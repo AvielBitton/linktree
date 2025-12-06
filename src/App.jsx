@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import SocialIcons from './components/SocialIcons'
 import RaceCard from './components/RaceCard'
+import WeeklyStats from './components/WeeklyStats'
 import Footer from './components/Footer'
 import { parseDate } from './components/Countdown'
 import bgImage from './assets/bg.jpg'
@@ -100,6 +101,9 @@ function App() {
               ))}
             </div>
           </div>
+
+          {/* Weekly Running Stats Section */}
+          <WeeklyStats />
         </main>
 
         {/* Footer */}
