@@ -2,6 +2,7 @@ import SocialIcons from './components/SocialIcons'
 import Tabs from './components/Tabs'
 import RacesSection from './components/RacesSection'
 import StatsSection from './components/StatsSection'
+import PlanSection from './components/PlanSection'
 import GearSection from './components/GearSection'
 import Footer from './components/Footer'
 import bgImage from './assets/bg.jpg'
@@ -17,6 +18,11 @@ function App() {
       id: 'stats',
       label: 'Stats',
       content: <StatsSection />
+    },
+    {
+      id: 'plan',
+      label: 'Plan',
+      content: <PlanSection />
     },
     {
       id: 'gear',

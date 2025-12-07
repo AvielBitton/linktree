@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
-import loadWeeks, { formatPace } from '../utils/loadWeeks'
+import { loadWorkouts, getAllWeeksStats, formatPace } from '../utils/workouts'
 
-function WeekCard({ week, year, distanceKm, avgPace, avgHR, durationHours, workoutCount }) {
+function WeekCard({ weekKey, distanceKm, avgPace, avgHR, durationHours, workoutCount }) {
+  // Parse week key (e.g., "2025-49" -> year 2025, week 49)
+  const [year, week] = weekKey.split('-')
+  
   return (
     <div className="block w-full bg-[rgba(25,25,25,0.85)] backdrop-blur-sm rounded-2xl px-5 py-3">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-white font-semibold text-[15px]">
-          Week {week}
+          Week {parseInt(week)}
         </h3>
         <span className="text-gray-400 text-xs">
           {year}
@@ -50,8 +53,9 @@ function StatsSection() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const data = await loadWeeks()
-        setWeeks(data)
+        const workouts = await loadWorkouts()
+        const stats = getAllWeeksStats(workouts)
+        setWeeks(stats)
       } catch (err) {
         setError(err.message)
       } finally {
@@ -79,9 +83,8 @@ function StatsSection() {
     <div className="space-y-3">
       {weeks.map((week) => (
         <WeekCard
-          key={`${week.year}-${week.week}`}
-          week={week.week}
-          year={week.year}
+          key={week.weekKey}
+          weekKey={week.weekKey}
           distanceKm={week.distanceKm}
           avgPace={week.avgPace}
           avgHR={week.avgHR}
