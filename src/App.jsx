@@ -15,14 +15,14 @@ function App() {
       content: <RacesSection />
     },
     {
-      id: 'stats',
-      label: 'Stats',
-      content: <StatsSection />
-    },
-    {
       id: 'plan',
       label: 'Plan',
       content: <PlanSection />
+    },
+    {
+      id: 'stats',
+      label: 'Stats',
+      content: <StatsSection />
     },
     {
       id: 'gear',
