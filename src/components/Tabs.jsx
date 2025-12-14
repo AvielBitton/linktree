@@ -1,7 +1,37 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
+function getTabFromHash(tabs, defaultTab) {
+  const hash = window.location.hash.slice(1) // Remove the #
+  const validTabIds = tabs.map(t => t.id)
+  return validTabIds.includes(hash) ? hash : defaultTab
+}
 
 function Tabs({ tabs, defaultTab }) {
-  const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.id)
+  const resolvedDefault = defaultTab || tabs[0]?.id
+  const [activeTab, setActiveTab] = useState(() => 
+    getTabFromHash(tabs, resolvedDefault)
+  )
+
+  // Update URL when tab changes
+  useEffect(() => {
+    if (activeTab === resolvedDefault) {
+      // For default tab, use clean URL without hash
+      history.replaceState(null, '', window.location.pathname)
+    } else {
+      window.location.hash = activeTab
+    }
+  }, [activeTab, resolvedDefault])
+
+  // Listen for back/forward navigation
+  useEffect(() => {
+    const handleHashChange = () => {
+      const newTab = getTabFromHash(tabs, resolvedDefault)
+      setActiveTab(newTab)
+    }
+    
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [tabs, resolvedDefault])
 
   return (
     <div className="w-full max-w-[340px]">
