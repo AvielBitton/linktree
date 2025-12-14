@@ -27,12 +27,28 @@ function getUpcomingRunWorkouts(workouts) {
     .sort((a, b) => a.date - b.date)
 }
 
+function formatDistance(meters) {
+  if (!meters) return null
+  const km = meters / 1000
+  return km >= 1 ? `${km.toFixed(1)} km` : `${Math.round(meters)} m`
+}
+
 function WorkoutCard({ workout }) {
+  const [expanded, setExpanded] = useState(false)
   const title = workout.Title || 'Run'
   const duration = parseFloat(workout.PlannedDuration) || parseFloat(workout.TimeTotalInHours) || 0
+  const distance = parseFloat(workout.PlannedDistanceInMeters) || 0
+  const description = workout.WorkoutDescription || ''
+  const coachComments = workout.CoachComments || ''
+  
+  const hasDetails = description || coachComments
   
   return (
-    <div className="bg-[rgba(25,25,25,0.85)] backdrop-blur-sm rounded-2xl p-4 transition-all duration-300 hover:bg-[rgba(35,35,35,0.9)]">
+    <div 
+      className="bg-[rgba(25,25,25,0.85)] backdrop-blur-sm rounded-2xl p-4 transition-all duration-300 hover:bg-[rgba(35,35,35,0.9)]"
+      onClick={() => hasDetails && setExpanded(!expanded)}
+      style={{ cursor: hasDetails ? 'pointer' : 'default' }}
+    >
       {/* Date and Type */}
       <div className="flex items-center justify-between mb-2">
         <span className="text-white/60 text-xs">
@@ -43,16 +59,49 @@ function WorkoutCard({ workout }) {
         </span>
       </div>
       
-      {/* Title */}
-      <h3 className="text-white font-semibold text-[15px]">
-        {title}
-      </h3>
+      {/* Title with expand arrow */}
+      <div className="flex items-center gap-2">
+        {hasDetails && (
+          <span className={`text-white/40 text-[10px] transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}>
+            ▶
+          </span>
+        )}
+        <h3 className="text-white font-semibold text-[15px]">
+          {title}
+        </h3>
+      </div>
       
-      {/* Duration */}
-      {duration > 0 && (
-        <div className="flex items-center gap-1 mt-2">
-          <span className="text-gray-400 text-xs">Duration:</span>
-          <span className="text-white/80 text-xs font-medium">{formatDuration(duration)}</span>
+      {/* Duration & Distance */}
+      <div className="flex items-center gap-3 mt-2">
+        {duration > 0 && (
+          <div className="flex items-center gap-1">
+            <span className="text-gray-400 text-xs">⏱</span>
+            <span className="text-white/80 text-xs font-medium">{formatDuration(duration)}</span>
+          </div>
+        )}
+        {distance > 0 && (
+          <div className="flex items-center gap-1">
+            <span className="text-gray-400 text-xs">📏</span>
+            <span className="text-white/80 text-xs font-medium">{formatDistance(distance)}</span>
+          </div>
+        )}
+      </div>
+      
+      {/* Expanded Details */}
+      {expanded && hasDetails && (
+        <div className="mt-3 pt-3 border-t border-white/10 space-y-3" dir="rtl">
+          {description && (
+            <div>
+              <p className="text-gray-400 text-[10px] tracking-wide mb-1 text-right">פרטי אימון</p>
+              <p className="text-white/70 text-xs leading-relaxed whitespace-pre-line text-right">{description}</p>
+            </div>
+          )}
+          {coachComments && (
+            <div>
+              <p className="text-gray-400 text-[10px] tracking-wide mb-1 text-right">הערות מאמן</p>
+              <p className="text-white/70 text-xs leading-relaxed whitespace-pre-line text-right">{coachComments}</p>
+            </div>
+          )}
         </div>
       )}
     </div>
