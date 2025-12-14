@@ -94,24 +94,10 @@ function PlanSection() {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Weekly Focus Banner */}
-      <div className="bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-sm">🎯</span>
-          <span className="text-white font-medium text-sm">Next 7 Days</span>
-        </div>
-        <p className="text-gray-400 text-xs">
-          {upcomingWorkouts.length} run{upcomingWorkouts.length !== 1 ? 's' : ''} planned ahead
-        </p>
-      </div>
-      
-      {/* Upcoming Workouts */}
-      <div className="space-y-3">
-        {upcomingWorkouts.map((workout, index) => (
-          <WorkoutCard key={`${workout.WorkoutDay}-${index}`} workout={workout} />
-        ))}
-      </div>
+    <div className="space-y-3">
+      {upcomingWorkouts.map((workout, index) => (
+        <WorkoutCard key={`${workout.WorkoutDay}-${index}`} workout={workout} />
+      ))}
     </div>
   )
 }
