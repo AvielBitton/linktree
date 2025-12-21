@@ -1,63 +1,76 @@
 import { useState, useEffect } from 'react'
-import { loadWorkouts, getAllWeeksStats, formatPace } from '../utils/workouts'
+import { motion } from 'framer-motion'
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, BarChart, Bar } from 'recharts'
+import { loadWorkouts, getAllWeeksStats, formatPace, isCompletedRun } from '../utils/workouts'
 
-function WeekCard({ weekKey, distanceKm, avgPace, avgHR, durationHours, workoutCount }) {
-  // Parse week key (e.g., "2025-49" -> year 2025, week 49)
-  const [year, week] = weekKey.split('-')
+// Progress Ring Component
+function ProgressRing({ progress, size = 80, strokeWidth = 6, color = '#f97316' }) {
+  const radius = (size - strokeWidth) / 2
+  const circumference = radius * 2 * Math.PI
+  const offset = circumference - (progress / 100) * circumference
   
   return (
-    <div className="block w-full bg-[rgba(25,25,25,0.85)] backdrop-blur-sm rounded-2xl px-5 py-3">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-white font-semibold text-[15px]">
-          Week {parseInt(week)}
-        </h3>
-        <span className="text-gray-400 text-xs">
-          {year}
-        </span>
-      </div>
-      
-      <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-        <div className="flex justify-between">
-          <span className="text-gray-400 text-xs">Distance</span>
-          <span className="text-white/80 text-xs font-medium">{distanceKm} km</span>
-        </div>
-        
-        <div className="flex justify-between">
-          <span className="text-gray-400 text-xs">Duration</span>
-          <span className="text-white/80 text-xs font-medium">{durationHours}h</span>
-        </div>
-        
-        <div className="flex justify-between">
-          <span className="text-gray-400 text-xs">Avg Pace</span>
-          <span className="text-white/80 text-xs font-medium">{formatPace(avgPace)} /km</span>
-        </div>
-        
-        <div className="flex justify-between">
-          <span className="text-gray-400 text-xs">Avg HR</span>
-          <span className="text-white/80 text-xs font-medium">{avgHR || '--'} bpm</span>
-        </div>
-      </div>
-      
-      <div className="mt-2 pt-2 border-t border-white/10">
-        <span className="text-gray-500 text-xs">{workoutCount} run{workoutCount !== 1 ? 's' : ''} this week</span>
+    <div className="relative" style={{ width: size, height: size }}>
+      {/* Background circle */}
+      <svg className="transform -rotate-90" width={size} height={size}>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="rgba(255,255,255,0.1)"
+          strokeWidth={strokeWidth}
+        />
+        <motion.circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          style={{
+            strokeDasharray: circumference,
+            filter: `drop-shadow(0 0 6px ${color})`
+          }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-white font-bold text-lg">{Math.round(progress)}%</span>
       </div>
     </div>
   )
 }
 
+// Custom Tooltip for Charts
+function CustomTooltip({ active, payload, label }) {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-black/80 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2">
+        <p className="text-white/60 text-xs mb-1">{label}</p>
+        <p className="text-white font-bold">{payload[0].value} km</p>
+      </div>
+    )
+  }
+  return null
+}
+
 function StatsSection() {
   const [weeks, setWeeks] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [selectedView, setSelectedView] = useState('distance')
 
   useEffect(() => {
     async function fetchData() {
       try {
         const workouts = await loadWorkouts()
         const stats = getAllWeeksStats(workouts)
-        setWeeks(stats)
+        setWeeks(stats.slice(0, 12)) // Last 12 weeks
       } catch (err) {
-        setError(err.message)
+        console.error('Error loading stats:', err)
       } finally {
         setLoading(false)
       }
@@ -67,31 +80,246 @@ function StatsSection() {
 
   if (loading) {
     return (
-      <div className="text-center text-gray-400 text-sm py-8">Loading stats...</div>
-    )
-  }
-
-  if (error || weeks.length === 0) {
-    return (
-      <div className="text-center text-gray-500 text-sm py-8">
-        No weekly stats available yet.
+      <div className="flex items-center justify-center py-12">
+        <motion.div 
+          className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        />
       </div>
     )
   }
 
+  if (weeks.length === 0) {
+    return (
+      <div className="text-center text-gray-500 text-sm py-8">
+        No stats available yet.
+      </div>
+    )
+  }
+
+  // Prepare chart data (reversed for chronological order)
+  const chartData = [...weeks].reverse().map(week => ({
+    week: week.weekKey.split('-')[1],
+    distance: week.distanceKm,
+    pace: week.avgPace ? parseFloat(week.avgPace.toFixed(2)) : 0,
+    hr: week.avgHR || 0,
+    runs: week.workoutCount
+  }))
+  
+  // Calculate totals and averages
+  const totalDistance = weeks.reduce((sum, w) => sum + w.distanceKm, 0)
+  const totalRuns = weeks.reduce((sum, w) => sum + w.workoutCount, 0)
+  const avgWeeklyDistance = totalDistance / weeks.length
+  const bestWeek = Math.max(...weeks.map(w => w.distanceKm))
+  
+  // Marathon training progress (assuming 500km total goal)
+  const marathonGoalKm = 500
+  const marathonProgress = Math.min((totalDistance / marathonGoalKm) * 100, 100)
+  
+  // Current week vs last week comparison
+  const currentWeek = weeks[0]
+  const lastWeek = weeks[1]
+  const weekOverWeekChange = lastWeek 
+    ? ((currentWeek.distanceKm - lastWeek.distanceKm) / lastWeek.distanceKm * 100)
+    : 0
+
   return (
-    <div className="space-y-3">
-      {weeks.map((week) => (
-        <WeekCard
+    <div className="space-y-4">
+      {/* Main Stats Grid */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Marathon Progress Ring */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="col-span-2 bg-gradient-to-br from-orange-500/10 to-pink-500/10 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-white/40 text-xs uppercase tracking-wider mb-1">Marathon Training</p>
+              <p className="text-white font-bold text-2xl">{Math.round(totalDistance)} km</p>
+              <p className="text-white/50 text-xs">of {marathonGoalKm} km goal</p>
+            </div>
+            <ProgressRing progress={marathonProgress} size={70} color="#f97316" />
+          </div>
+        </motion.div>
+        
+        {/* This Week */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+        >
+          <p className="text-white/40 text-xs mb-2">This Week</p>
+          <p className="text-white font-bold text-xl">{currentWeek.distanceKm} km</p>
+          <div className={`flex items-center gap-1 mt-1 text-xs ${weekOverWeekChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            <span>{weekOverWeekChange >= 0 ? '↑' : '↓'}</span>
+            <span>{Math.abs(weekOverWeekChange).toFixed(0)}% vs last week</span>
+          </div>
+        </motion.div>
+        
+        {/* Best Week */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+        >
+          <p className="text-white/40 text-xs mb-2">Best Week</p>
+          <p className="text-white font-bold text-xl">{bestWeek} km</p>
+          <p className="text-yellow-400 text-xs mt-1">🏆 Personal Record</p>
+        </motion.div>
+        
+        {/* Average Pace */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+        >
+          <p className="text-white/40 text-xs mb-2">Avg Pace</p>
+          <p className="text-white font-bold text-xl">{formatPace(currentWeek.avgPace)}</p>
+          <p className="text-white/40 text-xs mt-1">min/km</p>
+        </motion.div>
+        
+        {/* Total Runs */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+        >
+          <p className="text-white/40 text-xs mb-2">Total Runs</p>
+          <p className="text-white font-bold text-xl">{totalRuns}</p>
+          <p className="text-white/40 text-xs mt-1">in {weeks.length} weeks</p>
+        </motion.div>
+      </div>
+      
+      {/* Weekly Distance Chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-white/60 text-sm font-medium">Weekly Distance</p>
+          <div className="flex gap-1 bg-white/5 rounded-lg p-0.5">
+            <button
+              onClick={() => setSelectedView('distance')}
+              className={`px-2 py-1 text-xs rounded-md transition-all ${
+                selectedView === 'distance' 
+                  ? 'bg-orange-500 text-white' 
+                  : 'text-white/40 hover:text-white/60'
+              }`}
+            >
+              Distance
+            </button>
+            <button
+              onClick={() => setSelectedView('runs')}
+              className={`px-2 py-1 text-xs rounded-md transition-all ${
+                selectedView === 'runs' 
+                  ? 'bg-orange-500 text-white' 
+                  : 'text-white/40 hover:text-white/60'
+              }`}
+            >
+              Runs
+            </button>
+          </div>
+        </div>
+        
+        <div className="h-40">
+          <ResponsiveContainer width="100%" height="100%">
+            {selectedView === 'distance' ? (
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="distanceGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#f97316" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="#f97316" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis 
+                  dataKey="week" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
+                  width={30}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Area
+                  type="monotone"
+                  dataKey="distance"
+                  stroke="#f97316"
+                  strokeWidth={2}
+                  fill="url(#distanceGradient)"
+                />
+              </AreaChart>
+            ) : (
+              <BarChart data={chartData}>
+                <XAxis 
+                  dataKey="week" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
+                  width={30}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(0,0,0,0.8)', 
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '8px'
+                  }}
+                  labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
+                />
+                <Bar 
+                  dataKey="runs" 
+                  fill="#f97316" 
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            )}
+          </ResponsiveContainer>
+        </div>
+      </motion.div>
+      
+      {/* Recent Weeks List */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+        className="space-y-2"
+      >
+        <p className="text-white/40 text-xs uppercase tracking-wider px-1">Recent Weeks</p>
+        {weeks.slice(0, 4).map((week, index) => (
+          <motion.div
           key={week.weekKey}
-          weekKey={week.weekKey}
-          distanceKm={week.distanceKm}
-          avgPace={week.avgPace}
-          avgHR={week.avgHR}
-          durationHours={week.durationHours}
-          workoutCount={week.workoutCount}
-        />
-      ))}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.7 + index * 0.1 }}
+            className="bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/5 flex items-center justify-between"
+          >
+            <div>
+              <p className="text-white font-medium text-sm">Week {week.weekKey.split('-')[1]}</p>
+              <p className="text-white/40 text-xs">{week.workoutCount} runs</p>
+            </div>
+            <div className="text-right">
+              <p className="text-white font-bold">{week.distanceKm} km</p>
+              <p className="text-white/40 text-xs">{formatPace(week.avgPace)} /km</p>
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
     </div>
   )
 }

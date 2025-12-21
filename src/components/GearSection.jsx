@@ -1,85 +1,116 @@
+import { motion } from 'framer-motion'
+
 const gearItems = [
   {
     id: 'watch',
-    title: 'Garmin Forerunner 970',
+    category: 'Watch',
+    name: 'Garmin Forerunner 970',
     description: 'GPS running watch with advanced training metrics',
-    image: './images/gear/Forerunner970_SoftGold2.jpg',
-    url: 'https://www.garmin.com/en-US/p/1462801/',
-    category: 'Watch'
+    image: '/images/gear/Forerunner970_SoftGold2.jpg',
+    link: 'https://www.garmin.com/en-US/p/1311147'
   },
   {
     id: 'headphones',
-    title: 'Shokz OpenRun Pro 2',
+    category: 'Audio',
+    name: 'Shokz OpenRun Pro 2',
     description: 'Bone conduction headphones for safe outdoor running',
-    image: './images/gear/shokz.jpg',
-    url: 'https://shokz.com/products/openrunpro2?variant=44043747786952',
-    category: 'Audio'
+    image: '/images/gear/shokz.jpg',
+    link: 'https://shokz.com/products/openrunpro2'
   },
   {
     id: 'shoes',
-    title: 'Adidas Adizero Adios Pro 4',
+    category: 'Shoes',
+    name: 'Adidas Adizero Adios Pro 4',
     description: 'Elite carbon racing shoes for marathon performance',
-    image: './images/gear/adidaspro4.jpg',
-    url: 'https://www.adidas.com/us/adizero-adios-pro-4-shoes/JR1094.html',
-    category: 'Shoes'
+    image: '/images/gear/adidaspro4.jpg',
+    link: 'https://www.adidas.com/us/adizero-adios-pro-4-running-shoes/JQ9060.html'
   }
 ]
 
-function GearCard({ title, description, image, url, category }) {
+function GearCard({ item, index }) {
   return (
-    <a
-      href={url}
+    <motion.a
+      href={item.link}
       target="_blank"
       rel="noopener noreferrer"
-      className="block bg-[rgba(25,25,25,0.85)] backdrop-blur-sm rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:bg-[rgba(35,35,35,0.9)] hover:shadow-xl group"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1, duration: 0.4 }}
+      whileHover={{ scale: 1.02, y: -2 }}
+      whileTap={{ scale: 0.98 }}
+      className="block relative group"
     >
-      {/* Image Container */}
-      <div className="relative h-32 bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center overflow-hidden">
-        <img 
-          src={image} 
-          alt={title}
-          className="w-full h-full object-contain p-3 opacity-90 group-hover:opacity-100 transition-opacity duration-300"
-        />
-        {/* Category Badge */}
-        <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white/80 text-[10px] font-medium px-2 py-0.5 rounded-full">
-          {category}
-        </div>
-      </div>
+      {/* Glow Effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-pink-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
-      {/* Content */}
-      <div className="p-4">
-        <h3 className="text-white font-semibold text-[15px] mb-1 group-hover:text-white/90">
-          {title}
-        </h3>
-        <p className="text-gray-400 text-xs leading-relaxed mb-3">
-          {description}
-        </p>
+      {/* Card */}
+      <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden group-hover:border-orange-500/30 transition-all duration-300">
+        {/* Image */}
+        <div className="relative h-32 overflow-hidden">
+          <img
+            src={item.image}
+            alt={item.name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+          
+          {/* Category Badge */}
+          <div className="absolute top-3 left-3">
+            <span className="bg-white/10 backdrop-blur-sm text-white/80 text-[10px] font-medium px-2 py-1 rounded-full">
+              {item.category}
+            </span>
+          </div>
+        </div>
         
-        {/* View Product Link */}
-        <div className="flex items-center text-white/60 text-xs group-hover:text-white/80 transition-colors">
-          <span>View Product</span>
-          <svg className="w-3.5 h-3.5 ml-1 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
+        {/* Content */}
+        <div className="p-4">
+          <h3 className="text-white font-bold text-sm mb-1">
+            {item.name}
+          </h3>
+          <p className="text-white/50 text-xs leading-relaxed mb-3">
+            {item.description}
+          </p>
+          
+          {/* View Product Button */}
+          <div className="flex items-center gap-2 text-orange-400 text-xs font-medium group-hover:text-orange-300 transition-colors">
+            <span>View Product</span>
+            <motion.svg 
+              className="w-3 h-3" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2"
+              animate={{ x: [0, 3, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </motion.svg>
+          </div>
         </div>
       </div>
-    </a>
+    </motion.a>
   )
 }
 
 function GearSection() {
   return (
-    <div className="space-y-3">
-      {gearItems.map((item) => (
-        <GearCard
-          key={item.id}
-          title={item.title}
-          description={item.description}
-          image={item.image}
-          url={item.url}
-          category={item.category}
-        />
-      ))}
+    <div className="space-y-4">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="px-1"
+      >
+        <h2 className="text-white/60 text-xs uppercase tracking-wider">My Running Gear</h2>
+        <p className="text-white/30 text-xs mt-1">Equipment I use for training & racing</p>
+      </motion.div>
+      
+      {/* Gear Cards */}
+      <div className="space-y-3">
+        {gearItems.map((item, index) => (
+          <GearCard key={item.id} item={item} index={index} />
+        ))}
+      </div>
     </div>
   )
 }
