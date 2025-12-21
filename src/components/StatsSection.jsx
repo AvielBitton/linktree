@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, BarChart, Bar } from 'recharts'
 import { loadWorkouts, getAllWeeksStats, formatPace, isCompletedRun } from '../utils/workouts'
@@ -60,15 +60,27 @@ function CustomTooltip({ active, payload, label }) {
 
 function StatsSection() {
   const [weeks, setWeeks] = useState([])
+  const [allTimeStats, setAllTimeStats] = useState({ distance: 0, runs: 0 })
   const [loading, setLoading] = useState(true)
   const [selectedView, setSelectedView] = useState('distance')
-
+  
   useEffect(() => {
     async function fetchData() {
       try {
         const workouts = await loadWorkouts()
         const stats = getAllWeeksStats(workouts)
-        setWeeks(stats.slice(0, 12)) // Last 12 weeks
+        setWeeks(stats.slice(0, 12)) // Last 12 weeks for chart
+        
+        // Calculate all-time stats
+        const completedRuns = workouts.filter(isCompletedRun)
+        let totalDist = 0
+        for (const run of completedRuns) {
+          totalDist += parseFloat(run.DistanceInMeters) || 0
+        }
+        setAllTimeStats({
+          distance: Math.round(totalDist / 1000),
+          runs: completedRuns.length
+        })
       } catch (err) {
         console.error('Error loading stats:', err)
       } finally {
@@ -107,15 +119,19 @@ function StatsSection() {
     runs: week.workoutCount
   }))
   
-  // Calculate totals and averages
-  const totalDistance = weeks.reduce((sum, w) => sum + w.distanceKm, 0)
-  const totalRuns = weeks.reduce((sum, w) => sum + w.workoutCount, 0)
-  const avgWeeklyDistance = totalDistance / weeks.length
+  // Calculate totals and averages (from last 12 weeks for display)
+  const last12WeeksDistance = weeks.reduce((sum, w) => sum + w.distanceKm, 0)
+  const last12WeeksRuns = weeks.reduce((sum, w) => sum + w.workoutCount, 0)
   const bestWeek = Math.max(...weeks.map(w => w.distanceKm))
   
-  // Marathon training progress (assuming 500km total goal)
-  const marathonGoalKm = 500
-  const marathonProgress = Math.min((totalDistance / marathonGoalKm) * 100, 100)
+  // Marathon training progress
+  // Goal = current total + 40km per week until marathon (28 Feb 2026)
+  const marathonDate = new Date(2026, 1, 28) // Feb 28, 2026
+  const now = new Date()
+  const weeksUntilMarathon = Math.max(0, Math.ceil((marathonDate - now) / (7 * 24 * 60 * 60 * 1000)))
+  const weeklyTarget = 40
+  const marathonGoalKm = allTimeStats.distance + (weeklyTarget * weeksUntilMarathon)
+  const marathonProgress = Math.min((allTimeStats.distance / marathonGoalKm) * 100, 100)
   
   // Current week vs last week comparison
   const currentWeek = weeks[0]
@@ -137,7 +153,7 @@ function StatsSection() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white/40 text-xs uppercase tracking-wider mb-1">Marathon Training</p>
-              <p className="text-white font-bold text-2xl">{Math.round(totalDistance)} km</p>
+              <p className="text-white font-bold text-2xl">{allTimeStats.distance} km</p>
               <p className="text-white/50 text-xs">of {marathonGoalKm} km goal</p>
             </div>
             <ProgressRing progress={marathonProgress} size={70} color="#f97316" />
@@ -191,8 +207,8 @@ function StatsSection() {
           className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
         >
           <p className="text-white/40 text-xs mb-2">Total Runs</p>
-          <p className="text-white font-bold text-xl">{totalRuns}</p>
-          <p className="text-white/40 text-xs mt-1">in {weeks.length} weeks</p>
+          <p className="text-white font-bold text-xl">{allTimeStats.runs}</p>
+          <p className="text-white/40 text-xs mt-1">all time</p>
         </motion.div>
       </div>
       

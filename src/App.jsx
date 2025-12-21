@@ -84,7 +84,7 @@ function HeroCountdown({ targetDate }) {
 }
 
 // Stat Card Component
-function StatCard({ icon, value, label, suffix = '', delay = 0 }) {
+function StatCard({ icon, value, label, suffix = '', delay = 0, isTime = false }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -96,7 +96,11 @@ function StatCard({ icon, value, label, suffix = '', delay = 0 }) {
       <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:border-white/20 transition-all">
         <div className="text-2xl mb-2">{icon}</div>
         <div className="text-xl sm:text-2xl font-black text-white">
-          <CountUp end={value} duration={2} delay={delay} separator="," />
+          {isTime ? (
+            <span>{value}</span>
+          ) : (
+            <CountUp end={value} duration={2} delay={delay} separator="," />
+          )}
           <span className="text-white/60 text-sm ml-1">{suffix}</span>
         </div>
         <div className="text-white/40 text-xs mt-1">{label}</div>
@@ -300,7 +304,7 @@ function App() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <StatCard icon="🏃" value={totalStats.distance} suffix="km" label="Total Distance" delay={0.6} />
+            <StatCard icon="⚡" value="22:57" suffix="" label="Best 5K" delay={0.6} isTime={true} />
             <StatCard icon="⏱️" value={totalStats.hours} suffix="h" label="Run Time" delay={0.7} />
             <StatCard icon="✅" value={totalStats.runs} suffix="" label="Runs Done" delay={0.8} />
           </motion.div>

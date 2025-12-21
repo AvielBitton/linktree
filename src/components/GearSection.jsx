@@ -24,6 +24,14 @@ const gearItems = [
     description: 'Elite carbon racing shoes for marathon performance',
     image: '/images/gear/adidaspro4.jpg',
     link: 'https://www.adidas.com/us/adizero-adios-pro-4-running-shoes/JQ9060.html'
+  },
+  {
+    id: 'stryd',
+    category: 'Power Meter',
+    name: 'Stryd',
+    description: 'Running power meter for precise pace and effort tracking',
+    image: '/images/gear/stryd.png',
+    link: 'https://buy.stryd.com/gl/en/store'
   }
 ]
 
