@@ -313,6 +313,29 @@ function App() {
             <StatCard icon="✅" value={totalStats.runs} suffix="" label="Runs Done" delay={0.8} />
           </motion.div>
 
+          {/* Running Playlist */}
+          <motion.div
+            className="w-full max-w-md mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55 }}
+          >
+            <p className="text-white/40 text-xs uppercase tracking-[0.15em] mb-3 px-1">
+              🎵 Running Playlist
+            </p>
+            <div className="rounded-xl overflow-hidden">
+              <iframe 
+                src="https://open.spotify.com/embed/playlist/7n2NWN00He9JPNcRlVBuNH?utm_source=generator&theme=0" 
+                width="100%" 
+                height="152" 
+                frameBorder="0" 
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                loading="lazy"
+                className="rounded-xl"
+              />
+            </div>
+          </motion.div>
+
           {/* Tab Navigation */}
           <motion.div 
             className="bg-white/5 backdrop-blur-xl rounded-2xl p-1.5 mb-6 border border-white/10"

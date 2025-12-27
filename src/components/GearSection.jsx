@@ -55,33 +55,33 @@ function GearCard({ item, index }) {
       <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden group-hover:border-orange-500/30 transition-all duration-300">
         {/* Image */}
         <div className="relative h-32 overflow-hidden">
-          <img
+        <img 
             src={item.image}
             alt={item.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
           
-          {/* Category Badge */}
+        {/* Category Badge */}
           <div className="absolute top-3 left-3">
             <span className="bg-white/10 backdrop-blur-sm text-white/80 text-[10px] font-medium px-2 py-1 rounded-full">
               {item.category}
             </span>
-          </div>
         </div>
-        
-        {/* Content */}
-        <div className="p-4">
+      </div>
+      
+      {/* Content */}
+      <div className="p-4">
           <h3 className="text-white font-bold text-sm mb-1">
             {item.name}
-          </h3>
+        </h3>
           <p className="text-white/50 text-xs leading-relaxed mb-3">
             {item.description}
-          </p>
-          
+        </p>
+        
           {/* View Product Button */}
           <div className="flex items-center gap-2 text-orange-400 text-xs font-medium group-hover:text-orange-300 transition-colors">
-            <span>View Product</span>
+          <span>View Product</span>
             <motion.svg 
               className="w-3 h-3" 
               viewBox="0 0 24 24" 
@@ -114,10 +114,10 @@ function GearSection() {
       </motion.div>
       
       {/* Gear Cards */}
-      <div className="space-y-3">
+    <div className="space-y-3">
         {gearItems.map((item, index) => (
           <GearCard key={item.id} item={item} index={index} />
-        ))}
+      ))}
       </div>
     </div>
   )
