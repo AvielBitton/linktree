@@ -74,7 +74,7 @@ function HeroCountdown({ targetDate }) {
   )
   
   return (
-    <div className="flex gap-2 sm:gap-4">
+    <div className="flex justify-center gap-2 sm:gap-4">
       <TimeBox value={timeLeft.days} label="Days" />
       <TimeBox value={timeLeft.hours} label="Hours" />
       <TimeBox value={timeLeft.minutes} label="Min" />
@@ -203,13 +203,17 @@ function App() {
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden bg-black">
-      {/* Background Image with Parallax */}
-      <motion.div 
-        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${bgImage})` }}
-        initial={{ scale: 1.1 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 1.5 }}
+      {/* Background Image */}
+      <div 
+        className="fixed inset-0"
+        style={{ 
+          backgroundImage: `url(${bgImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+          filter: 'saturate(0.5) brightness(0.7)'
+        }}
       />
       
       {/* Gradient Overlay */}
