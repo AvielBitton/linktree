@@ -69,7 +69,7 @@ function StatsSection() {
       try {
         const workouts = await loadWorkouts()
         const stats = getAllWeeksStats(workouts)
-        setWeeks(stats.slice(0, 12)) // Last 12 weeks for chart
+        setWeeks(stats.slice(0, 12)) // Last 12 weeks
         
         // Calculate all-time stats
         const completedRuns = workouts.filter(isCompletedRun)
@@ -220,7 +220,7 @@ function StatsSection() {
         className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
       >
         <div className="flex items-center justify-between mb-4">
-          <p className="text-white/60 text-sm font-medium">Weekly Distance</p>
+          <p className="text-white/60 text-sm font-medium">Weekly Distance <span className="text-white/30 font-normal">(last 12)</span></p>
           <div className="flex gap-1 bg-white/5 rounded-lg p-0.5">
             <button
               onClick={() => setSelectedView('distance')}
