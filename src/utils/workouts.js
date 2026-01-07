@@ -126,17 +126,30 @@ export function formatDuration(hours) {
   return `${Math.round(hours * 10) / 10}h`
 }
 
-// Load all workouts from CSV
+// Load workouts from a single CSV file
+async function loadCSVFile(filename) {
+  const response = await fetch(`./data/${filename}`)
+  if (!response.ok) {
+    console.warn(`Failed to load ${filename}`)
+    return []
+  }
+  const csvText = await response.text()
+  return parseCSV(csvText)
+}
+
+// Load all workouts from both year files (2025 + 2026)
 export async function loadWorkouts() {
   try {
-    const response = await fetch('./data/workouts.csv')
-    if (!response.ok) {
-      throw new Error('Failed to load workouts.csv')
-    }
-    const csvText = await response.text()
-    const workouts = parseCSV(csvText)
+    // Load both years in parallel
+    const [workouts2025, workouts2026] = await Promise.all([
+      loadCSVFile('2025.csv'),
+      loadCSVFile('2026.csv')
+    ])
     
-    return workouts.map(w => ({
+    // Merge all workouts
+    const allWorkouts = [...workouts2025, ...workouts2026]
+    
+    return allWorkouts.map(w => ({
       ...w,
       date: w.WorkoutDay ? new Date(w.WorkoutDay) : null
     })).filter(w => w.date && !isNaN(w.date.getTime()))
