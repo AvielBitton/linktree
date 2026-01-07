@@ -79,14 +79,15 @@ export function isPlannedRun(workout) {
   return distance === 0 && duration === 0
 }
 
-// Get year and week number from a date (Hebrew week: Sunday-Saturday)
+// Get year and week number from a date (ISO week: Monday-Sunday)
 export function getISOYearWeek(date) {
   const d = new Date(date)
   d.setHours(0, 0, 0, 0)
   
-  // Hebrew week: Sunday (0) to Saturday (6)
-  // Find Wednesday of this week (middle day) to determine week number
-  d.setDate(d.getDate() + 3 - d.getDay())
+  // ISO week: Monday (1) to Sunday (7)
+  // Find Thursday of this week to determine which year/week it belongs to
+  const dayOfWeek = d.getDay() || 7 // Convert Sunday from 0 to 7
+  d.setDate(d.getDate() + 4 - dayOfWeek) // Go to Thursday
   
   const yearStart = new Date(d.getFullYear(), 0, 1)
   const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7)
