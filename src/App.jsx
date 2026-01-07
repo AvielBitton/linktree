@@ -203,15 +203,12 @@ function App() {
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden bg-black">
-      {/* Background Image */}
+      {/* Background Image - Absolutely fixed, no resize */}
       <div 
-        className="fixed inset-0"
-        style={{ 
-          backgroundImage: `url(${bgImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center center',
-          backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
+        className="fixed inset-0 overflow-hidden"
+        style={{
+          background: `url(${bgImage}) no-repeat center center`,
+          backgroundSize: '120vmax 120vmax',
           filter: 'saturate(0.5) brightness(0.7)'
         }}
       />
