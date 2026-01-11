@@ -28,10 +28,26 @@ function getUpcomingRunWorkouts(workouts) {
     .sort((a, b) => a.date - b.date)
 }
 
+// Average pace constant: 6:10 min/km
+const AVG_PACE_MIN_PER_KM = 6 + 10/60
+
 function formatDistance(meters) {
   if (!meters) return null
   const km = meters / 1000
   return km >= 1 ? `${km.toFixed(1)} km` : `${Math.round(meters)} m`
+}
+
+// Round down to nearest 0.5
+function roundDownToHalf(num) {
+  return Math.floor(num * 2) / 2
+}
+
+// Estimate distance from duration using average pace
+function estimateDistance(durationHours) {
+  if (!durationHours || durationHours <= 0) return null
+  const durationMinutes = durationHours * 60
+  const kmRaw = durationMinutes / AVG_PACE_MIN_PER_KM
+  return roundDownToHalf(kmRaw)
 }
 
 function WorkoutCard({ workout, index }) {
@@ -103,18 +119,23 @@ function WorkoutCard({ workout, index }) {
             </h3>
           </div>
           
-          {/* Duration & Distance */}
+          {/* Distance & Duration */}
           <div className="flex items-center gap-3 mt-2">
+            {distance > 0 ? (
+              <div className="flex items-center gap-1">
+                <span className="text-gray-400 text-xs">📏</span>
+                <span className="text-white/80 text-xs font-bold">{formatDistance(distance)}</span>
+              </div>
+            ) : duration > 0 && (
+              <div className="flex items-center gap-1">
+                <span className="text-gray-400 text-xs">📏</span>
+                <span className="text-white/60 text-xs font-bold">~{estimateDistance(duration)} km</span>
+              </div>
+            )}
             {duration > 0 && (
               <div className="flex items-center gap-1">
                 <span className="text-gray-400 text-xs">⏱</span>
-                <span className="text-white/80 text-xs font-medium">{formatDuration(duration)}</span>
-              </div>
-            )}
-            {distance > 0 && (
-              <div className="flex items-center gap-1">
-                <span className="text-gray-400 text-xs">📏</span>
-                <span className="text-white/80 text-xs font-medium">{formatDistance(distance)}</span>
+                <span className="text-white/80 text-xs font-bold">{formatDuration(duration)}</span>
               </div>
             )}
           </div>
