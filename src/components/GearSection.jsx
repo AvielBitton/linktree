@@ -49,10 +49,10 @@ function GearCard({ item, index }) {
       className="block relative group"
     >
       {/* Glow Effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-pink-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
       {/* Card */}
-      <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden group-hover:border-orange-500/30 transition-all duration-300">
+      <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden group-hover:border-violet-500/30 transition-all duration-300">
         {/* Image */}
         <div className="relative h-32 overflow-hidden">
         <img 
@@ -80,7 +80,7 @@ function GearCard({ item, index }) {
         </p>
         
           {/* View Product Button */}
-          <div className="flex items-center gap-2 text-orange-400 text-xs font-medium group-hover:text-orange-300 transition-colors">
+          <div className="flex items-center gap-2 text-violet-400 text-xs font-medium group-hover:text-violet-300 transition-colors">
           <span>View Product</span>
             <motion.svg 
               className="w-3 h-3" 

@@ -8,7 +8,6 @@ import PlanSection from './components/PlanSection'
 import GearSection from './components/GearSection'
 import Footer from './components/Footer'
 import { loadWorkouts, isCompletedRun } from './utils/workouts'
-import bgImage from './assets/bg.jpg'
 
 // Parse race date
 function parseDate(dateStr) {
@@ -62,7 +61,7 @@ function HeroCountdown({ targetDate }) {
       transition={{ type: "spring", stiffness: 400 }}
     >
       <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-pink-500 rounded-xl blur-lg opacity-50" />
+        <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-xl blur-lg opacity-50" />
         <div className="relative bg-black/60 backdrop-blur-xl rounded-xl px-3 py-2 sm:px-4 sm:py-3 border border-white/10">
           <span className="text-2xl sm:text-4xl md:text-5xl font-black text-white tabular-nums">
             {String(value).padStart(2, '0')}
@@ -92,7 +91,7 @@ function StatCard({ icon, value, label, suffix = '', delay = 0, isTime = false }
       transition={{ delay, duration: 0.5 }}
       className="relative group"
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-pink-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:border-white/20 transition-all">
         <div className="text-2xl mb-2">{icon}</div>
         <div className="text-xl sm:text-2xl font-black text-white">
@@ -123,7 +122,7 @@ function TabButton({ id, label, icon, isActive, onClick }) {
       {isActive && (
         <motion.div
           layoutId="activeTab"
-          className="absolute inset-0 bg-gradient-to-r from-orange-500 to-pink-500 rounded-xl"
+          className="absolute inset-0 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-xl"
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />
       )}
@@ -141,7 +140,6 @@ function App() {
     return ['stats', 'races', 'plan', 'gear'].includes(hash) ? hash : 'stats'
   })
   const [totalStats, setTotalStats] = useState({ distance: 0, hours: 0, runs: 0 })
-  const [stealthMode, setStealthMode] = useState(false)
   
   // Load total stats
   useEffect(() => {
@@ -204,25 +202,16 @@ function App() {
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden bg-black">
-      {/* Background Image - Absolutely fixed, no resize */}
-      <div 
-        className="fixed inset-0 overflow-hidden transition-all duration-500"
-        style={{
-          background: stealthMode 
-            ? '#000' 
-            : `url(${bgImage}) no-repeat center center`,
-          backgroundSize: '120vmax 120vmax',
-          filter: stealthMode ? 'none' : 'saturate(0.5) brightness(0.7)'
-        }}
-      />
+      {/* Background - Pure Black */}
+      <div className="fixed inset-0 bg-black" />
       
       {/* Gradient Overlay */}
       <div className="fixed inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black" />
       
       {/* Animated Gradient Orbs */}
-      <div className={`fixed inset-0 overflow-hidden pointer-events-none transition-opacity duration-500 ${stealthMode ? 'opacity-0' : ''}`}>
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute -top-40 -right-40 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl"
+          className="absolute -top-40 -right-40 w-80 h-80 bg-violet-500/20 rounded-full blur-3xl"
           animate={{ 
             x: [0, 50, 0],
             y: [0, 30, 0],
@@ -231,7 +220,7 @@ function App() {
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500/20 rounded-full blur-3xl"
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-fuchsia-500/20 rounded-full blur-3xl"
           animate={{ 
             x: [0, -30, 0],
             y: [0, -50, 0],
@@ -256,7 +245,7 @@ function App() {
             <motion.h1 
               className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight mb-3"
               style={{
-                background: 'linear-gradient(135deg, #fff 0%, #ff6b35 50%, #f72585 100%)',
+                background: 'linear-gradient(135deg, #fff 0%, #8b5cf6 50%, #ec4899 100%)',
                 backgroundSize: '200% 200%',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -270,7 +259,7 @@ function App() {
               Aviel Bitton
             </motion.h1>
             <p className="text-white/60 text-sm sm:text-base font-medium">
-              Live boldly as a <span className="text-orange-400 font-bold">FREE SPIRIT</span>
+              Live boldly as a <span className="text-violet-400 font-bold">FREE SPIRIT</span>
             </p>
           </motion.div>
 
@@ -381,7 +370,7 @@ function App() {
           </motion.div>
         </main>
 
-        <Footer onToggleStealth={() => setStealthMode(!stealthMode)} />
+        <Footer />
       </div>
     </div>
   )

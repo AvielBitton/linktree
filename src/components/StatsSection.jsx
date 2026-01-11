@@ -4,7 +4,7 @@ import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, BarChart, 
 import { loadWorkouts, getAllWeeksStats, formatPace, isCompletedRun } from '../utils/workouts'
 
 // Progress Ring Component
-function ProgressRing({ progress, size = 80, strokeWidth = 6, color = '#f97316' }) {
+function ProgressRing({ progress, size = 80, strokeWidth = 6, color = '#8b5cf6' }) {
   const radius = (size - strokeWidth) / 2
   const circumference = radius * 2 * Math.PI
   const offset = circumference - (progress / 100) * circumference
@@ -94,7 +94,7 @@ function StatsSection() {
     return (
       <div className="flex items-center justify-center py-12">
         <motion.div 
-          className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full"
+          className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full"
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         />
@@ -148,7 +148,7 @@ function StatsSection() {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="col-span-2 bg-gradient-to-br from-orange-500/10 to-pink-500/10 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+          className="col-span-2 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
         >
           <div className="flex items-center justify-between">
             <div>
@@ -156,7 +156,7 @@ function StatsSection() {
               <p className="text-white font-bold text-2xl">{allTimeStats.distance} km</p>
               <p className="text-white/50 text-xs">of {marathonGoalKm} km goal</p>
             </div>
-            <ProgressRing progress={marathonProgress} size={70} color="#f97316" />
+            <ProgressRing progress={marathonProgress} size={70} color="#8b5cf6" />
           </div>
         </motion.div>
         
@@ -226,7 +226,7 @@ function StatsSection() {
               onClick={() => setSelectedView('distance')}
               className={`px-2 py-1 text-xs rounded-md transition-all ${
                 selectedView === 'distance' 
-                  ? 'bg-orange-500 text-white' 
+                  ? 'bg-violet-500 text-white' 
                   : 'text-white/40 hover:text-white/60'
               }`}
             >
@@ -236,7 +236,7 @@ function StatsSection() {
               onClick={() => setSelectedView('runs')}
               className={`px-2 py-1 text-xs rounded-md transition-all ${
                 selectedView === 'runs' 
-                  ? 'bg-orange-500 text-white' 
+                  ? 'bg-violet-500 text-white' 
                   : 'text-white/40 hover:text-white/60'
               }`}
             >
@@ -251,8 +251,8 @@ function StatsSection() {
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="distanceGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#f97316" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="#f97316" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis 
@@ -271,7 +271,7 @@ function StatsSection() {
                 <Area
                   type="monotone"
                   dataKey="distance"
-                  stroke="#f97316"
+                  stroke="#8b5cf6"
                   strokeWidth={2}
                   fill="url(#distanceGradient)"
                 />
@@ -300,7 +300,7 @@ function StatsSection() {
                 />
                 <Bar 
                   dataKey="runs" 
-                  fill="#f97316" 
+                  fill="#8b5cf6" 
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>

@@ -58,7 +58,7 @@ function WorkoutCard({ workout, index }) {
       {/* Glow Effect for Today */}
       {isToday && (
         <motion.div 
-          className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-pink-500/20 rounded-2xl blur-xl"
+          className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 rounded-2xl blur-xl"
           animate={{ opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 2, repeat: Infinity }}
         />
@@ -66,7 +66,7 @@ function WorkoutCard({ workout, index }) {
       
       <div className={`relative overflow-hidden rounded-2xl border transition-all duration-300 ${
         isToday 
-          ? 'bg-gradient-to-br from-orange-500/10 to-pink-500/10 border-orange-500/30' 
+          ? 'bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 border-violet-500/30' 
           : 'bg-white/5 border-white/10 hover:border-white/20'
       }`}>
         <div className="p-4">
@@ -77,7 +77,7 @@ function WorkoutCard({ workout, index }) {
                 {formatWorkoutDate(workout.date)}
               </span>
               {isToday && (
-                <span className="bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">
+                <span className="bg-violet-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">
                   TODAY
                 </span>
               )}
@@ -175,7 +175,7 @@ function PlanSection() {
     return (
       <div className="flex items-center justify-center py-12">
         <motion.div 
-          className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full"
+          className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full"
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         />
@@ -206,7 +206,7 @@ function PlanSection() {
         className="flex items-center justify-between px-1"
       >
         <h2 className="text-white/60 text-xs uppercase tracking-wider">Next 7 Days</h2>
-        <span className="bg-orange-500/20 text-orange-400 text-xs font-medium px-2 py-1 rounded-full">
+        <span className="bg-violet-500/20 text-violet-400 text-xs font-medium px-2 py-1 rounded-full">
           {upcomingWorkouts.length} workouts
         </span>
       </motion.div>

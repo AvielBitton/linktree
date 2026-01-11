@@ -73,7 +73,7 @@ function RacesSection() {
           <h2 className="text-white/60 text-xs uppercase tracking-wider">Race Calendar</h2>
         </div>
         <div className="flex items-center gap-2">
-          <span className="bg-orange-500/20 text-orange-400 text-xs font-medium px-2 py-1 rounded-full">
+          <span className="bg-violet-500/20 text-violet-400 text-xs font-medium px-2 py-1 rounded-full">
             {upcomingCount} upcoming
           </span>
         </div>

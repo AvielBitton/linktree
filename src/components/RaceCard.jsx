@@ -65,21 +65,21 @@ function RaceCard({ name, distance, date, url, index = 0 }) {
       <div className={`absolute inset-0 rounded-2xl blur-xl transition-opacity duration-500 opacity-0 group-hover:opacity-100 ${
         isPast 
           ? 'bg-green-500/20' 
-          : 'bg-gradient-to-r from-orange-500/30 to-pink-500/30'
+          : 'bg-gradient-to-r from-violet-500/30 to-fuchsia-500/30'
       }`} />
       
       {/* Card */}
       <div className={`relative overflow-hidden rounded-2xl border transition-all duration-300 ${
         isPast 
           ? 'bg-white/5 border-green-500/20' 
-          : 'bg-gradient-to-br from-white/10 to-white/5 border-white/10 group-hover:border-orange-500/30'
+          : 'bg-gradient-to-br from-white/10 to-white/5 border-white/10 group-hover:border-violet-500/30'
       }`}>
         
         {/* Progress Bar Background */}
         {!isPast && (
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/5">
             <motion.div
-              className="h-full bg-gradient-to-r from-orange-500 to-pink-500"
+              className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500"
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 1, ease: "easeOut" }}
@@ -116,15 +116,15 @@ function RaceCard({ name, distance, date, url, index = 0 }) {
                 {!isPast ? (
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1 bg-white/5 rounded-lg px-2 py-1">
-                      <span className="text-orange-400 font-bold text-xs">{timeLeft.days}</span>
+                      <span className="text-violet-400 font-bold text-xs">{timeLeft.days}</span>
                       <span className="text-white/30 text-[10px]">d</span>
                     </div>
                     <div className="flex items-center gap-1 bg-white/5 rounded-lg px-2 py-1">
-                      <span className="text-orange-400 font-bold text-xs">{timeLeft.hours}</span>
+                      <span className="text-violet-400 font-bold text-xs">{timeLeft.hours}</span>
                       <span className="text-white/30 text-[10px]">h</span>
                     </div>
                     <div className="flex items-center gap-1 bg-white/5 rounded-lg px-2 py-1">
-                      <span className="text-orange-400 font-bold text-xs">{timeLeft.minutes}</span>
+                      <span className="text-violet-400 font-bold text-xs">{timeLeft.minutes}</span>
                       <span className="text-white/30 text-[10px]">m</span>
                     </div>
                   </div>
@@ -135,7 +135,7 @@ function RaceCard({ name, distance, date, url, index = 0 }) {
             </div>
             
             {/* External Link Icon */}
-            <div className="text-white/20 group-hover:text-orange-400 transition-colors ml-3">
+            <div className="text-white/20 group-hover:text-violet-400 transition-colors ml-3">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                 <polyline points="15 3 21 3 21 9" />
