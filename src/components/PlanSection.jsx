@@ -169,14 +169,14 @@ function WorkoutCard({ workout, index }) {
   )
 }
 
-function PlanSection() {
+function PlanSection({ traineeId = null }) {
   const [upcomingWorkouts, setUpcomingWorkouts] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const workouts = await loadWorkouts()
+        const workouts = await loadWorkouts(traineeId)
         const upcoming = getUpcomingRunWorkouts(workouts)
         setUpcomingWorkouts(upcoming)
       } catch (err) {
@@ -186,7 +186,7 @@ function PlanSection() {
       }
     }
     fetchData()
-  }, [])
+  }, [traineeId])
 
   if (loading) {
     return (

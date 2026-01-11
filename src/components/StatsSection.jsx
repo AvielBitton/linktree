@@ -58,7 +58,7 @@ function CustomTooltip({ active, payload, label }) {
   return null
 }
 
-function StatsSection() {
+function StatsSection({ traineeId = null }) {
   const [weeks, setWeeks] = useState([])
   const [allTimeStats, setAllTimeStats] = useState({ distance: 0, runs: 0 })
   const [loading, setLoading] = useState(true)
@@ -67,7 +67,7 @@ function StatsSection() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const workouts = await loadWorkouts()
+        const workouts = await loadWorkouts(traineeId)
         const stats = getAllWeeksStats(workouts)
         setWeeks(stats.slice(0, 12)) // Last 12 weeks
         
@@ -88,7 +88,7 @@ function StatsSection() {
       }
     }
     fetchData()
-  }, [])
+  }, [traineeId])
 
   if (loading) {
     return (

@@ -128,8 +128,9 @@ export function formatDuration(hours) {
 }
 
 // Load workouts from a single CSV file
-async function loadCSVFile(filename) {
-  const response = await fetch(`./data/${filename}`)
+async function loadCSVFile(filename, traineeId = null) {
+  const basePath = traineeId ? `./data/${traineeId}` : './data'
+  const response = await fetch(`${basePath}/${filename}`)
   if (!response.ok) {
     console.warn(`Failed to load ${filename}`)
     return []
@@ -139,12 +140,13 @@ async function loadCSVFile(filename) {
 }
 
 // Load all workouts from both year files (2025 + 2026)
-export async function loadWorkouts() {
+// traineeId: optional string to load trainee-specific data (e.g., 'asaf')
+export async function loadWorkouts(traineeId = null) {
   try {
     // Load both years in parallel
     const [workouts2025, workouts2026] = await Promise.all([
-      loadCSVFile('2025.csv'),
-      loadCSVFile('2026.csv')
+      loadCSVFile('2025.csv', traineeId),
+      loadCSVFile('2026.csv', traineeId)
     ])
     
     // Merge all workouts

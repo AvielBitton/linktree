@@ -368,6 +368,41 @@ function App() {
               </motion.div>
             </AnimatePresence>
           </motion.div>
+
+          {/* My Team Section */}
+          <motion.div
+            className="w-full max-w-md mt-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.9 }}
+          >
+            <div className="text-center mb-4">
+              <p className="text-white/30 text-xs uppercase tracking-[0.2em]">My Team</p>
+            </div>
+            <a
+              href="/asaf"
+              className="block"
+            >
+              <motion.div 
+                className="bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:border-violet-500/30 transition-all group"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-full flex items-center justify-center text-xl">
+                    🦁
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-white font-bold">Asaf Berman</p>
+                    <p className="text-white/50 text-xs">🩺 Doctor by day. 🦁 Lion by miles.</p>
+                  </div>
+                  <svg className="w-5 h-5 text-white/30 group-hover:text-violet-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </div>
+              </motion.div>
+            </a>
+          </motion.div>
         </main>
 
         <Footer />
