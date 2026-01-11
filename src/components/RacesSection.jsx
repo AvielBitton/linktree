@@ -15,30 +15,33 @@ function parseDate(dateStr) {
   return new Date(year, month, day)
 }
 
-function RacesSection() {
-  const races = [
-    {
-      id: 'dead-sea-marathon',
-      name: 'Dead Sea Marathon',
-      distance: '21 km (Half-Marathon)',
-      date: '7 February 2026',
-      url: 'https://deadsea.run/en/',
-    },
-    {
-      id: 'tel-aviv-marathon',
-      name: 'Tel Aviv Marathon',
-      distance: 'Marathon (42.2 km)',
-      date: '28 February 2026',
-      url: 'https://www.tlvmarathon.co.il/',
-    },
-    {
-      id: 'hever-race',
-      name: 'Hever race',
-      distance: '5 km',
-      date: '5 December 2025',
-      url: 'https://www.runh.co.il/MenuDefault.aspx?Id=9172',
-    },
-  ]
+const allRaces = [
+  {
+    id: 'dead-sea-marathon',
+    name: 'Dead Sea Marathon',
+    distance: '21 km (Half-Marathon)',
+    date: '7 February 2026',
+    url: 'https://deadsea.run/en/',
+  },
+  {
+    id: 'tel-aviv-marathon',
+    name: 'Tel Aviv Marathon',
+    distance: 'Marathon (42.2 km)',
+    date: '28 February 2026',
+    url: 'https://www.tlvmarathon.co.il/',
+  },
+  {
+    id: 'hever-race',
+    name: 'Hever race',
+    distance: '5 km',
+    date: '5 December 2025',
+    url: 'https://www.runh.co.il/MenuDefault.aspx?Id=9172',
+  },
+]
+
+function RacesSection({ excludeRaces = [], themeColor = 'violet' }) {
+  // Filter out excluded races
+  const races = allRaces.filter(r => !excludeRaces.includes(r.id))
 
   // Sort races: upcoming first (by nearest date), then past (by most recent)
   const sortedRaces = useMemo(() => {
@@ -54,12 +57,12 @@ function RacesSection() {
     past.sort((a, b) => parseDate(b.date) - parseDate(a.date))
     
     return [...upcoming, ...past]
-  }, [])
+  }, [races])
 
   const upcomingCount = useMemo(() => {
     const now = new Date()
     return races.filter(r => parseDate(r.date) >= now).length
-  }, [])
+  }, [races])
 
   return (
     <div className="space-y-4">
@@ -73,7 +76,11 @@ function RacesSection() {
           <h2 className="text-white/60 text-xs uppercase tracking-wider">Race Calendar</h2>
         </div>
         <div className="flex items-center gap-2">
-          <span className="bg-violet-500/20 text-violet-400 text-xs font-medium px-2 py-1 rounded-full">
+          <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+            themeColor === 'emerald' 
+              ? 'bg-emerald-500/20 text-emerald-400' 
+              : 'bg-violet-500/20 text-violet-400'
+          }`}>
             {upcomingCount} upcoming
           </span>
         </div>
@@ -89,6 +96,7 @@ function RacesSection() {
             date={race.date}
             url={race.url}
             index={index}
+            themeColor={themeColor}
           />
         ))}
       </div>

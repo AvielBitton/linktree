@@ -50,7 +50,7 @@ function estimateDistance(durationHours) {
   return roundDownToHalf(kmRaw)
 }
 
-function WorkoutCard({ workout, index }) {
+function WorkoutCard({ workout, index, themeColor = 'violet' }) {
   const [expanded, setExpanded] = useState(false)
   const title = workout.Title || 'Run'
   const duration = parseFloat(workout.PlannedDuration) || parseFloat(workout.TimeTotalInHours) || 0
@@ -74,7 +74,11 @@ function WorkoutCard({ workout, index }) {
       {/* Glow Effect for Today */}
       {isToday && (
         <motion.div 
-          className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 rounded-2xl blur-xl"
+          className={`absolute inset-0 rounded-2xl blur-xl ${
+            themeColor === 'emerald' 
+              ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20' 
+              : 'bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20'
+          }`}
           animate={{ opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 2, repeat: Infinity }}
         />
@@ -82,7 +86,9 @@ function WorkoutCard({ workout, index }) {
       
       <div className={`relative overflow-hidden rounded-2xl border transition-all duration-300 ${
         isToday 
-          ? 'bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 border-violet-500/30' 
+          ? themeColor === 'emerald'
+            ? 'bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/30'
+            : 'bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 border-violet-500/30' 
           : 'bg-white/5 border-white/10 hover:border-white/20'
       }`}>
         <div className="p-4">
@@ -107,7 +113,9 @@ function WorkoutCard({ workout, index }) {
                   {formatWorkoutDate(workout.date)}
                 </span>
                 {isToday && (
-                  <span className="bg-violet-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">
+                  <span className={`text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse ${
+                    themeColor === 'emerald' ? 'bg-emerald-500' : 'bg-violet-500'
+                  }`}>
                     TODAY
                   </span>
                 )}
@@ -169,7 +177,7 @@ function WorkoutCard({ workout, index }) {
   )
 }
 
-function PlanSection({ traineeId = null }) {
+function PlanSection({ traineeId = null, themeColor = 'violet' }) {
   const [upcomingWorkouts, setUpcomingWorkouts] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -192,7 +200,9 @@ function PlanSection({ traineeId = null }) {
     return (
       <div className="flex items-center justify-center py-12">
         <motion.div 
-          className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full"
+          className={`w-8 h-8 border-2 border-t-transparent rounded-full ${
+            themeColor === 'emerald' ? 'border-emerald-500' : 'border-violet-500'
+          }`}
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         />
@@ -223,7 +233,11 @@ function PlanSection({ traineeId = null }) {
         className="flex items-center justify-between px-1"
       >
         <h2 className="text-white/60 text-xs uppercase tracking-wider">Next 7 Days</h2>
-        <span className="bg-violet-500/20 text-violet-400 text-xs font-medium px-2 py-1 rounded-full">
+        <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+          themeColor === 'emerald' 
+            ? 'bg-emerald-500/20 text-emerald-400' 
+            : 'bg-violet-500/20 text-violet-400'
+        }`}>
           {upcomingWorkouts.length} workouts
         </span>
       </motion.div>
@@ -231,7 +245,7 @@ function PlanSection({ traineeId = null }) {
       {/* Workout Cards */}
       <div className="space-y-3">
         {upcomingWorkouts.map((workout, index) => (
-          <WorkoutCard key={`${workout.WorkoutDay}-${index}`} workout={workout} index={index} />
+          <WorkoutCard key={`${workout.WorkoutDay}-${index}`} workout={workout} index={index} themeColor={themeColor} />
         ))}
       </div>
     </div>

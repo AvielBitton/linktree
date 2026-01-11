@@ -3,8 +3,74 @@ import { motion, AnimatePresence } from 'framer-motion'
 import CountUp from 'react-countup'
 import StatsSection from './components/StatsSection'
 import PlanSection from './components/PlanSection'
+import RacesSection from './components/RacesSection'
 import Footer from './components/Footer'
 import { loadWorkouts, isCompletedRun } from './utils/workouts'
+
+// Parse race date
+function parseDate(dateStr) {
+  const months = {
+    'January': 0, 'February': 1, 'March': 2, 'April': 3,
+    'May': 4, 'June': 5, 'July': 6, 'August': 7,
+    'September': 8, 'October': 9, 'November': 10, 'December': 11
+  }
+  const parts = dateStr.split(' ')
+  const day = parseInt(parts[0])
+  const month = months[parts[1]]
+  const year = parseInt(parts[2])
+  return new Date(year, month, day)
+}
+
+// Hero Countdown Component
+function HeroCountdown({ targetDate, gradientClass = 'from-violet-500 to-fuchsia-500' }) {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+  
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date()
+      const target = parseDate(targetDate)
+      const diff = target - now
+      
+      if (diff > 0) {
+        setTimeLeft({
+          days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((diff % (1000 * 60)) / 1000)
+        })
+      }
+    }, 1000)
+    
+    return () => clearInterval(timer)
+  }, [targetDate])
+  
+  const TimeBox = ({ value, label }) => (
+    <motion.div 
+      className="flex flex-col items-center"
+      whileHover={{ scale: 1.1 }}
+      transition={{ type: "spring", stiffness: 400 }}
+    >
+      <div className="relative">
+        <div className={`absolute inset-0 bg-gradient-to-r ${gradientClass} rounded-xl blur-lg opacity-50`} />
+        <div className="relative bg-black/60 backdrop-blur-xl rounded-xl px-3 py-2 sm:px-4 sm:py-3 border border-white/10">
+          <span className="text-2xl sm:text-4xl md:text-5xl font-black text-white tabular-nums">
+            {String(value).padStart(2, '0')}
+          </span>
+        </div>
+      </div>
+      <span className="text-[10px] sm:text-xs text-white/50 mt-2 uppercase tracking-widest">{label}</span>
+    </motion.div>
+  )
+  
+  return (
+    <div className="flex justify-center gap-2 sm:gap-4">
+      <TimeBox value={timeLeft.days} label="Days" />
+      <TimeBox value={timeLeft.hours} label="Hours" />
+      <TimeBox value={timeLeft.minutes} label="Min" />
+      <TimeBox value={timeLeft.seconds} label="Sec" />
+    </div>
+  )
+}
 
 // Stat Card Component
 function StatCard({ icon, value, label, suffix = '', delay = 0, isTime = false, gradientClass = 'from-violet-500/20 to-fuchsia-500/20' }) {
@@ -62,8 +128,14 @@ function TabButton({ id, label, icon, isActive, onClick, gradientClass = 'from-v
 const traineeProfiles = {
   asaf: {
     name: 'Asaf Berman',
-    tagline: '🩺 Doctor by day. 🦁 Lion by miles.',
+    tagline: <span>🩺 <strong>Doctor</strong> by day. 🦁 <strong>Lion</strong> by miles.</span>,
     best5K: '23:57',
+    nextRace: {
+      name: 'Tel Aviv Marathon',
+      date: '28 February 2026',
+      distance: 42.2,
+      goal: '3:45:00'
+    },
     colors: {
       primary: 'emerald',
       secondary: 'teal',
@@ -73,7 +145,8 @@ const traineeProfiles = {
       orbColor1: 'bg-emerald-500/20',
       orbColor2: 'bg-teal-500/20',
       accent: 'emerald-400',
-      accentHover: 'emerald-500/30'
+      accentHover: 'emerald-500/30',
+      hex: '#10b981'
     }
   }
 }
@@ -121,12 +194,14 @@ function TraineeApp({ traineeId }) {
 
   const tabs = [
     { id: 'stats', label: 'Stats', icon: '📊' },
+    { id: 'races', label: 'Races', icon: '🏁' },
     { id: 'plan', label: 'Plan', icon: '📋' }
   ]
   
   const tabContent = {
-    plan: <PlanSection traineeId={traineeId} />,
-    stats: <StatsSection traineeId={traineeId} />
+    plan: <PlanSection traineeId={traineeId} themeColor={colors.primary} />,
+    stats: <StatsSection traineeId={traineeId} />,
+    races: <RacesSection excludeRaces={['hever-race']} themeColor={colors.primary} />
   }
 
   return (
@@ -192,6 +267,25 @@ function TraineeApp({ traineeId }) {
               {profile.tagline}
             </p>
           </motion.div>
+
+          {/* Next Race Countdown */}
+          {profile.nextRace && (
+            <motion.div
+              className="mb-8 text-center"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.15, duration: 0.5 }}
+            >
+              <p className="text-white/40 text-xs uppercase tracking-[0.2em] mb-3">
+                Countdown to {profile.nextRace.name}
+              </p>
+              <HeroCountdown targetDate={profile.nextRace.date} gradientClass={colors.gradient} />
+              <div className="mt-3 flex items-center justify-center gap-4">
+                <span className="text-white/30 text-xs">🎯 Goal: {profile.nextRace.goal}</span>
+                <span className="text-white/30 text-xs">📏 {profile.nextRace.distance} km</span>
+              </div>
+            </motion.div>
+          )}
 
           {/* Quick Stats Row */}
           <motion.div 
