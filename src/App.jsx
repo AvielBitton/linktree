@@ -141,6 +141,7 @@ function App() {
     return ['stats', 'races', 'plan', 'gear'].includes(hash) ? hash : 'stats'
   })
   const [totalStats, setTotalStats] = useState({ distance: 0, hours: 0, runs: 0 })
+  const [stealthMode, setStealthMode] = useState(false)
   
   // Load total stats
   useEffect(() => {
@@ -205,11 +206,13 @@ function App() {
     <div className="relative min-h-screen w-full overflow-x-hidden bg-black">
       {/* Background Image - Absolutely fixed, no resize */}
       <div 
-        className="fixed inset-0 overflow-hidden"
+        className="fixed inset-0 overflow-hidden transition-all duration-500"
         style={{
-          background: `url(${bgImage}) no-repeat center center`,
+          background: stealthMode 
+            ? '#000' 
+            : `url(${bgImage}) no-repeat center center`,
           backgroundSize: '120vmax 120vmax',
-          filter: 'saturate(0.5) brightness(0.7)'
+          filter: stealthMode ? 'none' : 'saturate(0.5) brightness(0.7)'
         }}
       />
       
@@ -217,7 +220,7 @@ function App() {
       <div className="fixed inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black" />
       
       {/* Animated Gradient Orbs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      <div className={`fixed inset-0 overflow-hidden pointer-events-none transition-opacity duration-500 ${stealthMode ? 'opacity-0' : ''}`}>
         <motion.div
           className="absolute -top-40 -right-40 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl"
           animate={{ 
@@ -378,7 +381,7 @@ function App() {
           </motion.div>
         </main>
 
-        <Footer />
+        <Footer onToggleStealth={() => setStealthMode(!stealthMode)} />
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-function Footer() {
+function Footer({ onToggleStealth }) {
   return (
     <footer className="relative z-10 pb-6 pt-4">
       <div className="flex items-center justify-center gap-2 text-white/50 text-xs">
@@ -12,7 +12,12 @@ function Footer() {
         >
           Report
         </a>
-        <span>·</span>
+        <span 
+          className="cursor-pointer select-none hover:text-white/80 transition-colors px-1"
+          onClick={onToggleStealth}
+        >
+          ·
+        </span>
         <a 
           href="#" 
           className="hover:text-white/80 transition-colors"
