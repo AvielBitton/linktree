@@ -7,7 +7,7 @@ import Footer from './components/Footer'
 import { loadWorkouts, isCompletedRun } from './utils/workouts'
 
 // Stat Card Component
-function StatCard({ icon, value, label, suffix = '', delay = 0, isTime = false }) {
+function StatCard({ icon, value, label, suffix = '', delay = 0, isTime = false, gradientClass = 'from-violet-500/20 to-fuchsia-500/20' }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -15,7 +15,7 @@ function StatCard({ icon, value, label, suffix = '', delay = 0, isTime = false }
       transition={{ delay, duration: 0.5 }}
       className="relative group"
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className={`absolute inset-0 bg-gradient-to-r ${gradientClass} rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
       <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:border-white/20 transition-all">
         <div className="text-2xl mb-2">{icon}</div>
         <div className="text-xl sm:text-2xl font-black text-white">
@@ -33,7 +33,7 @@ function StatCard({ icon, value, label, suffix = '', delay = 0, isTime = false }
 }
 
 // Tab Button Component
-function TabButton({ id, label, icon, isActive, onClick }) {
+function TabButton({ id, label, icon, isActive, onClick, gradientClass = 'from-violet-500 to-fuchsia-500' }) {
   return (
     <motion.button
       onClick={onClick}
@@ -46,7 +46,7 @@ function TabButton({ id, label, icon, isActive, onClick }) {
       {isActive && (
         <motion.div
           layoutId="activeTabTrainee"
-          className="absolute inset-0 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-xl"
+          className={`absolute inset-0 bg-gradient-to-r ${gradientClass} rounded-xl`}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />
       )}
@@ -63,8 +63,32 @@ const traineeProfiles = {
   asaf: {
     name: 'Asaf Berman',
     tagline: '🩺 Doctor by day. 🦁 Lion by miles.',
-    best5K: '23:57'
+    best5K: '23:57',
+    colors: {
+      primary: 'emerald',
+      secondary: 'teal',
+      gradient: 'from-emerald-500 to-teal-500',
+      gradientLight: 'from-emerald-500/20 to-teal-500/20',
+      gradientLighter: 'from-emerald-500/10 to-teal-500/10',
+      orbColor1: 'bg-emerald-500/20',
+      orbColor2: 'bg-teal-500/20',
+      accent: 'emerald-400',
+      accentHover: 'emerald-500/30'
+    }
   }
+}
+
+// Default colors (violet/fuchsia)
+const defaultColors = {
+  primary: 'violet',
+  secondary: 'fuchsia',
+  gradient: 'from-violet-500 to-fuchsia-500',
+  gradientLight: 'from-violet-500/20 to-fuchsia-500/20',
+  gradientLighter: 'from-violet-500/10 to-fuchsia-500/10',
+  orbColor1: 'bg-violet-500/20',
+  orbColor2: 'bg-fuchsia-500/20',
+  accent: 'violet-400',
+  accentHover: 'violet-500/30'
 }
 
 function TraineeApp({ traineeId }) {
@@ -72,6 +96,7 @@ function TraineeApp({ traineeId }) {
   const [totalStats, setTotalStats] = useState({ hours: 0, runs: 0 })
   
   const profile = traineeProfiles[traineeId] || { name: traineeId, tagline: 'Training to be unstoppable' }
+  const colors = profile.colors || defaultColors
   const displayName = profile.name
 
   // Load total stats
@@ -115,7 +140,7 @@ function TraineeApp({ traineeId }) {
       {/* Animated Gradient Orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute -top-40 -right-40 w-80 h-80 bg-violet-500/20 rounded-full blur-3xl"
+          className={`absolute -top-40 -right-40 w-80 h-80 ${colors.orbColor1} rounded-full blur-3xl`}
           animate={{ 
             x: [0, 50, 0],
             y: [0, 30, 0],
@@ -124,7 +149,7 @@ function TraineeApp({ traineeId }) {
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-fuchsia-500/20 rounded-full blur-3xl"
+          className={`absolute -bottom-40 -left-40 w-80 h-80 ${colors.orbColor2} rounded-full blur-3xl`}
           animate={{ 
             x: [0, -30, 0],
             y: [0, -50, 0],
@@ -148,7 +173,9 @@ function TraineeApp({ traineeId }) {
             <motion.h1 
               className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-3"
               style={{
-                background: 'linear-gradient(135deg, #fff 0%, #8b5cf6 50%, #ec4899 100%)',
+                background: colors.primary === 'emerald' 
+                  ? 'linear-gradient(135deg, #fff 0%, #10b981 50%, #14b8a6 100%)'
+                  : 'linear-gradient(135deg, #fff 0%, #8b5cf6 50%, #ec4899 100%)',
                 backgroundSize: '200% 200%',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -173,9 +200,9 @@ function TraineeApp({ traineeId }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <StatCard icon="⚡" value={profile.best5K || '--'} suffix="" label="Best 5K" delay={0.3} isTime={true} />
-            <StatCard icon="⏱️" value={totalStats.hours} suffix="h" label="Run Time" delay={0.4} />
-            <StatCard icon="✅" value={totalStats.runs} suffix="" label="Runs Done" delay={0.5} />
+            <StatCard icon="⚡" value={profile.best5K || '--'} suffix="" label="Best 5K" delay={0.3} isTime={true} gradientClass={colors.gradientLight} />
+            <StatCard icon="⏱️" value={totalStats.hours} suffix="h" label="Run Time" delay={0.4} gradientClass={colors.gradientLight} />
+            <StatCard icon="✅" value={totalStats.runs} suffix="" label="Runs Done" delay={0.5} gradientClass={colors.gradientLight} />
           </motion.div>
 
           {/* Tab Navigation */}
@@ -192,6 +219,7 @@ function TraineeApp({ traineeId }) {
                   {...tab}
                   isActive={activeTab === tab.id}
                   onClick={() => setActiveTab(tab.id)}
+                  gradientClass={colors.gradient}
                 />
               ))}
             </div>

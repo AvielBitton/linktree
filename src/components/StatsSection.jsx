@@ -58,11 +58,32 @@ function CustomTooltip({ active, payload, label }) {
   return null
 }
 
+// Color themes
+const colorThemes = {
+  default: {
+    primary: '#8b5cf6', // violet
+    secondary: '#ec4899', // fuchsia
+    gradientClass: 'from-violet-500/10 to-fuchsia-500/10',
+    buttonActive: 'bg-violet-500',
+    spinnerBorder: 'border-violet-500'
+  },
+  asaf: {
+    primary: '#10b981', // emerald
+    secondary: '#14b8a6', // teal
+    gradientClass: 'from-emerald-500/10 to-teal-500/10',
+    buttonActive: 'bg-emerald-500',
+    spinnerBorder: 'border-emerald-500'
+  }
+}
+
 function StatsSection({ traineeId = null }) {
   const [weeks, setWeeks] = useState([])
   const [allTimeStats, setAllTimeStats] = useState({ distance: 0, runs: 0 })
   const [loading, setLoading] = useState(true)
   const [selectedView, setSelectedView] = useState('distance')
+  
+  // Get color theme based on traineeId
+  const theme = traineeId && colorThemes[traineeId] ? colorThemes[traineeId] : colorThemes.default
   
   useEffect(() => {
     async function fetchData() {
@@ -94,7 +115,7 @@ function StatsSection({ traineeId = null }) {
     return (
       <div className="flex items-center justify-center py-12">
         <motion.div 
-          className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full"
+          className={`w-8 h-8 border-2 ${theme.spinnerBorder} border-t-transparent rounded-full`}
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         />
@@ -148,7 +169,7 @@ function StatsSection({ traineeId = null }) {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="col-span-2 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+          className={`col-span-2 bg-gradient-to-br ${theme.gradientClass} backdrop-blur-sm rounded-2xl p-4 border border-white/10`}
         >
           <div className="flex items-center justify-between">
             <div>
@@ -156,7 +177,7 @@ function StatsSection({ traineeId = null }) {
               <p className="text-white font-bold text-2xl">{allTimeStats.distance} km</p>
               <p className="text-white/50 text-xs">of {marathonGoalKm} km goal</p>
             </div>
-            <ProgressRing progress={marathonProgress} size={70} color="#8b5cf6" />
+            <ProgressRing progress={marathonProgress} size={70} color={theme.primary} />
           </div>
         </motion.div>
         
@@ -226,7 +247,7 @@ function StatsSection({ traineeId = null }) {
               onClick={() => setSelectedView('distance')}
               className={`px-2 py-1 text-xs rounded-md transition-all ${
                 selectedView === 'distance' 
-                  ? 'bg-violet-500 text-white' 
+                  ? `${theme.buttonActive} text-white` 
                   : 'text-white/40 hover:text-white/60'
               }`}
             >
@@ -236,7 +257,7 @@ function StatsSection({ traineeId = null }) {
               onClick={() => setSelectedView('runs')}
               className={`px-2 py-1 text-xs rounded-md transition-all ${
                 selectedView === 'runs' 
-                  ? 'bg-violet-500 text-white' 
+                  ? `${theme.buttonActive} text-white` 
                   : 'text-white/40 hover:text-white/60'
               }`}
             >
@@ -250,9 +271,9 @@ function StatsSection({ traineeId = null }) {
             {selectedView === 'distance' ? (
               <AreaChart data={chartData}>
                 <defs>
-                  <linearGradient id="distanceGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
+                  <linearGradient id={`distanceGradient-${traineeId || 'default'}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={theme.primary} stopOpacity={0.4} />
+                    <stop offset="100%" stopColor={theme.primary} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis 
@@ -271,9 +292,9 @@ function StatsSection({ traineeId = null }) {
                 <Area
                   type="monotone"
                   dataKey="distance"
-                  stroke="#8b5cf6"
+                  stroke={theme.primary}
                   strokeWidth={2}
-                  fill="url(#distanceGradient)"
+                  fill={`url(#distanceGradient-${traineeId || 'default'})`}
                 />
               </AreaChart>
             ) : (
@@ -300,7 +321,7 @@ function StatsSection({ traineeId = null }) {
                 />
                 <Bar 
                   dataKey="runs" 
-                  fill="#8b5cf6" 
+                  fill={theme.primary} 
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
