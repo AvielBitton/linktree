@@ -86,61 +86,57 @@ function WorkoutCard({ workout, index }) {
           : 'bg-white/5 border-white/10 hover:border-white/20'
       }`}>
         <div className="p-4">
-          {/* Date and Type */}
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <span className="text-white/60 text-xs">
-                {formatWorkoutDate(workout.date)}
-              </span>
-              {isToday && (
-                <span className="bg-violet-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">
-                  TODAY
-                </span>
+          {/* Main Row: Distance + Info */}
+          <div className="flex items-center gap-4">
+            {/* Big Distance - Left Side */}
+            <div className="flex-shrink-0">
+              {distance > 0 ? (
+                <span className="text-white font-black text-2xl">{(distance / 1000).toFixed(1)}<span className="text-white/50 text-sm ml-1">km</span></span>
+              ) : duration > 0 ? (
+                <span className="text-white/80 font-black text-2xl">~{estimateDistance(duration)}<span className="text-white/50 text-sm ml-1">km</span></span>
+              ) : (
+                <span className="text-white/40 font-bold text-xl">--</span>
               )}
             </div>
-            <span className="bg-white/10 text-white/70 text-[10px] font-medium px-2 py-0.5 rounded-full">
-              Run
-            </span>
+            
+            {/* Title, Time & Details */}
+            <div className="flex-1 min-w-0">
+              {/* Date row */}
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-white/40 text-[10px]">
+                  {formatWorkoutDate(workout.date)}
+                </span>
+                {isToday && (
+                  <span className="bg-violet-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">
+                    TODAY
+                  </span>
+                )}
+              </div>
+              
+              {/* Title with expand arrow */}
+              <div className="flex items-center gap-1">
+                {hasDetails && (
+                  <motion.span 
+                    className="text-white/40 text-[10px]"
+                    animate={{ rotate: expanded ? 90 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    ▶
+                  </motion.span>
+                )}
+                <h3 className="text-white font-medium text-sm truncate">
+                  {title}
+                </h3>
+              </div>
+              
+              {/* Duration */}
+              {duration > 0 && (
+                <span className="text-white/50 text-xs">⏱ {formatDuration(duration)}</span>
+              )}
+            </div>
           </div>
           
-          {/* Title with expand arrow */}
-          <div className="flex items-center gap-2">
-            {hasDetails && (
-              <motion.span 
-                className="text-white/40 text-[10px]"
-                animate={{ rotate: expanded ? 90 : 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                ▶
-              </motion.span>
-            )}
-            <h3 className="text-white font-semibold text-[15px]">
-              {title}
-            </h3>
-          </div>
-          
-          {/* Distance & Duration */}
-          <div className="flex items-center gap-3 mt-2">
-            {distance > 0 ? (
-              <div className="flex items-center gap-1">
-                <span className="text-gray-400 text-xs">📏</span>
-                <span className="text-white/80 text-xs font-bold">{formatDistance(distance)}</span>
-              </div>
-            ) : duration > 0 && (
-              <div className="flex items-center gap-1">
-                <span className="text-gray-400 text-xs">📏</span>
-                <span className="text-white/60 text-xs font-bold">~{estimateDistance(duration)} km</span>
-              </div>
-            )}
-            {duration > 0 && (
-              <div className="flex items-center gap-1">
-                <span className="text-gray-400 text-xs">⏱</span>
-                <span className="text-white/80 text-xs font-bold">{formatDuration(duration)}</span>
-              </div>
-            )}
-          </div>
-          
-          {/* Expanded Details */}
+          {/* Expanded Details - Full Width Below */}
           <AnimatePresence>
             {expanded && hasDetails && (
               <motion.div 
