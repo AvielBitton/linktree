@@ -218,13 +218,30 @@ function computeWeekStats(weekWorkouts, weekKey) {
     }
   }
   
+  // Process workouts with additional computed fields
+  const workoutsWithDetails = completedRuns.map(w => {
+    const distance = parseFloat(w.DistanceInMeters) || 0
+    const velocity = parseFloat(w.VelocityAverage) || 0
+    const pace = velocity > 0 ? velocityToPace(velocity) : null
+    
+    return {
+      ...w,
+      distanceKm: Math.round(distance / 100) / 10,
+      pace: pace,
+      paceFormatted: formatPace(pace),
+      hr: parseFloat(w.HeartRateAverage) || null,
+      durationHours: parseFloat(w.TimeTotalInHours) || 0
+    }
+  }).sort((a, b) => new Date(b.WorkoutDay) - new Date(a.WorkoutDay))
+  
   return {
     weekKey,
     distanceKm: Math.round(totalDistanceMeters / 100) / 10,
     avgPace: paceCount > 0 ? totalPace / paceCount : null,
     avgHR: hrCount > 0 ? Math.round(totalHR / hrCount) : null,
     durationHours: Math.round(totalDurationHours * 10) / 10,
-    workoutCount: completedRuns.length
+    workoutCount: completedRuns.length,
+    workouts: workoutsWithDetails
   }
 }
 

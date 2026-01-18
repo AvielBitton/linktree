@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, BarChart, Bar } from 'recharts'
 import { loadWorkouts, getAllWeeksStats, formatPace, isCompletedRun } from '../utils/workouts'
+import WeekCard from './WeekCard'
 
 // Progress Ring Component
 function ProgressRing({ progress, size = 80, strokeWidth = 6, color = '#8b5cf6' }) {
@@ -330,7 +331,7 @@ function StatsSection({ traineeId = null }) {
         </div>
       </motion.div>
       
-      {/* Recent Weeks List */}
+      {/* Recent Weeks List - Collapsible */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -339,22 +340,12 @@ function StatsSection({ traineeId = null }) {
       >
         <p className="text-white/40 text-xs uppercase tracking-wider px-1">Recent Weeks</p>
         {weeks.slice(0, 4).map((week, index) => (
-          <motion.div
-          key={week.weekKey}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.7 + index * 0.1 }}
-            className="bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/5 flex items-center justify-between"
-          >
-            <div>
-              <p className="text-white font-medium text-sm">Week {week.weekKey.split('-')[1]}</p>
-              <p className="text-white/40 text-xs">{week.workoutCount} runs</p>
-            </div>
-            <div className="text-right">
-              <p className="text-white font-bold">{week.distanceKm} km</p>
-              <p className="text-white/40 text-xs">{formatPace(week.avgPace)} /km</p>
-            </div>
-          </motion.div>
+          <WeekCard
+            key={week.weekKey}
+            week={week}
+            index={index}
+            colors={{ primary: theme.primary.replace('#', ''), hex: theme.primary }}
+          />
         ))}
       </motion.div>
     </div>
