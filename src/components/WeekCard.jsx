@@ -77,14 +77,80 @@ function WeekCard({ week, index = 0, colors = defaultColors }) {
   )
 }
 
+// Parse comments into separate entries
+function parseComments(rawComments) {
+  if (!rawComments || !rawComments.trim()) return []
+  
+  // Pattern: *DD/MM/YYYY Name: comment text*
+  const regex = /\*?(\d{2}\/\d{2}\/\d{4})\s+([^:]+):\s*([^*]+)\*?/g
+  const comments = []
+  let match
+  
+  while ((match = regex.exec(rawComments)) !== null) {
+    comments.push({
+      date: match[1],
+      author: match[2].trim(),
+      text: match[3].trim()
+    })
+  }
+  
+  // If no structured comments found, return raw text as single comment
+  if (comments.length === 0 && rawComments.trim()) {
+    return [{
+      date: null,
+      author: null,
+      text: rawComments.replace(/\*/g, '').trim()
+    }]
+  }
+  
+  return comments
+}
+
+// Comment card component
+function CommentCard({ comment, index }) {
+  const isCoach = comment.author && comment.author.toLowerCase().includes('daniel')
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 5 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.05 }}
+      className={`rounded-lg p-3 ${isCoach ? 'bg-white/[0.04] border border-white/10' : 'bg-white/[0.02] border border-white/5'}`}
+      dir="rtl"
+    >
+      {/* Author & Date Header */}
+      {comment.author && (
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-sm">{isCoach ? '🎯' : '🏃'}</span>
+          <span className={`text-xs font-medium ${isCoach ? 'text-white/80' : 'text-white/70'}`}>
+            {comment.author}
+          </span>
+          {comment.date && (
+            <span className="text-white/30 text-[10px]">
+              {comment.date}
+            </span>
+          )}
+        </div>
+      )}
+      
+      {/* Comment Text */}
+      <p className="text-white/60 text-xs leading-relaxed whitespace-pre-wrap text-right">
+        {comment.text}
+      </p>
+    </motion.div>
+  )
+}
+
 function WorkoutRow({ workout, index, colors }) {
   const [showComments, setShowComments] = useState(false)
   const workoutDate = new Date(workout.WorkoutDay)
   const formattedDate = formatWorkoutDate(workoutDate)
   
-  // Get athlete comments (clean up the format)
-  const comments = workout.AthleteComments || ''
-  const hasComments = comments.trim().length > 0
+  // Parse athlete comments into structured format
+  const rawComments = workout.AthleteComments || ''
+  const parsedComments = parseComments(rawComments)
+  const hasComments = parsedComments.length > 0
+  const commentCount = parsedComments.length
   
   // Get workout type emoji
   const getTypeEmoji = (type) => {
@@ -126,7 +192,7 @@ function WorkoutRow({ workout, index, colors }) {
               className="flex items-center gap-1 mt-2 text-white/40 hover:text-white/60 transition-colors text-xs"
             >
               <span>💬</span>
-              <span>{showComments ? 'Hide notes' : 'Show notes'}</span>
+              <span>{showComments ? 'Hide' : 'Show'} {commentCount > 1 ? `${commentCount} notes` : 'notes'}</span>
               <motion.span
                 animate={{ rotate: showComments ? 180 : 0 }}
                 transition={{ duration: 0.2 }}
@@ -157,10 +223,10 @@ function WorkoutRow({ workout, index, colors }) {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="mt-3 pt-3 border-t border-white/5">
-              <p className="text-white/50 text-xs leading-relaxed whitespace-pre-wrap">
-                {comments.replace(/\*/g, '').trim()}
-              </p>
+            <div className="mt-3 pt-3 border-t border-white/5 space-y-2">
+              {parsedComments.map((comment, cIndex) => (
+                <CommentCard key={cIndex} comment={comment} index={cIndex} />
+              ))}
             </div>
           </motion.div>
         )}
