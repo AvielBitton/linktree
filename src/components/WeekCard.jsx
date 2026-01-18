@@ -78,8 +78,13 @@ function WeekCard({ week, index = 0, colors = defaultColors }) {
 }
 
 function WorkoutRow({ workout, index, colors }) {
+  const [showComments, setShowComments] = useState(false)
   const workoutDate = new Date(workout.WorkoutDay)
   const formattedDate = formatWorkoutDate(workoutDate)
+  
+  // Get athlete comments (clean up the format)
+  const comments = workout.AthleteComments || ''
+  const hasComments = comments.trim().length > 0
   
   // Get workout type emoji
   const getTypeEmoji = (type) => {
@@ -114,11 +119,21 @@ function WorkoutRow({ workout, index, colors }) {
             {workout.Title || workout.WorkoutType || 'Run'}
           </p>
           
-          {/* User Comments - if any */}
-          {workout.UserComments && (
-            <p className="text-white/40 text-xs mt-1 line-clamp-2">
-              💬 {workout.UserComments}
-            </p>
+          {/* Comments Toggle Button */}
+          {hasComments && (
+            <button
+              onClick={() => setShowComments(!showComments)}
+              className="flex items-center gap-1 mt-2 text-white/40 hover:text-white/60 transition-colors text-xs"
+            >
+              <span>💬</span>
+              <span>{showComments ? 'Hide notes' : 'Show notes'}</span>
+              <motion.span
+                animate={{ rotate: showComments ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                ▼
+              </motion.span>
+            </button>
           )}
         </div>
         
@@ -131,6 +146,25 @@ function WorkoutRow({ workout, index, colors }) {
           )}
         </div>
       </div>
+      
+      {/* Expanded Comments */}
+      <AnimatePresence>
+        {showComments && hasComments && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-3 pt-3 border-t border-white/5">
+              <p className="text-white/50 text-xs leading-relaxed whitespace-pre-wrap">
+                {comments.replace(/\*/g, '').trim()}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
