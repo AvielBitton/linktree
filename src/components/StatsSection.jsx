@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, BarChart, Bar } from 'recharts'
 import { loadWorkouts, getAllWeeksStats, formatPace, isCompletedRun } from '../utils/workouts'
 import WeekCard from './WeekCard'
+import AllWorkoutsView from './AllWorkoutsView'
 
 // Progress Ring Component
 function ProgressRing({ progress, size = 80, strokeWidth = 6, color = '#8b5cf6' }) {
@@ -79,9 +80,11 @@ const colorThemes = {
 
 function StatsSection({ traineeId = null }) {
   const [weeks, setWeeks] = useState([])
+  const [allWorkouts, setAllWorkouts] = useState([])
   const [allTimeStats, setAllTimeStats] = useState({ distance: 0, runs: 0 })
   const [loading, setLoading] = useState(true)
   const [selectedView, setSelectedView] = useState('distance')
+  const [workoutsTab, setWorkoutsTab] = useState('weeks') // 'weeks' or 'all'
   
   // Get color theme based on traineeId
   const theme = traineeId && colorThemes[traineeId] ? colorThemes[traineeId] : colorThemes.default
@@ -93,8 +96,29 @@ function StatsSection({ traineeId = null }) {
         const stats = getAllWeeksStats(workouts)
         setWeeks(stats.slice(0, 12)) // Last 12 weeks
         
-        // Calculate all-time stats
+        // Store all workouts for AllWorkoutsView
+        // We need to process them with the same data structure as week workouts
         const completedRuns = workouts.filter(isCompletedRun)
+        const processedWorkouts = completedRuns.map(w => {
+          const distance = parseFloat(w.DistanceInMeters) || 0
+          const velocity = parseFloat(w.VelocityAverage) || 0
+          const pace = velocity > 0 ? (1000 / velocity) / 60 : null // min/km
+          
+          return {
+            ...w,
+            distanceKm: Math.round(distance / 100) / 10,
+            pace: pace,
+            paceFormatted: formatPace(pace),
+            hr: parseFloat(w.HeartRateAverage) || null,
+            durationHours: parseFloat(w.TimeTotalInHours) || 0,
+            cadence: parseFloat(w.CadenceAverage) || null,
+            rpe: parseFloat(w.Rpe) || null,
+          }
+        }).sort((a, b) => new Date(b.WorkoutDay) - new Date(a.WorkoutDay))
+        
+        setAllWorkouts(processedWorkouts)
+        
+        // Calculate all-time stats
         let totalDist = 0
         for (const run of completedRuns) {
           totalDist += parseFloat(run.DistanceInMeters) || 0
@@ -331,22 +355,72 @@ function StatsSection({ traineeId = null }) {
         </div>
       </motion.div>
       
-      {/* Recent Weeks List - Collapsible */}
+      {/* Workouts Section with Tabs */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
-        className="space-y-2"
+        className="space-y-3"
       >
-        <p className="text-white/40 text-xs uppercase tracking-wider px-1">Recent Weeks</p>
-        {weeks.slice(0, 4).map((week, index) => (
-          <WeekCard
-            key={week.weekKey}
-            week={week}
-            index={index}
-            colors={{ primary: theme.primary.replace('#', ''), hex: theme.primary }}
-          />
-        ))}
+        {/* Tab Buttons */}
+        <div className="flex gap-2 bg-white/5 rounded-xl p-1">
+          <button
+            onClick={() => setWorkoutsTab('weeks')}
+            className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+              workoutsTab === 'weeks'
+                ? `${theme.buttonActive} text-white`
+                : 'text-white/50 hover:text-white/70'
+            }`}
+          >
+            📅 Recent Weeks
+          </button>
+          <button
+            onClick={() => setWorkoutsTab('all')}
+            className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+              workoutsTab === 'all'
+                ? `${theme.buttonActive} text-white`
+                : 'text-white/50 hover:text-white/70'
+            }`}
+          >
+            🔍 All Workouts
+          </button>
+        </div>
+        
+        {/* Tab Content */}
+        <AnimatePresence mode="wait">
+          {workoutsTab === 'weeks' ? (
+            <motion.div
+              key="weeks"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-2"
+            >
+              {weeks.slice(0, 4).map((week, index) => (
+                <WeekCard
+                  key={week.weekKey}
+                  week={week}
+                  index={index}
+                  colors={{ primary: theme.primary.replace('#', ''), hex: theme.primary }}
+                />
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="all"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+            >
+              <AllWorkoutsView 
+                allWorkouts={allWorkouts}
+                colors={{ primary: theme.primary.replace('#', ''), hex: theme.primary }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </div>
   )

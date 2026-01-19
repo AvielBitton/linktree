@@ -254,6 +254,7 @@ function computeWeekStats(weekWorkouts, weekKey) {
       hrMax: parseFloat(w.HeartRateMax) || null,
       durationHours: parseFloat(w.TimeTotalInHours) || 0,
       cadence: parseFloat(w.CadenceAverage) || null,
+      rpe: parseFloat(w.Rpe) || null,
       hrZones: hrZones,
       hrZonesTotal: totalZoneMinutes
     }

@@ -67,7 +67,7 @@ function HRZonesBar({ zones, totalMinutes, label = 'HR Zones' }) {
 }
 
 // HR Zones Pie Chart Component (for individual workouts)
-function HRZonesPie({ zones, totalMinutes, cadence }) {
+function HRZonesPie({ zones, totalMinutes, cadence, rpe }) {
   if (!zones || totalMinutes === 0) return null
   
   // Calculate segments
@@ -181,18 +181,37 @@ function HRZonesPie({ zones, totalMinutes, cadence }) {
           ))}
         </div>
         
-        {/* Cadence */}
-        {cadence && (
-          <motion.div 
-            className="flex flex-col items-center justify-center ml-auto pl-4 border-l border-white/10"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <span className="text-2xl font-bold text-white">{Math.round(cadence)}</span>
-            <span className="text-white/40 text-[10px] uppercase tracking-wider">spm</span>
-            <span className="text-white/30 text-[9px] uppercase tracking-wider mt-0.5">cadence</span>
-          </motion.div>
+        {/* Cadence & RPE */}
+        {(cadence || rpe) && (
+          <div className="flex items-center gap-4 ml-auto pl-4 border-l border-white/10">
+            {/* Cadence */}
+            {cadence && (
+              <motion.div 
+                className="flex flex-col items-center justify-center"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <span className="text-2xl font-bold text-white">{Math.round(cadence)}</span>
+                <span className="text-white/40 text-[10px] uppercase tracking-wider">spm</span>
+                <span className="text-white/30 text-[9px] uppercase tracking-wider mt-0.5">cadence</span>
+              </motion.div>
+            )}
+            
+            {/* RPE */}
+            {rpe && (
+              <motion.div 
+                className="flex flex-col items-center justify-center pl-4 border-l border-white/10"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                <span className="text-2xl font-bold text-white">{Math.round(rpe)}</span>
+                <span className="text-white/40 text-[10px] uppercase tracking-wider">/10</span>
+                <span className="text-white/30 text-[9px] uppercase tracking-wider mt-0.5">rpe</span>
+              </motion.div>
+            )}
+          </div>
         )}
       </div>
     </motion.div>
@@ -359,19 +378,6 @@ function WorkoutRow({ workout, index, colors }) {
   const hasHRZones = workout.hrZonesTotal > 0
   const hasDetails = hasComments || hasHRZones
   
-  // Get workout type emoji
-  const getTypeEmoji = (type) => {
-    const t = (type || '').toLowerCase()
-    if (t.includes('long')) return '🏃‍♂️'
-    if (t.includes('tempo')) return '⚡'
-    if (t.includes('interval') || t.includes('speed')) return '🔥'
-    if (t.includes('easy') || t.includes('recovery')) return '🌿'
-    if (t.includes('race')) return '🏁'
-    return '👟'
-  }
-  
-  const emoji = getTypeEmoji(workout.WorkoutType)
-  
   return (
     <motion.div
       initial={{ opacity: 0, x: -10 }}
@@ -381,9 +387,8 @@ function WorkoutRow({ workout, index, colors }) {
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          {/* Date & Type */}
+          {/* Date */}
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm">{emoji}</span>
             <span className="text-white/60 text-xs">{formattedDate}</span>
           </div>
           
@@ -398,7 +403,6 @@ function WorkoutRow({ workout, index, colors }) {
               onClick={() => setShowComments(!showComments)}
               className="flex items-center gap-1 mt-2 text-white/40 hover:text-white/60 transition-colors text-xs"
             >
-              <span>{hasHRZones ? '❤️' : '💬'}</span>
               <span>
                 {showComments ? 'Hide' : 'Show'} details
                 {hasComments && ` (${commentCount})`}
@@ -436,7 +440,7 @@ function WorkoutRow({ workout, index, colors }) {
             <div className="mt-3 pt-3 border-t border-white/5 space-y-3">
               {/* Workout HR Zones - Pie Chart */}
               {workout.hrZonesTotal > 0 && (
-                <HRZonesPie zones={workout.hrZones} totalMinutes={workout.hrZonesTotal} cadence={workout.cadence} />
+                <HRZonesPie zones={workout.hrZones} totalMinutes={workout.hrZonesTotal} cadence={workout.cadence} rpe={workout.rpe} />
               )}
               
               {/* Comments */}
