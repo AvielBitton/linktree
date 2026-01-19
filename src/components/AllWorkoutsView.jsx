@@ -75,42 +75,28 @@ function WorkoutListItem({ workout, index, colors }) {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="px-3 pb-3 pt-0 border-t border-white/5">
-              <div className="grid grid-cols-4 gap-2 pt-3">
-                {/* Duration */}
-                <div className="text-center">
-                  <p className="text-white font-bold text-sm">{durationStr}</p>
-                  <p className="text-white/40 text-[10px] uppercase">Duration</p>
-                </div>
-                
-                {/* Pace */}
-                <div className="text-center">
-                  <p className="text-white font-bold text-sm">{workout.paceFormatted}</p>
-                  <p className="text-white/40 text-[10px] uppercase">Pace</p>
-                </div>
-                
-                {/* HR */}
+            <div className="px-3 pb-2.5 pt-0 border-t border-white/5">
+              <div className="flex items-center justify-center gap-4 pt-2.5 text-xs">
+                <span className="text-white/50">{durationStr}</span>
+                <span className="text-white/20">•</span>
+                <span className="text-white/50">{workout.paceFormatted}/km</span>
                 {workout.hr && (
-                  <div className="text-center">
-                    <p className="text-white font-bold text-sm">{Math.round(workout.hr)}</p>
-                    <p className="text-white/40 text-[10px] uppercase">Avg HR</p>
-                  </div>
+                  <>
+                    <span className="text-white/20">•</span>
+                    <span className="text-white/50">{Math.round(workout.hr)} bpm</span>
+                  </>
                 )}
-                
-                {/* Cadence */}
                 {workout.cadence && (
-                  <div className="text-center">
-                    <p className="text-white font-bold text-sm">{Math.round(workout.cadence)}</p>
-                    <p className="text-white/40 text-[10px] uppercase">Cadence</p>
-                  </div>
+                  <>
+                    <span className="text-white/20">•</span>
+                    <span className="text-white/50">{Math.round(workout.cadence)} spm</span>
+                  </>
                 )}
-                
-                {/* RPE */}
                 {workout.rpe && (
-                  <div className="text-center">
-                    <p className="text-white font-bold text-sm">{workout.rpe}/10</p>
-                    <p className="text-white/40 text-[10px] uppercase">RPE</p>
-                  </div>
+                  <>
+                    <span className="text-white/20">•</span>
+                    <span className="text-white/50">RPE {workout.rpe}</span>
+                  </>
                 )}
               </div>
             </div>
@@ -124,36 +110,58 @@ function WorkoutListItem({ workout, index, colors }) {
 function AllWorkoutsView({ allWorkouts, colors }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedType, setSelectedType] = useState('all')
-  const [visibleCount, setVisibleCount] = useState(20)
+  const [visibleCount, setVisibleCount] = useState(5)
+  const [sortBy, setSortBy] = useState('date') // 'date' or 'distance'
   
-  // Filter and search workouts
+  // Filter, search, and sort workouts
   const filteredWorkouts = useMemo(() => {
-    return allWorkouts.filter(workout => {
+    let results = allWorkouts.filter(workout => {
       // Type filter
       const typeFilter = workoutTypes.find(t => t.id === selectedType)
       if (!typeFilter?.filter(workout)) return false
       
       // Search filter
       if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase()
+        const query = searchQuery.toLowerCase().trim()
         const title = (workout.Title || '').toLowerCase()
         const type = (workout.WorkoutType || '').toLowerCase()
         const date = formatWorkoutDate(new Date(workout.WorkoutDay)).toLowerCase()
+        const distanceStr = String(workout.distanceKm)
         
-        if (!title.includes(query) && !type.includes(query) && !date.includes(query)) {
-          return false
+        // Check if query is a number (for distance search)
+        const numQuery = parseFloat(query)
+        const isNumericSearch = !isNaN(numQuery)
+        
+        if (isNumericSearch) {
+          // Match distances that start with the query number
+          if (!distanceStr.startsWith(query)) {
+            return false
+          }
+        } else {
+          // Text search in title, type, date
+          if (!title.includes(query) && !type.includes(query) && !date.includes(query)) {
+            return false
+          }
         }
       }
       
       return true
     })
-  }, [allWorkouts, selectedType, searchQuery])
+    
+    // Sort results
+    if (sortBy === 'distance') {
+      results = [...results].sort((a, b) => b.distanceKm - a.distanceKm)
+    }
+    // 'date' sorting is already applied from the data source
+    
+    return results
+  }, [allWorkouts, selectedType, searchQuery, sortBy])
   
   const visibleWorkouts = filteredWorkouts.slice(0, visibleCount)
   const hasMore = visibleCount < filteredWorkouts.length
   
   const loadMore = () => {
-    setVisibleCount(prev => Math.min(prev + 20, filteredWorkouts.length))
+    setVisibleCount(prev => Math.min(prev + 5, filteredWorkouts.length))
   }
   
   return (
@@ -207,10 +215,37 @@ function AllWorkoutsView({ allWorkouts, colors }) {
         ))}
       </div>
       
-      {/* Results Count */}
-      <p className="text-white/30 text-xs">
-        {filteredWorkouts.length} workout{filteredWorkouts.length !== 1 ? 's' : ''} found
-      </p>
+      {/* Results Count & Sort */}
+      <div className="flex items-center justify-between">
+        <p className="text-white/30 text-xs">
+          {filteredWorkouts.length} workout{filteredWorkouts.length !== 1 ? 's' : ''} found
+        </p>
+        
+        {/* Sort Toggle */}
+        <div className="flex items-center gap-1 text-xs">
+          <button
+            onClick={() => setSortBy('date')}
+            className={`px-2 py-1 rounded transition-colors ${
+              sortBy === 'date' 
+                ? 'bg-white/15 text-white' 
+                : 'text-white/40 hover:text-white/60'
+            }`}
+          >
+            Date
+          </button>
+          <span className="text-white/20">|</span>
+          <button
+            onClick={() => setSortBy('distance')}
+            className={`px-2 py-1 rounded transition-colors ${
+              sortBy === 'distance' 
+                ? 'bg-white/15 text-white' 
+                : 'text-white/40 hover:text-white/60'
+            }`}
+          >
+            KM
+          </button>
+        </div>
+      </div>
       
       {/* Workouts List */}
       <div className="space-y-2">

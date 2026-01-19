@@ -363,26 +363,26 @@ function StatsSection({ traineeId = null }) {
         className="space-y-3"
       >
         {/* Tab Buttons */}
-        <div className="flex gap-2 bg-white/5 rounded-xl p-1">
+        <div className="flex border-b border-white/10">
           <button
             onClick={() => setWorkoutsTab('weeks')}
-            className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+            className={`flex-1 py-2 text-xs font-medium transition-all border-b-2 -mb-px ${
               workoutsTab === 'weeks'
-                ? `${theme.buttonActive} text-white`
-                : 'text-white/50 hover:text-white/70'
+                ? 'text-white border-white/60'
+                : 'text-white/40 border-transparent hover:text-white/60'
             }`}
           >
-            📅 Recent Weeks
+            Recent Weeks
           </button>
           <button
             onClick={() => setWorkoutsTab('all')}
-            className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+            className={`flex-1 py-2 text-xs font-medium transition-all border-b-2 -mb-px ${
               workoutsTab === 'all'
-                ? `${theme.buttonActive} text-white`
-                : 'text-white/50 hover:text-white/70'
+                ? 'text-white border-white/60'
+                : 'text-white/40 border-transparent hover:text-white/60'
             }`}
           >
-            🔍 All Workouts
+            All Workouts
           </button>
         </div>
         
