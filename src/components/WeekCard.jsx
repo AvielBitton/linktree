@@ -17,7 +17,7 @@ const hrZoneConfig = [
   { name: 'Z5', color: '#ef4444', label: 'VO2max' },        // red
 ]
 
-// HR Zones Bar Component
+// HR Zones Bar Component (for weekly summary)
 function HRZonesBar({ zones, totalMinutes, label = 'HR Zones' }) {
   if (!zones || totalMinutes === 0) return null
   
@@ -45,24 +45,143 @@ function HRZonesBar({ zones, totalMinutes, label = 'HR Zones' }) {
       </div>
       
       {/* Legend */}
-      <div className="flex flex-wrap gap-2 mt-2">
+      <div className="flex flex-wrap gap-3 mt-2">
         {zones.map((minutes, i) => {
           const percentage = (minutes / totalMinutes) * 100
           if (percentage < 1) return null
           return (
-            <div key={i} className="flex items-center gap-1">
+            <div key={i} className="flex items-center gap-1.5">
               <div 
                 className="w-2 h-2 rounded-full" 
                 style={{ backgroundColor: hrZoneConfig[i].color }}
               />
               <span className="text-white/50 text-[10px]">
-                {hrZoneConfig[i].name} {Math.round(percentage)}%
+                Zone {i + 1} {Math.round(percentage)}%
               </span>
             </div>
           )
         })}
       </div>
     </div>
+  )
+}
+
+// HR Zones Pie Chart Component (for individual workouts)
+function HRZonesPie({ zones, totalMinutes }) {
+  if (!zones || totalMinutes === 0) return null
+  
+  // Calculate segments
+  const segments = []
+  let currentAngle = -90 // Start from top
+  
+  zones.forEach((minutes, i) => {
+    const percentage = (minutes / totalMinutes) * 100
+    if (percentage >= 1) {
+      const angle = (percentage / 100) * 360
+      segments.push({
+        startAngle: currentAngle,
+        endAngle: currentAngle + angle,
+        percentage,
+        color: hrZoneConfig[i].color,
+        name: hrZoneConfig[i].name,
+        index: i
+      })
+      currentAngle += angle
+    }
+  })
+  
+  // SVG donut arc path helper (ring, not filled pie)
+  const describeDonutArc = (cx, cy, outerRadius, innerRadius, startAngle, endAngle) => {
+    const outerStart = polarToCartesian(cx, cy, outerRadius, endAngle)
+    const outerEnd = polarToCartesian(cx, cy, outerRadius, startAngle)
+    const innerStart = polarToCartesian(cx, cy, innerRadius, endAngle)
+    const innerEnd = polarToCartesian(cx, cy, innerRadius, startAngle)
+    const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1
+    
+    return `M ${outerStart.x} ${outerStart.y} 
+            A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 0 ${outerEnd.x} ${outerEnd.y}
+            L ${innerEnd.x} ${innerEnd.y}
+            A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 1 ${innerStart.x} ${innerStart.y}
+            Z`
+  }
+  
+  const polarToCartesian = (cx, cy, radius, angle) => {
+    const radians = (angle * Math.PI) / 180
+    return {
+      x: cx + radius * Math.cos(radians),
+      y: cy + radius * Math.sin(radians)
+    }
+  }
+  
+  return (
+    <motion.div 
+      className="bg-white/[0.02] rounded-xl p-4 border border-white/5"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <p className="text-white/40 text-[10px] uppercase tracking-wider mb-3">Workout HR Zones</p>
+      
+      <div className="flex items-center gap-5">
+        {/* Donut Chart */}
+        <div className="flex-shrink-0">
+          <motion.svg 
+            width="72" 
+            height="72" 
+            viewBox="0 0 72 72"
+            initial={{ opacity: 0, rotate: -90 }}
+            animate={{ opacity: 1, rotate: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+          >
+            {/* Background ring */}
+            <circle 
+              cx="36" 
+              cy="36" 
+              r="28" 
+              fill="none" 
+              stroke="rgba(255,255,255,0.05)" 
+              strokeWidth="10"
+            />
+            
+            {/* Segments */}
+            {segments.map((seg, i) => (
+              <motion.path
+                key={i}
+                d={describeDonutArc(36, 36, 33, 23, seg.startAngle, seg.endAngle)}
+                fill={seg.color}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.1, duration: 0.4 }}
+              />
+            ))}
+          </motion.svg>
+        </div>
+        
+        {/* Legend */}
+        <div className="flex flex-col gap-2">
+          {segments.map((seg) => (
+            <motion.div 
+              key={seg.index} 
+              className="flex items-center gap-2"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: seg.index * 0.05 }}
+            >
+              <div 
+                className="w-2.5 h-2.5 rounded-sm" 
+                style={{ backgroundColor: seg.color }}
+              />
+              <span className="text-white/60 text-xs">
+                Zone {seg.index + 1}
+              </span>
+              <span className="text-white/80 text-xs font-medium">
+                {Math.round(seg.percentage)}%
+              </span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </motion.div>
   )
 }
 
@@ -301,9 +420,9 @@ function WorkoutRow({ workout, index, colors }) {
             className="overflow-hidden"
           >
             <div className="mt-3 pt-3 border-t border-white/5 space-y-3">
-              {/* Workout HR Zones */}
+              {/* Workout HR Zones - Pie Chart */}
               {workout.hrZonesTotal > 0 && (
-                <HRZonesBar zones={workout.hrZones} totalMinutes={workout.hrZonesTotal} label="Workout HR Zones" />
+                <HRZonesPie zones={workout.hrZones} totalMinutes={workout.hrZonesTotal} />
               )}
               
               {/* Comments */}
