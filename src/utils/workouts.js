@@ -178,6 +178,16 @@ export function groupByWeek(workouts) {
   return groups
 }
 
+// Extract HR zones from a workout (returns array of minutes per zone)
+function extractHRZones(workout) {
+  const zones = []
+  for (let i = 1; i <= 5; i++) {
+    const minutes = parseFloat(workout[`HRZone${i}Minutes`]) || 0
+    zones.push(minutes)
+  }
+  return zones
+}
+
 // Get stats for a specific week's workouts (only COMPLETED runs)
 function computeWeekStats(weekWorkouts, weekKey) {
   // Filter only COMPLETED running workouts (with actual data)
@@ -194,6 +204,9 @@ function computeWeekStats(weekWorkouts, weekKey) {
   let hrCount = 0
   let totalPace = 0
   let paceCount = 0
+  
+  // Aggregate HR zones for the week
+  const weekHRZones = [0, 0, 0, 0, 0]
   
   for (const workout of completedRuns) {
     const distance = parseFloat(workout.DistanceInMeters) || 0
@@ -216,6 +229,12 @@ function computeWeekStats(weekWorkouts, weekKey) {
         paceCount++
       }
     }
+    
+    // Aggregate HR zones
+    const workoutZones = extractHRZones(workout)
+    for (let i = 0; i < 5; i++) {
+      weekHRZones[i] += workoutZones[i]
+    }
   }
   
   // Process workouts with additional computed fields
@@ -223,6 +242,8 @@ function computeWeekStats(weekWorkouts, weekKey) {
     const distance = parseFloat(w.DistanceInMeters) || 0
     const velocity = parseFloat(w.VelocityAverage) || 0
     const pace = velocity > 0 ? velocityToPace(velocity) : null
+    const hrZones = extractHRZones(w)
+    const totalZoneMinutes = hrZones.reduce((a, b) => a + b, 0)
     
     return {
       ...w,
@@ -230,9 +251,14 @@ function computeWeekStats(weekWorkouts, weekKey) {
       pace: pace,
       paceFormatted: formatPace(pace),
       hr: parseFloat(w.HeartRateAverage) || null,
-      durationHours: parseFloat(w.TimeTotalInHours) || 0
+      hrMax: parseFloat(w.HeartRateMax) || null,
+      durationHours: parseFloat(w.TimeTotalInHours) || 0,
+      hrZones: hrZones,
+      hrZonesTotal: totalZoneMinutes
     }
   }).sort((a, b) => new Date(b.WorkoutDay) - new Date(a.WorkoutDay))
+  
+  const totalWeekZoneMinutes = weekHRZones.reduce((a, b) => a + b, 0)
   
   return {
     weekKey,
@@ -241,7 +267,9 @@ function computeWeekStats(weekWorkouts, weekKey) {
     avgHR: hrCount > 0 ? Math.round(totalHR / hrCount) : null,
     durationHours: Math.round(totalDurationHours * 10) / 10,
     workoutCount: completedRuns.length,
-    workouts: workoutsWithDetails
+    workouts: workoutsWithDetails,
+    hrZones: weekHRZones,
+    hrZonesTotal: totalWeekZoneMinutes
   }
 }
 

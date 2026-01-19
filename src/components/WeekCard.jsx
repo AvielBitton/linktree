@@ -8,6 +8,64 @@ const defaultColors = {
   hex: '#8b5cf6'
 }
 
+// HR Zone colors and names
+const hrZoneConfig = [
+  { name: 'Z1', color: '#94a3b8', label: 'Recovery' },      // gray
+  { name: 'Z2', color: '#22c55e', label: 'Easy' },          // green
+  { name: 'Z3', color: '#eab308', label: 'Tempo' },         // yellow
+  { name: 'Z4', color: '#f97316', label: 'Threshold' },     // orange
+  { name: 'Z5', color: '#ef4444', label: 'VO2max' },        // red
+]
+
+// HR Zones Bar Component
+function HRZonesBar({ zones, totalMinutes, label = 'HR Zones' }) {
+  if (!zones || totalMinutes === 0) return null
+  
+  return (
+    <div>
+      <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1.5">{label}</p>
+      
+      {/* Stacked Bar */}
+      <div className="flex h-2 rounded-full overflow-hidden bg-white/5">
+        {zones.map((minutes, i) => {
+          const percentage = (minutes / totalMinutes) * 100
+          if (percentage < 1) return null
+          return (
+            <motion.div
+              key={i}
+              initial={{ width: 0 }}
+              animate={{ width: `${percentage}%` }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="h-full"
+              style={{ backgroundColor: hrZoneConfig[i].color }}
+              title={`${hrZoneConfig[i].name}: ${Math.round(minutes)}min (${Math.round(percentage)}%)`}
+            />
+          )
+        })}
+      </div>
+      
+      {/* Legend */}
+      <div className="flex flex-wrap gap-2 mt-2">
+        {zones.map((minutes, i) => {
+          const percentage = (minutes / totalMinutes) * 100
+          if (percentage < 1) return null
+          return (
+            <div key={i} className="flex items-center gap-1">
+              <div 
+                className="w-2 h-2 rounded-full" 
+                style={{ backgroundColor: hrZoneConfig[i].color }}
+              />
+              <span className="text-white/50 text-[10px]">
+                {hrZoneConfig[i].name} {Math.round(percentage)}%
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 function WeekCard({ week, index = 0, colors = defaultColors }) {
   const [isExpanded, setIsExpanded] = useState(false)
   
@@ -61,6 +119,18 @@ function WeekCard({ week, index = 0, colors = defaultColors }) {
             className="overflow-hidden"
           >
             <div className="pt-2 pl-7 space-y-2">
+              {/* Week HR Zones Summary */}
+              {week.hrZonesTotal > 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="bg-white/[0.02] rounded-lg p-3 border border-white/5 mb-2"
+                >
+                  <HRZonesBar zones={week.hrZones} totalMinutes={week.hrZonesTotal} label="Weekly HR Zones" />
+                </motion.div>
+              )}
+              
+              {/* Workouts List */}
               {week.workouts.map((workout, wIndex) => (
                 <WorkoutRow 
                   key={`${workout.WorkoutDay}-${wIndex}`} 
@@ -152,6 +222,10 @@ function WorkoutRow({ workout, index, colors }) {
   const hasComments = parsedComments.length > 0
   const commentCount = parsedComments.length
   
+  // Check if we have HR zones data
+  const hasHRZones = workout.hrZonesTotal > 0
+  const hasDetails = hasComments || hasHRZones
+  
   // Get workout type emoji
   const getTypeEmoji = (type) => {
     const t = (type || '').toLowerCase()
@@ -185,14 +259,17 @@ function WorkoutRow({ workout, index, colors }) {
             {workout.Title || workout.WorkoutType || 'Run'}
           </p>
           
-          {/* Comments Toggle Button */}
-          {hasComments && (
+          {/* Details Toggle Button (HR Zones + Comments) */}
+          {hasDetails && (
             <button
               onClick={() => setShowComments(!showComments)}
               className="flex items-center gap-1 mt-2 text-white/40 hover:text-white/60 transition-colors text-xs"
             >
-              <span>💬</span>
-              <span>{showComments ? 'Hide' : 'Show'} {commentCount > 1 ? `${commentCount} notes` : 'notes'}</span>
+              <span>{hasHRZones ? '❤️' : '💬'}</span>
+              <span>
+                {showComments ? 'Hide' : 'Show'} details
+                {hasComments && ` (${commentCount})`}
+              </span>
               <motion.span
                 animate={{ rotate: showComments ? 180 : 0 }}
                 transition={{ duration: 0.2 }}
@@ -213,9 +290,9 @@ function WorkoutRow({ workout, index, colors }) {
         </div>
       </div>
       
-      {/* Expanded Comments */}
+      {/* Expanded Details (HR Zones + Comments) */}
       <AnimatePresence>
-        {showComments && hasComments && (
+        {showComments && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
@@ -223,10 +300,20 @@ function WorkoutRow({ workout, index, colors }) {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="mt-3 pt-3 border-t border-white/5 space-y-2">
-              {parsedComments.map((comment, cIndex) => (
-                <CommentCard key={cIndex} comment={comment} index={cIndex} />
-              ))}
+            <div className="mt-3 pt-3 border-t border-white/5 space-y-3">
+              {/* Workout HR Zones */}
+              {workout.hrZonesTotal > 0 && (
+                <HRZonesBar zones={workout.hrZones} totalMinutes={workout.hrZonesTotal} label="Workout HR Zones" />
+              )}
+              
+              {/* Comments */}
+              {hasComments && (
+                <div className="space-y-2">
+                  {parsedComments.map((comment, cIndex) => (
+                    <CommentCard key={cIndex} comment={comment} index={cIndex} />
+                  ))}
+                </div>
+              )}
             </div>
           </motion.div>
         )}
