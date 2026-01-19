@@ -67,7 +67,7 @@ function HRZonesBar({ zones, totalMinutes, label = 'HR Zones' }) {
 }
 
 // HR Zones Pie Chart Component (for individual workouts)
-function HRZonesPie({ zones, totalMinutes }) {
+function HRZonesPie({ zones, totalMinutes, cadence }) {
   if (!zones || totalMinutes === 0) return null
   
   // Calculate segments
@@ -180,6 +180,20 @@ function HRZonesPie({ zones, totalMinutes }) {
             </motion.div>
           ))}
         </div>
+        
+        {/* Cadence */}
+        {cadence && (
+          <motion.div 
+            className="flex flex-col items-center justify-center ml-auto pl-4 border-l border-white/10"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <span className="text-2xl font-bold text-white">{Math.round(cadence)}</span>
+            <span className="text-white/40 text-[10px] uppercase tracking-wider">spm</span>
+            <span className="text-white/30 text-[9px] uppercase tracking-wider mt-0.5">cadence</span>
+          </motion.div>
+        )}
       </div>
     </motion.div>
   )
@@ -422,7 +436,7 @@ function WorkoutRow({ workout, index, colors }) {
             <div className="mt-3 pt-3 border-t border-white/5 space-y-3">
               {/* Workout HR Zones - Pie Chart */}
               {workout.hrZonesTotal > 0 && (
-                <HRZonesPie zones={workout.hrZones} totalMinutes={workout.hrZonesTotal} />
+                <HRZonesPie zones={workout.hrZones} totalMinutes={workout.hrZonesTotal} cadence={workout.cadence} />
               )}
               
               {/* Comments */}
