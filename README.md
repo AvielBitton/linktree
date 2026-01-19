@@ -30,4 +30,4 @@ npm run dev
 npm run deploy
 ```
 
-Live at: https://avielbitton.github.io/linktree
+Live at: https://aviel.club
