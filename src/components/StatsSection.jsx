@@ -215,7 +215,7 @@ function StatsSection({ traineeId = null }) {
         >
           <p className="text-white/40 text-xs mb-2">This Week</p>
           <p className="text-white font-bold text-xl">{currentWeek.distanceKm} km</p>
-          <div className={`flex items-center gap-1 mt-1 text-xs ${weekOverWeekChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+          <div className={`flex items-center gap-1 mt-1 text-xs ${weekOverWeekChange >= 0 ? 'text-green-400' : 'text-white/50'}`}>
             <span>{weekOverWeekChange >= 0 ? '↑' : '↓'}</span>
             <span>{Math.abs(weekOverWeekChange).toFixed(0)}% vs last week</span>
           </div>
