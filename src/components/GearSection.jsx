@@ -7,7 +7,7 @@ const gearItems = [
     name: 'Garmin Forerunner 970',
     description: 'GPS running watch with advanced training metrics',
     image: '/images/gear/Forerunner970_SoftGold2.jpg',
-    link: 'https://www.garmin.com/en-US/p/1311147'
+    link: 'https://www.garmin.com/en-US/search/?query=forerunner+970'
   },
   {
     id: 'headphones',
@@ -23,7 +23,7 @@ const gearItems = [
     name: 'Adidas Adizero Adios Pro 4',
     description: 'Elite carbon racing shoes for marathon performance',
     image: '/images/gear/adidaspro4.jpg',
-    link: 'https://www.adidas.com/us/adizero-adios-pro-4-running-shoes/JQ9060.html'
+    link: 'https://www.adidas.com/us/adizero-adios-pro-4-shoes/JR7088.html'
   },
   {
     id: 'stryd',
