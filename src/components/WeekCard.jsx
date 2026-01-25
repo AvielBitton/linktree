@@ -122,7 +122,8 @@ function HRZonesPie({ zones, totalMinutes, cadence, rpe }) {
     >
       <p className="text-white/40 text-[10px] uppercase tracking-wider mb-3">Workout HR Zones</p>
       
-      <div className="flex items-center gap-5">
+      {/* Main Row: Chart + Legend */}
+      <div className="flex items-center justify-center gap-5">
         {/* Donut Chart */}
         <div className="flex-shrink-0">
           <motion.svg 
@@ -180,40 +181,39 @@ function HRZonesPie({ zones, totalMinutes, cadence, rpe }) {
             </motion.div>
           ))}
         </div>
-        
-        {/* Cadence & RPE */}
-        {(cadence || rpe) && (
-          <div className="flex items-center gap-4 ml-auto pl-4 border-l border-white/10">
-            {/* Cadence */}
-            {cadence && (
-              <motion.div 
-                className="flex flex-col items-center justify-center"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                <span className="text-2xl font-bold text-white">{Math.round(cadence)}</span>
-                <span className="text-white/40 text-[10px] uppercase tracking-wider">spm</span>
-                <span className="text-white/30 text-[9px] uppercase tracking-wider mt-0.5">cadence</span>
-              </motion.div>
-            )}
-            
-            {/* RPE */}
-            {rpe && (
-              <motion.div 
-                className="flex flex-col items-center justify-center pl-4 border-l border-white/10"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4 }}
-              >
-                <span className="text-2xl font-bold text-white">{Math.round(rpe)}</span>
-                <span className="text-white/40 text-[10px] uppercase tracking-wider">/10</span>
-                <span className="text-white/30 text-[9px] uppercase tracking-wider mt-0.5">rpe</span>
-              </motion.div>
-            )}
-          </div>
-        )}
       </div>
+      
+      {/* Cadence & RPE - Separate Row */}
+      {(cadence || rpe) && (
+        <div className="grid grid-cols-2 gap-4 mt-4 pt-3 border-t border-white/5">
+          {/* Cadence */}
+          {cadence && (
+            <motion.div 
+              className="flex flex-col items-center justify-center"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <span className="text-2xl font-bold text-white">{Math.round(cadence)}</span>
+              <span className="text-white/40 text-[10px] uppercase tracking-wider">spm</span>
+              <span className="text-white/30 text-[9px] uppercase tracking-wider mt-0.5">cadence</span>
+            </motion.div>
+          )}
+          
+          {/* RPE */}
+          {rpe && (
+            <motion.div 
+              className="flex flex-col items-center justify-center border-l border-white/10"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <span className="text-2xl font-bold text-white">{Math.round(rpe)}<span className="text-white/40 text-lg">/10</span></span>
+              <span className="text-white/30 text-[9px] uppercase tracking-wider mt-0.5">rpe</span>
+            </motion.div>
+          )}
+        </div>
+      )}
     </motion.div>
   )
 }
