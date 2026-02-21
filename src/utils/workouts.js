@@ -129,7 +129,7 @@ export function formatDuration(hours) {
 
 // Load workouts from a single CSV file
 async function loadCSVFile(filename, traineeId = null) {
-  const basePath = traineeId ? `./data/${traineeId}` : './data'
+  const basePath = `./data/${traineeId || 'aviel'}`
   const response = await fetch(`${basePath}/${filename}`)
   if (!response.ok) {
     console.warn(`Failed to load ${filename}`)
