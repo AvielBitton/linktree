@@ -40,22 +40,14 @@ const allRaces = [
 ]
 
 function RacesSection({ excludeRaces = [], themeColor = 'violet' }) {
-  // Filter out excluded races
   const races = allRaces.filter(r => !excludeRaces.includes(r.id))
 
-  // Sort races: upcoming first (by nearest date), then past (by most recent)
   const sortedRaces = useMemo(() => {
     const now = new Date()
-    
     const upcoming = races.filter(r => parseDate(r.date) >= now)
     const past = races.filter(r => parseDate(r.date) < now)
-    
-    // Sort upcoming by soonest first
     upcoming.sort((a, b) => parseDate(a.date) - parseDate(b.date))
-    
-    // Sort past by most recent first
     past.sort((a, b) => parseDate(b.date) - parseDate(a.date))
-    
     return [...upcoming, ...past]
   }, [races])
 
@@ -65,29 +57,15 @@ function RacesSection({ excludeRaces = [], themeColor = 'violet' }) {
   }, [races])
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="flex items-center justify-between px-1"
-      >
-        <div>
-          <h2 className="text-white/60 text-xs uppercase tracking-wider">Race Calendar</h2>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-            themeColor === 'emerald' 
-              ? 'bg-emerald-500/20 text-emerald-400' 
-              : 'bg-violet-500/20 text-violet-400'
-          }`}>
-            {upcomingCount} upcoming
-          </span>
-        </div>
-      </motion.div>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between px-1">
+        <h2 className="text-white/25 text-[11px] uppercase tracking-wider font-medium">Race Calendar</h2>
+        <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-white/[0.04] text-white/30">
+          {upcomingCount} upcoming
+        </span>
+      </div>
       
-      {/* Race Cards */}
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         {sortedRaces.map((race, index) => (
           <RaceCard
             key={race.id}

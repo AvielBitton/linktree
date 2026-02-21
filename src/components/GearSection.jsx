@@ -41,58 +41,36 @@ function GearCard({ item, index }) {
       href={item.link}
       target="_blank"
       rel="noopener noreferrer"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1, duration: 0.4 }}
-      whileHover={{ scale: 1.02, y: -2 }}
-      whileTap={{ scale: 0.98 }}
-      className="block relative group"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: index * 0.08, duration: 0.3 }}
+      className="block group"
     >
-      {/* Glow Effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      
-      {/* Card */}
-      <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden group-hover:border-violet-500/30 transition-all duration-300">
-        {/* Image */}
+      <div className="bg-white/[0.03] rounded-2xl border border-white/[0.06] overflow-hidden hover:bg-white/[0.05] transition-colors">
         <div className="relative h-32 overflow-hidden">
-        <img 
+          <img 
             src={item.image}
             alt={item.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
           
-        {/* Category Badge */}
           <div className="absolute top-3 left-3">
-            <span className="bg-white/10 backdrop-blur-sm text-white/80 text-[10px] font-medium px-2 py-1 rounded-full">
+            <span className="bg-black/40 backdrop-blur-sm text-white/70 text-[10px] font-medium px-2 py-1 rounded-full">
               {item.category}
             </span>
+          </div>
         </div>
-      </div>
-      
-      {/* Content */}
-      <div className="p-4">
-          <h3 className="text-white font-bold text-sm mb-1">
-            {item.name}
-        </h3>
-          <p className="text-white/50 text-xs leading-relaxed mb-3">
-            {item.description}
-        </p>
         
-          {/* View Product Button */}
-          <div className="flex items-center gap-2 text-violet-400 text-xs font-medium group-hover:text-violet-300 transition-colors">
-          <span>View Product</span>
-            <motion.svg 
-              className="w-3 h-3" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2"
-              animate={{ x: [0, 3, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
+        <div className="p-4">
+          <h3 className="text-white font-semibold text-sm mb-1">{item.name}</h3>
+          <p className="text-white/25 text-xs leading-relaxed mb-3">{item.description}</p>
+          
+          <div className="flex items-center gap-1.5 text-white/30 text-xs font-medium group-hover:text-white/50 transition-colors">
+            <span>View Product</span>
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h14M12 5l7 7-7 7" />
-            </motion.svg>
+            </svg>
           </div>
         </div>
       </div>
@@ -102,22 +80,16 @@ function GearCard({ item, index }) {
 
 function GearSection() {
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="px-1"
-      >
-        <h2 className="text-white/60 text-xs uppercase tracking-wider">My Running Gear</h2>
-        <p className="text-white/30 text-xs mt-1">Equipment I use for training & racing</p>
-      </motion.div>
-      
-      {/* Gear Cards */}
     <div className="space-y-3">
+      <div className="px-1">
+        <h2 className="text-white/25 text-[11px] uppercase tracking-wider font-medium">My Running Gear</h2>
+        <p className="text-white/15 text-xs mt-0.5">Equipment I use for training & racing</p>
+      </div>
+      
+      <div className="space-y-2.5">
         {gearItems.map((item, index) => (
           <GearCard key={item.id} item={item} index={index} />
-      ))}
+        ))}
       </div>
     </div>
   )

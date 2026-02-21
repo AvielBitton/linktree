@@ -7,11 +7,11 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Inter', 'SF Pro Display', 'SF Pro Text', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
-        'link-dark': 'rgba(38, 38, 38, 0.8)',
-        'link-hover': 'rgba(50, 50, 50, 0.9)',
+        accent: '#0A84FF',
+        'accent-emerald': '#30D158',
       },
       backdropBlur: {
         xs: '2px',
@@ -20,4 +20,3 @@ export default {
   },
   plugins: [],
 }
-

@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { formatPace, formatWorkoutDate } from '../utils/workouts'
 
-// Workout type categories
 const workoutTypes = [
   { id: 'all', label: 'All', filter: () => true },
   { id: 'long', label: 'Long Run', filter: (w) => w.WorkoutType?.toLowerCase().includes('long') || w.Title?.toLowerCase().includes('long') },
@@ -11,53 +10,43 @@ const workoutTypes = [
   { id: 'speed', label: 'Speed', filter: (w) => w.Title?.toLowerCase().includes('interval') || w.Title?.toLowerCase().includes('vo2') || w.Title?.toLowerCase().includes('speed') },
 ]
 
-// Single workout row (simplified)
 function WorkoutListItem({ workout, index, colors }) {
   const [isExpanded, setIsExpanded] = useState(false)
   
   const workoutDate = new Date(workout.WorkoutDay)
   const formattedDate = formatWorkoutDate(workoutDate)
   
-  // Format duration
   const duration = workout.durationHours
   const durationStr = duration < 1 
     ? `${Math.round(duration * 60)}m` 
     : `${Math.floor(duration)}h ${Math.round((duration % 1) * 60)}m`
   
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.02 }}
-      className="bg-white/[0.03] rounded-lg border border-white/5 overflow-hidden"
-    >
-      {/* Main Row */}
+    <div className="bg-white/[0.03] rounded-xl border border-white/[0.06] overflow-hidden">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full p-3 text-left hover:bg-white/[0.02] transition-colors"
       >
         <div className="flex items-center justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <p className="text-white/50 text-xs mb-0.5">{formattedDate}</p>
-            <p className="text-white font-medium text-sm truncate">
+            <p className="text-white/25 text-[11px] font-medium mb-0.5">{formattedDate}</p>
+            <p className="text-white/80 font-medium text-sm truncate">
               {workout.Title || workout.WorkoutType || 'Run'}
             </p>
           </div>
           
           <div className="flex items-center gap-4 shrink-0">
-            {/* Distance */}
             <div className="text-right">
-              <p className="text-white font-bold text-sm">{workout.distanceKm} km</p>
-              <p className="text-white/40 text-xs">{workout.paceFormatted}/km</p>
+              <p className="text-white font-semibold text-sm">{workout.distanceKm} km</p>
+              <p className="text-white/25 text-[11px]">{workout.paceFormatted}/km</p>
             </div>
             
-            {/* Expand icon */}
             <motion.div
               animate={{ rotate: isExpanded ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-              className="text-white/30"
+              transition={{ duration: 0.15 }}
+              className="text-white/15"
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M19 9l-7 7-7-7" />
               </svg>
             </motion.div>
@@ -65,7 +54,6 @@ function WorkoutListItem({ workout, index, colors }) {
         </div>
       </button>
       
-      {/* Expanded Details */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -75,27 +63,27 @@ function WorkoutListItem({ workout, index, colors }) {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="px-3 pb-2.5 pt-0 border-t border-white/5">
-              <div className="flex items-center justify-center gap-4 pt-2.5 text-xs">
-                <span className="text-white/50">{durationStr}</span>
-                <span className="text-white/20">•</span>
-                <span className="text-white/50">{workout.paceFormatted}/km</span>
+            <div className="px-3 pb-3 pt-0 border-t border-white/[0.04]">
+              <div className="flex items-center justify-center gap-3 pt-2.5 text-[11px] font-medium flex-wrap">
+                <span className="text-white/30">{durationStr}</span>
+                <span className="text-white/10">·</span>
+                <span className="text-white/30">{workout.paceFormatted}/km</span>
                 {workout.hr && (
                   <>
-                    <span className="text-white/20">•</span>
-                    <span className="text-white/50">{Math.round(workout.hr)} bpm</span>
+                    <span className="text-white/10">·</span>
+                    <span className="text-white/30">{Math.round(workout.hr)} bpm</span>
                   </>
                 )}
                 {workout.cadence && (
                   <>
-                    <span className="text-white/20">•</span>
-                    <span className="text-white/50">{Math.round(workout.cadence)} spm</span>
+                    <span className="text-white/10">·</span>
+                    <span className="text-white/30">{Math.round(workout.cadence)} spm</span>
                   </>
                 )}
                 {workout.rpe && (
                   <>
-                    <span className="text-white/20">•</span>
-                    <span className="text-white/50">RPE {workout.rpe}</span>
+                    <span className="text-white/10">·</span>
+                    <span className="text-white/30">RPE {workout.rpe}</span>
                   </>
                 )}
               </div>
@@ -103,7 +91,7 @@ function WorkoutListItem({ workout, index, colors }) {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   )
 }
 
@@ -111,16 +99,13 @@ function AllWorkoutsView({ allWorkouts, colors }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedType, setSelectedType] = useState('all')
   const [visibleCount, setVisibleCount] = useState(5)
-  const [sortBy, setSortBy] = useState('date') // 'date' or 'distance'
+  const [sortBy, setSortBy] = useState('date')
   
-  // Filter, search, and sort workouts
   const filteredWorkouts = useMemo(() => {
     let results = allWorkouts.filter(workout => {
-      // Type filter
       const typeFilter = workoutTypes.find(t => t.id === selectedType)
       if (!typeFilter?.filter(workout)) return false
       
-      // Search filter
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase().trim()
         const title = (workout.Title || '').toLowerCase()
@@ -128,31 +113,22 @@ function AllWorkoutsView({ allWorkouts, colors }) {
         const date = formatWorkoutDate(new Date(workout.WorkoutDay)).toLowerCase()
         const distanceStr = String(workout.distanceKm)
         
-        // Check if query is a number (for distance search)
         const numQuery = parseFloat(query)
         const isNumericSearch = !isNaN(numQuery)
         
         if (isNumericSearch) {
-          // Match distances that start with the query number
-          if (!distanceStr.startsWith(query)) {
-            return false
-          }
+          if (!distanceStr.startsWith(query)) return false
         } else {
-          // Text search in title, type, date
-          if (!title.includes(query) && !type.includes(query) && !date.includes(query)) {
-            return false
-          }
+          if (!title.includes(query) && !type.includes(query) && !date.includes(query)) return false
         }
       }
       
       return true
     })
     
-    // Sort results
     if (sortBy === 'distance') {
       results = [...results].sort((a, b) => b.distanceKm - a.distanceKm)
     }
-    // 'date' sorting is already applied from the data source
     
     return results
   }, [allWorkouts, selectedType, searchQuery, sortBy])
@@ -160,27 +136,20 @@ function AllWorkoutsView({ allWorkouts, colors }) {
   const visibleWorkouts = filteredWorkouts.slice(0, visibleCount)
   const hasMore = visibleCount < filteredWorkouts.length
   
-  const loadMore = () => {
-    setVisibleCount(prev => Math.min(prev + 5, filteredWorkouts.length))
-  }
-  
   return (
     <div className="space-y-3">
-      {/* Search Bar */}
+      {/* Search */}
       <div className="relative">
         <input
           type="text"
           placeholder="Search workouts..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 pl-10 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/20 transition-colors"
+          className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 pl-10 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/[0.12] transition-colors"
         />
         <svg 
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          strokeWidth="2"
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20" 
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
         >
           <circle cx="11" cy="11" r="8" />
           <path d="M21 21l-4.35-4.35" />
@@ -189,25 +158,25 @@ function AllWorkoutsView({ allWorkouts, colors }) {
         {searchQuery && (
           <button
             onClick={() => setSearchQuery('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/40"
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
         )}
       </div>
       
-      {/* Filter Buttons */}
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+      {/* Filters */}
+      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
         {workoutTypes.map(type => (
           <button
             key={type.id}
             onClick={() => setSelectedType(type.id)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap transition-all ${
               selectedType === type.id
-                ? 'bg-white/20 text-white'
-                : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70'
+                ? 'bg-white/[0.1] text-white'
+                : 'bg-white/[0.03] text-white/30 hover:bg-white/[0.06] hover:text-white/50'
             }`}
           >
             {type.label}
@@ -215,31 +184,25 @@ function AllWorkoutsView({ allWorkouts, colors }) {
         ))}
       </div>
       
-      {/* Results Count & Sort */}
+      {/* Count & Sort */}
       <div className="flex items-center justify-between">
-        <p className="text-white/30 text-xs">
-          {filteredWorkouts.length} workout{filteredWorkouts.length !== 1 ? 's' : ''} found
+        <p className="text-white/20 text-[11px] font-medium">
+          {filteredWorkouts.length} workout{filteredWorkouts.length !== 1 ? 's' : ''}
         </p>
         
-        {/* Sort Toggle */}
-        <div className="flex items-center gap-1 text-xs">
+        <div className="flex items-center gap-0.5 text-[11px]">
           <button
             onClick={() => setSortBy('date')}
-            className={`px-2 py-1 rounded transition-colors ${
-              sortBy === 'date' 
-                ? 'bg-white/15 text-white' 
-                : 'text-white/40 hover:text-white/60'
+            className={`px-2 py-1 rounded-md font-medium transition-colors ${
+              sortBy === 'date' ? 'bg-white/[0.08] text-white/60' : 'text-white/25 hover:text-white/40'
             }`}
           >
             Date
           </button>
-          <span className="text-white/20">|</span>
           <button
             onClick={() => setSortBy('distance')}
-            className={`px-2 py-1 rounded transition-colors ${
-              sortBy === 'distance' 
-                ? 'bg-white/15 text-white' 
-                : 'text-white/40 hover:text-white/60'
+            className={`px-2 py-1 rounded-md font-medium transition-colors ${
+              sortBy === 'distance' ? 'bg-white/[0.08] text-white/60' : 'text-white/25 hover:text-white/40'
             }`}
           >
             KM
@@ -247,8 +210,8 @@ function AllWorkoutsView({ allWorkouts, colors }) {
         </div>
       </div>
       
-      {/* Workouts List */}
-      <div className="space-y-2">
+      {/* List */}
+      <div className="space-y-1.5">
         {visibleWorkouts.map((workout, index) => (
           <WorkoutListItem
             key={`${workout.WorkoutDay}-${index}`}
@@ -259,23 +222,19 @@ function AllWorkoutsView({ allWorkouts, colors }) {
         ))}
       </div>
       
-      {/* Load More Button */}
       {hasMore && (
-        <motion.button
-          onClick={loadMore}
-          className="w-full py-3 bg-white/5 hover:bg-white/10 rounded-xl text-white/60 text-sm font-medium transition-colors"
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.99 }}
+        <button
+          onClick={() => setVisibleCount(prev => Math.min(prev + 5, filteredWorkouts.length))}
+          className="w-full py-2.5 bg-white/[0.03] hover:bg-white/[0.05] rounded-xl text-white/30 text-xs font-medium transition-colors border border-white/[0.06]"
         >
           Load more ({filteredWorkouts.length - visibleCount} remaining)
-        </motion.button>
+        </button>
       )}
       
-      {/* Empty State */}
       {filteredWorkouts.length === 0 && (
         <div className="text-center py-8">
-          <p className="text-white/30 text-sm">No workouts found</p>
-          <p className="text-white/20 text-xs mt-1">Try a different search or filter</p>
+          <p className="text-white/20 text-sm">No workouts found</p>
+          <p className="text-white/10 text-xs mt-1">Try a different search or filter</p>
         </div>
       )}
     </div>
@@ -283,4 +242,3 @@ function AllWorkoutsView({ allWorkouts, colors }) {
 }
 
 export default AllWorkoutsView
-

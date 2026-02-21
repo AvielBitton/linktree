@@ -5,22 +5,20 @@ import { loadWorkouts, getAllWeeksStats, formatPace, isCompletedRun } from '../u
 import WeekCard from './WeekCard'
 import AllWorkoutsView from './AllWorkoutsView'
 
-// Progress Ring Component
-function ProgressRing({ progress, size = 80, strokeWidth = 6, color = '#8b5cf6' }) {
+function ProgressRing({ progress, size = 80, strokeWidth = 5, color = '#0A84FF' }) {
   const radius = (size - strokeWidth) / 2
   const circumference = radius * 2 * Math.PI
   const offset = circumference - (progress / 100) * circumference
   
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      {/* Background circle */}
       <svg className="transform -rotate-90" width={size} height={size}>
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="rgba(255,255,255,0.1)"
+          stroke="rgba(255,255,255,0.06)"
           strokeWidth={strokeWidth}
         />
         <motion.circle
@@ -34,47 +32,38 @@ function ProgressRing({ progress, size = 80, strokeWidth = 6, color = '#8b5cf6' 
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset: offset }}
           transition={{ duration: 1.5, ease: "easeOut" }}
-          style={{
-            strokeDasharray: circumference,
-            filter: `drop-shadow(0 0 6px ${color})`
-          }}
+          style={{ strokeDasharray: circumference }}
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-white font-bold text-lg">{Math.round(progress)}%</span>
+        <span className="text-white font-semibold text-base">{Math.round(progress)}%</span>
       </div>
     </div>
   )
 }
 
-// Custom Tooltip for Charts
 function CustomTooltip({ active, payload, label }) {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-black/80 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2">
-        <p className="text-white/60 text-xs mb-1">{label}</p>
-        <p className="text-white font-bold">{payload[0].value} km</p>
+      <div className="bg-[#1c1c1e] border border-white/10 rounded-xl px-3 py-2">
+        <p className="text-white/40 text-[10px] mb-0.5">W{label}</p>
+        <p className="text-white font-semibold text-sm">{payload[0].value} km</p>
       </div>
     )
   }
   return null
 }
 
-// Color themes
 const colorThemes = {
   default: {
-    primary: '#8b5cf6', // violet
-    secondary: '#ec4899', // fuchsia
-    gradientClass: 'from-violet-500/10 to-fuchsia-500/10',
-    buttonActive: 'bg-violet-500',
-    spinnerBorder: 'border-violet-500'
+    primary: '#0A84FF',
+    secondary: '#5E5CE6',
+    spinnerColor: 'border-accent'
   },
   asaf: {
-    primary: '#10b981', // emerald
-    secondary: '#14b8a6', // teal
-    gradientClass: 'from-emerald-500/10 to-teal-500/10',
-    buttonActive: 'bg-emerald-500',
-    spinnerBorder: 'border-emerald-500'
+    primary: '#30D158',
+    secondary: '#14b8a6',
+    spinnerColor: 'border-accent-emerald'
   }
 }
 
@@ -84,9 +73,8 @@ function StatsSection({ traineeId = null }) {
   const [allTimeStats, setAllTimeStats] = useState({ distance: 0, runs: 0 })
   const [loading, setLoading] = useState(true)
   const [selectedView, setSelectedView] = useState('distance')
-  const [workoutsTab, setWorkoutsTab] = useState('weeks') // 'weeks' or 'all'
+  const [workoutsTab, setWorkoutsTab] = useState('weeks')
   
-  // Get color theme based on traineeId
   const theme = traineeId && colorThemes[traineeId] ? colorThemes[traineeId] : colorThemes.default
   
   useEffect(() => {
@@ -94,15 +82,13 @@ function StatsSection({ traineeId = null }) {
       try {
         const workouts = await loadWorkouts(traineeId)
         const stats = getAllWeeksStats(workouts)
-        setWeeks(stats.slice(0, 12)) // Last 12 weeks
+        setWeeks(stats.slice(0, 12))
         
-        // Store all workouts for AllWorkoutsView
-        // We need to process them with the same data structure as week workouts
         const completedRuns = workouts.filter(isCompletedRun)
         const processedWorkouts = completedRuns.map(w => {
           const distance = parseFloat(w.DistanceInMeters) || 0
           const velocity = parseFloat(w.VelocityAverage) || 0
-          const pace = velocity > 0 ? (1000 / velocity) / 60 : null // min/km
+          const pace = velocity > 0 ? (1000 / velocity) / 60 : null
           
           return {
             ...w,
@@ -118,7 +104,6 @@ function StatsSection({ traineeId = null }) {
         
         setAllWorkouts(processedWorkouts)
         
-        // Calculate all-time stats
         let totalDist = 0
         for (const run of completedRuns) {
           totalDist += parseFloat(run.DistanceInMeters) || 0
@@ -140,7 +125,7 @@ function StatsSection({ traineeId = null }) {
     return (
       <div className="flex items-center justify-center py-12">
         <motion.div 
-          className={`w-8 h-8 border-2 ${theme.spinnerBorder} border-t-transparent rounded-full`}
+          className={`w-6 h-6 border-2 ${theme.spinnerColor} border-t-transparent rounded-full`}
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         />
@@ -150,13 +135,12 @@ function StatsSection({ traineeId = null }) {
 
   if (weeks.length === 0) {
     return (
-      <div className="text-center text-gray-500 text-sm py-8">
+      <div className="text-center text-white/30 text-sm py-8">
         No stats available yet.
       </div>
     )
   }
 
-  // Prepare chart data (reversed for chronological order)
   const chartData = [...weeks].reverse().map(week => ({
     week: week.weekKey.split('-')[1],
     distance: week.distanceKm,
@@ -165,21 +149,15 @@ function StatsSection({ traineeId = null }) {
     runs: week.workoutCount
   }))
   
-  // Calculate totals and averages (from last 12 weeks for display)
-  const last12WeeksDistance = weeks.reduce((sum, w) => sum + w.distanceKm, 0)
-  const last12WeeksRuns = weeks.reduce((sum, w) => sum + w.workoutCount, 0)
   const bestWeek = Math.max(...weeks.map(w => w.distanceKm))
   
-  // Marathon training progress
-  // Goal = current total + 40km per week until marathon (28 Feb 2026)
-  const marathonDate = new Date(2026, 1, 28) // Feb 28, 2026
+  const marathonDate = new Date(2026, 1, 28)
   const now = new Date()
   const weeksUntilMarathon = Math.max(0, Math.ceil((marathonDate - now) / (7 * 24 * 60 * 60 * 1000)))
   const weeklyTarget = 40
   const marathonGoalKm = allTimeStats.distance + (weeklyTarget * weeksUntilMarathon)
   const marathonProgress = Math.min((allTimeStats.distance / marathonGoalKm) * 100, 100)
   
-  // Current week vs last week comparison
   const currentWeek = weeks[0]
   const lastWeek = weeks[1]
   const weekOverWeekChange = lastWeek 
@@ -187,103 +165,99 @@ function StatsSection({ traineeId = null }) {
     : 0
 
   return (
-    <div className="space-y-4">
-      {/* Main Stats Grid */}
-      <div className="grid grid-cols-2 gap-3">
-        {/* Marathon Progress Ring */}
+    <div className="space-y-3">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 gap-2.5">
+        {/* Marathon Progress */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className={`col-span-2 bg-gradient-to-br ${theme.gradientClass} backdrop-blur-sm rounded-2xl p-4 border border-white/10`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="col-span-2 bg-white/[0.03] rounded-2xl p-4 border border-white/[0.06]"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-white/40 text-xs uppercase tracking-wider mb-1">Marathon Training</p>
-              <p className="text-white font-bold text-2xl">{allTimeStats.distance} km</p>
-              <p className="text-white/50 text-xs">of {marathonGoalKm} km goal</p>
+              <p className="text-white/30 text-[11px] font-medium uppercase tracking-wider mb-1">Marathon Training</p>
+              <p className="text-white font-semibold text-2xl tracking-tight">{allTimeStats.distance} km</p>
+              <p className="text-white/25 text-xs mt-0.5">of {marathonGoalKm} km goal</p>
             </div>
-            <ProgressRing progress={marathonProgress} size={70} color={theme.primary} />
+            <ProgressRing progress={marathonProgress} size={64} color={theme.primary} />
           </div>
         </motion.div>
         
         {/* This Week */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.05 }}
+          className="bg-white/[0.03] rounded-2xl p-4 border border-white/[0.06]"
         >
-          <p className="text-white/40 text-xs mb-2">This Week</p>
-          <p className="text-white font-bold text-xl">{currentWeek.distanceKm} km</p>
-          <div className={`flex items-center gap-1 mt-1 text-xs ${weekOverWeekChange >= 0 ? 'text-green-400' : 'text-white/50'}`}>
+          <p className="text-white/30 text-[11px] font-medium mb-2">This Week</p>
+          <p className="text-white font-semibold text-xl tracking-tight">{currentWeek.distanceKm} km</p>
+          <div className={`flex items-center gap-1 mt-1 text-[11px] font-medium ${weekOverWeekChange >= 0 ? 'text-[#30D158]' : 'text-white/30'}`}>
             <span>{weekOverWeekChange >= 0 ? '↑' : '↓'}</span>
-            <span>{Math.abs(weekOverWeekChange).toFixed(0)}% vs last week</span>
+            <span>{Math.abs(weekOverWeekChange).toFixed(0)}% vs last</span>
           </div>
         </motion.div>
         
         {/* Best Week */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white/[0.03] rounded-2xl p-4 border border-white/[0.06]"
         >
-          <p className="text-white/40 text-xs mb-2">Best Week</p>
-          <p className="text-white font-bold text-xl">{bestWeek} km</p>
-          <p className="text-yellow-400 text-xs mt-1">🏆 Personal Record</p>
+          <p className="text-white/30 text-[11px] font-medium mb-2">Best Week</p>
+          <p className="text-white font-semibold text-xl tracking-tight">{bestWeek} km</p>
+          <p className="text-white/20 text-[11px] mt-1 font-medium">🏆 PR</p>
         </motion.div>
         
-        {/* Average Pace */}
+        {/* Avg Pace */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.15 }}
+          className="bg-white/[0.03] rounded-2xl p-4 border border-white/[0.06]"
         >
-          <p className="text-white/40 text-xs mb-2">Avg Pace</p>
-          <p className="text-white font-bold text-xl">{formatPace(currentWeek.avgPace)}</p>
-          <p className="text-white/40 text-xs mt-1">min/km</p>
+          <p className="text-white/30 text-[11px] font-medium mb-2">Avg Pace</p>
+          <p className="text-white font-semibold text-xl tracking-tight">{formatPace(currentWeek.avgPace)}</p>
+          <p className="text-white/20 text-[11px] mt-1 font-medium">min/km</p>
         </motion.div>
         
         {/* Total Runs */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/[0.03] rounded-2xl p-4 border border-white/[0.06]"
         >
-          <p className="text-white/40 text-xs mb-2">Total Runs</p>
-          <p className="text-white font-bold text-xl">{allTimeStats.runs}</p>
-          <p className="text-white/40 text-xs mt-1">all time</p>
+          <p className="text-white/30 text-[11px] font-medium mb-2">Total Runs</p>
+          <p className="text-white font-semibold text-xl tracking-tight">{allTimeStats.runs}</p>
+          <p className="text-white/20 text-[11px] mt-1 font-medium">all time</p>
         </motion.div>
       </div>
       
-      {/* Weekly Distance Chart */}
+      {/* Chart */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.25 }}
+        className="bg-white/[0.03] rounded-2xl p-4 border border-white/[0.06]"
       >
         <div className="flex items-center justify-between mb-4">
-          <p className="text-white/60 text-sm font-medium">Weekly Distance <span className="text-white/30 font-normal">(last 12)</span></p>
-          <div className="flex gap-1 bg-white/5 rounded-lg p-0.5">
+          <p className="text-white/50 text-[13px] font-medium">Weekly Distance</p>
+          <div className="flex bg-white/[0.04] rounded-lg p-0.5">
             <button
               onClick={() => setSelectedView('distance')}
-              className={`px-2 py-1 text-xs rounded-md transition-all ${
-                selectedView === 'distance' 
-                  ? `${theme.buttonActive} text-white` 
-                  : 'text-white/40 hover:text-white/60'
+              className={`px-2.5 py-1 text-[11px] rounded-md font-medium transition-all ${
+                selectedView === 'distance' ? 'bg-white/[0.08] text-white' : 'text-white/30 hover:text-white/50'
               }`}
             >
               Distance
             </button>
             <button
               onClick={() => setSelectedView('runs')}
-              className={`px-2 py-1 text-xs rounded-md transition-all ${
-                selectedView === 'runs' 
-                  ? `${theme.buttonActive} text-white` 
-                  : 'text-white/40 hover:text-white/60'
+              className={`px-2.5 py-1 text-[11px] rounded-md font-medium transition-all ${
+                selectedView === 'runs' ? 'bg-white/[0.08] text-white' : 'text-white/30 hover:text-white/50'
               }`}
             >
               Runs
@@ -291,13 +265,13 @@ function StatsSection({ traineeId = null }) {
           </div>
         </div>
         
-        <div className="h-40">
+        <div className="h-36">
           <ResponsiveContainer width="100%" height="100%">
             {selectedView === 'distance' ? (
               <AreaChart data={chartData}>
                 <defs>
-                  <linearGradient id={`distanceGradient-${traineeId || 'default'}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={theme.primary} stopOpacity={0.4} />
+                  <linearGradient id={`distGrad-${traineeId || 'default'}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={theme.primary} stopOpacity={0.2} />
                     <stop offset="100%" stopColor={theme.primary} stopOpacity={0} />
                   </linearGradient>
                 </defs>
@@ -305,21 +279,21 @@ function StatsSection({ traineeId = null }) {
                   dataKey="week" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
+                  tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }}
                 />
                 <YAxis 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
-                  width={30}
+                  tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }}
+                  width={28}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Area
                   type="monotone"
                   dataKey="distance"
                   stroke={theme.primary}
-                  strokeWidth={2}
-                  fill={`url(#distanceGradient-${traineeId || 'default'})`}
+                  strokeWidth={1.5}
+                  fill={`url(#distGrad-${traineeId || 'default'})`}
                 />
               </AreaChart>
             ) : (
@@ -328,26 +302,27 @@ function StatsSection({ traineeId = null }) {
                   dataKey="week" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
+                  tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }}
                 />
                 <YAxis 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
-                  width={30}
+                  tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }}
+                  width={28}
                 />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: 'rgba(0,0,0,0.8)', 
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '8px'
+                    backgroundColor: '#1c1c1e', 
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '12px'
                   }}
-                  labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
+                  labelStyle={{ color: 'rgba(255,255,255,0.4)' }}
                 />
                 <Bar 
                   dataKey="runs" 
                   fill={theme.primary} 
                   radius={[4, 4, 0, 0]}
+                  opacity={0.7}
                 />
               </BarChart>
             )}
@@ -355,46 +330,35 @@ function StatsSection({ traineeId = null }) {
         </div>
       </motion.div>
       
-      {/* Workouts Section with Tabs */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="space-y-3"
-      >
-        {/* Tab Buttons */}
-        <div className="flex border-b border-white/10">
+      {/* Workouts */}
+      <div className="space-y-3">
+        <div className="flex border-b border-white/[0.06]">
           <button
             onClick={() => setWorkoutsTab('weeks')}
-            className={`flex-1 py-2 text-xs font-medium transition-all border-b-2 -mb-px ${
-              workoutsTab === 'weeks'
-                ? 'text-white border-white/60'
-                : 'text-white/40 border-transparent hover:text-white/60'
+            className={`flex-1 py-2.5 text-xs font-medium transition-all border-b-2 -mb-px ${
+              workoutsTab === 'weeks' ? 'text-white/80 border-white/40' : 'text-white/25 border-transparent hover:text-white/40'
             }`}
           >
             Recent Weeks
           </button>
           <button
             onClick={() => setWorkoutsTab('all')}
-            className={`flex-1 py-2 text-xs font-medium transition-all border-b-2 -mb-px ${
-              workoutsTab === 'all'
-                ? 'text-white border-white/60'
-                : 'text-white/40 border-transparent hover:text-white/60'
+            className={`flex-1 py-2.5 text-xs font-medium transition-all border-b-2 -mb-px ${
+              workoutsTab === 'all' ? 'text-white/80 border-white/40' : 'text-white/25 border-transparent hover:text-white/40'
             }`}
           >
             All Workouts
           </button>
         </div>
         
-        {/* Tab Content */}
         <AnimatePresence mode="wait">
           {workoutsTab === 'weeks' ? (
             <motion.div
               key="weeks"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
               className="space-y-2"
             >
               {weeks.slice(0, 4).map((week, index) => (
@@ -409,10 +373,10 @@ function StatsSection({ traineeId = null }) {
           ) : (
             <motion.div
               key="all"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
             >
               <AllWorkoutsView 
                 allWorkouts={allWorkouts}
@@ -421,7 +385,7 @@ function StatsSection({ traineeId = null }) {
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </div>
     </div>
   )
 }

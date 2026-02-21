@@ -7,7 +7,6 @@ import RacesSection from './components/RacesSection'
 import Footer from './components/Footer'
 import { loadWorkouts, isCompletedRun } from './utils/workouts'
 
-// Parse race date
 function parseDate(dateStr) {
   const months = {
     'January': 0, 'February': 1, 'March': 2, 'April': 3,
@@ -21,8 +20,7 @@ function parseDate(dateStr) {
   return new Date(year, month, day)
 }
 
-// Hero Countdown Component
-function HeroCountdown({ targetDate, gradientClass = 'from-violet-500 to-fuchsia-500' }) {
+function HeroCountdown({ targetDate }) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   
   useEffect(() => {
@@ -45,25 +43,18 @@ function HeroCountdown({ targetDate, gradientClass = 'from-violet-500 to-fuchsia
   }, [targetDate])
   
   const TimeBox = ({ value, label }) => (
-    <motion.div 
-      className="flex flex-col items-center"
-      whileHover={{ scale: 1.1 }}
-      transition={{ type: "spring", stiffness: 400 }}
-    >
-      <div className="relative">
-        <div className={`absolute inset-0 bg-gradient-to-r ${gradientClass} rounded-xl blur-lg opacity-50`} />
-        <div className="relative bg-black/60 backdrop-blur-xl rounded-xl px-3 py-2 sm:px-4 sm:py-3 border border-white/10">
-          <span className="text-2xl sm:text-4xl md:text-5xl font-black text-white tabular-nums">
-            {String(value).padStart(2, '0')}
-          </span>
-        </div>
+    <div className="flex flex-col items-center">
+      <div className="bg-white/[0.04] rounded-2xl px-4 py-3 sm:px-5 sm:py-4 border border-white/[0.06]">
+        <span className="text-2xl sm:text-4xl md:text-5xl font-semibold text-white tabular-nums tracking-tight">
+          {String(value).padStart(2, '0')}
+        </span>
       </div>
-      <span className="text-[10px] sm:text-xs text-white/50 mt-2 uppercase tracking-widest">{label}</span>
-    </motion.div>
+      <span className="text-[10px] sm:text-xs text-white/30 mt-2 uppercase tracking-widest font-medium">{label}</span>
+    </div>
   )
   
   return (
-    <div className="flex justify-center gap-2 sm:gap-4">
+    <div className="flex justify-center gap-2.5 sm:gap-3">
       <TimeBox value={timeLeft.days} label="Days" />
       <TimeBox value={timeLeft.hours} label="Hours" />
       <TimeBox value={timeLeft.minutes} label="Min" />
@@ -72,63 +63,56 @@ function HeroCountdown({ targetDate, gradientClass = 'from-violet-500 to-fuchsia
   )
 }
 
-// Stat Card Component
-function StatCard({ icon, value, label, suffix = '', delay = 0, isTime = false, gradientClass = 'from-violet-500/20 to-fuchsia-500/20' }) {
+function StatCard({ icon, value, label, suffix = '', delay = 0, isTime = false }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.5 }}
-      className="relative group"
+      transition={{ delay, duration: 0.4 }}
     >
-      <div className={`absolute inset-0 bg-gradient-to-r ${gradientClass} rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-      <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:border-white/20 transition-all">
-        <div className="text-2xl mb-2">{icon}</div>
-        <div className="text-xl sm:text-2xl font-black text-white">
+      <div className="bg-white/[0.03] rounded-2xl p-4 border border-white/[0.06]">
+        <div className="text-lg mb-1.5">{icon}</div>
+        <div className="text-xl sm:text-2xl font-semibold text-white tracking-tight">
           {isTime ? (
             <span>{value}</span>
           ) : (
             <CountUp end={value} duration={2} delay={delay} separator="," />
           )}
-          <span className="text-white/60 text-sm ml-1">{suffix}</span>
+          <span className="text-white/30 text-sm ml-1 font-normal">{suffix}</span>
         </div>
-        <div className="text-white/40 text-xs mt-1">{label}</div>
+        <div className="text-white/30 text-xs mt-1 font-medium">{label}</div>
       </div>
     </motion.div>
   )
 }
 
-// Tab Button Component
-function TabButton({ id, label, icon, isActive, onClick, gradientClass = 'from-violet-500 to-fuchsia-500' }) {
+function TabButton({ id, label, icon, isActive, onClick }) {
   return (
-    <motion.button
+    <button
       onClick={onClick}
-      className={`relative px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
-        isActive ? 'text-white' : 'text-white/50 hover:text-white/80'
+      className={`relative px-6 py-2 rounded-xl text-sm font-medium transition-all ${
+        isActive ? 'text-white' : 'text-white/40 hover:text-white/60'
       }`}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
     >
       {isActive && (
         <motion.div
           layoutId="activeTabTrainee"
-          className={`absolute inset-0 bg-gradient-to-r ${gradientClass} rounded-xl`}
-          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+          className="absolute inset-0 bg-white/[0.08] rounded-xl"
+          transition={{ type: "spring", stiffness: 500, damping: 35 }}
         />
       )}
-      <span className="relative flex items-center gap-2">
-        <span>{icon}</span>
+      <span className="relative flex items-center gap-1.5">
+        <span className="text-sm">{icon}</span>
         <span>{label}</span>
       </span>
-    </motion.button>
+    </button>
   )
 }
 
-// Trainee profiles
 const traineeProfiles = {
   asaf: {
     name: 'Asaf Berman',
-    tagline: <span>🩺 <strong>Doctor</strong> by day. 🦁 <strong>Lion</strong> by miles.</span>,
+    tagline: <span>🩺 Doctor by day. 🦁 Lion by miles.</span>,
     best5K: '23:57',
     nextRace: {
       name: 'Tel Aviv Marathon',
@@ -151,7 +135,6 @@ const traineeProfiles = {
   }
 }
 
-// Default colors (violet/fuchsia)
 const defaultColors = {
   primary: 'violet',
   secondary: 'fuchsia',
@@ -172,7 +155,6 @@ function TraineeApp({ traineeId }) {
   const colors = profile.colors || defaultColors
   const displayName = profile.name
 
-  // Load total stats
   useEffect(() => {
     async function fetchStats() {
       const workouts = await loadWorkouts(traineeId)
@@ -206,104 +188,62 @@ function TraineeApp({ traineeId }) {
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden bg-black">
-      {/* Background - Pure Black */}
       <div className="fixed inset-0 bg-black" />
-      
-      {/* Gradient Overlay */}
-      <div className="fixed inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black" />
-      
-      {/* Animated Gradient Orbs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          className={`absolute -top-40 -right-40 w-80 h-80 ${colors.orbColor1} rounded-full blur-3xl`}
-          animate={{ 
-            x: [0, 50, 0],
-            y: [0, 30, 0],
-            scale: [1, 1.2, 1]
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className={`absolute -bottom-40 -left-40 w-80 h-80 ${colors.orbColor2} rounded-full blur-3xl`}
-          animate={{ 
-            x: [0, -30, 0],
-            y: [0, -50, 0],
-            scale: [1, 1.3, 1]
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </div>
 
-      {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col">
-        <main className="flex-1 flex flex-col items-center px-4 sm:px-6 pt-8 sm:pt-12 pb-8">
+        <main className="flex-1 flex flex-col items-center px-5 sm:px-6 pt-12 sm:pt-16 pb-8">
           
-          {/* Header */}
+          {/* Hero */}
           <motion.div 
-            className="text-center mb-6"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            className="text-center mb-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
           >
-            <motion.h1 
-              className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-3"
-              style={{
-                background: colors.primary === 'emerald' 
-                  ? 'linear-gradient(135deg, #fff 0%, #10b981 50%, #14b8a6 100%)'
-                  : 'linear-gradient(135deg, #fff 0%, #8b5cf6 50%, #ec4899 100%)',
-                backgroundSize: '200% 200%',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-              animate={{
-                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
-              }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            >
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-2">
               {displayName}
-            </motion.h1>
-            <p className="text-white/60 text-sm sm:text-base font-medium">
+            </h1>
+            <p className="text-white/40 text-sm sm:text-base font-medium">
               {profile.tagline}
             </p>
           </motion.div>
 
-          {/* Next Race Countdown */}
+          {/* Countdown */}
           {profile.nextRace && (
             <motion.div
-              className="mb-8 text-center"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
+              className="mb-10 text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               transition={{ delay: 0.15, duration: 0.5 }}
             >
-              <p className="text-white/40 text-xs uppercase tracking-[0.2em] mb-3">
-                Countdown to {profile.nextRace.name}
+              <p className="text-white/25 text-[11px] uppercase tracking-[0.2em] mb-4 font-medium">
+                {profile.nextRace.name}
               </p>
-              <HeroCountdown targetDate={profile.nextRace.date} gradientClass={colors.gradient} />
-              <div className="mt-3 flex items-center justify-center gap-4">
-                <span className="text-white/30 text-xs">🎯 Goal: {profile.nextRace.goal}</span>
-                <span className="text-white/30 text-xs">📏 {profile.nextRace.distance} km</span>
+              <HeroCountdown targetDate={profile.nextRace.date} />
+              <div className="mt-4 flex items-center justify-center gap-4">
+                <span className="text-white/20 text-xs font-medium">🎯 {profile.nextRace.goal}</span>
+                <span className="text-white/20 text-xs font-medium">📏 {profile.nextRace.distance} km</span>
               </div>
             </motion.div>
           )}
 
-          {/* Quick Stats Row */}
+          {/* Quick Stats */}
           <motion.div 
-            className="grid grid-cols-3 gap-3 sm:gap-4 w-full max-w-md mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            className="grid grid-cols-3 gap-2.5 sm:gap-3 w-full max-w-md mb-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <StatCard icon="⚡" value={profile.best5K || '--'} suffix="" label="Best 5K" delay={0.3} isTime={true} gradientClass={colors.gradientLight} />
-            <StatCard icon="⏱️" value={totalStats.hours} suffix="h" label="Run Time" delay={0.4} gradientClass={colors.gradientLight} />
-            <StatCard icon="✅" value={totalStats.runs} suffix="" label="Runs Done" delay={0.5} gradientClass={colors.gradientLight} />
+            <StatCard icon="⚡" value={profile.best5K || '--'} suffix="" label="Best 5K" delay={0.3} isTime={true} />
+            <StatCard icon="⏱️" value={totalStats.hours} suffix="h" label="Run Time" delay={0.4} />
+            <StatCard icon="✅" value={totalStats.runs} suffix="" label="Runs Done" delay={0.5} />
           </motion.div>
 
-          {/* Tab Navigation */}
+          {/* Tabs */}
           <motion.div 
-            className="bg-white/5 backdrop-blur-xl rounded-2xl p-1.5 mb-6 border border-white/10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            className="bg-white/[0.03] rounded-2xl p-1 mb-8 border border-white/[0.06]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
             <div className="flex">
@@ -313,64 +253,51 @@ function TraineeApp({ traineeId }) {
                   {...tab}
                   isActive={activeTab === tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  gradientClass={colors.gradient}
                 />
               ))}
             </div>
           </motion.div>
 
           {/* Tab Content */}
-          <motion.div 
-            className="w-full max-w-md"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
+          <div className="w-full max-w-md">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.2 }}
               >
                 {tabContent[activeTab]}
               </motion.div>
             </AnimatePresence>
-          </motion.div>
+          </div>
 
-          {/* My Team Section */}
+          {/* My Team */}
           <motion.div
-            className="w-full max-w-md mt-12"
+            className="w-full max-w-md mt-16"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
           >
             <div className="text-center mb-4">
-              <p className="text-white/30 text-xs uppercase tracking-[0.2em]">My Team</p>
+              <p className="text-white/20 text-[11px] uppercase tracking-[0.2em] font-medium">My Team</p>
             </div>
-            <a
-              href="/"
-              className="block"
-            >
-              <motion.div 
-                className="bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:border-violet-500/30 transition-all group"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
+            <a href="/" className="block">
+              <div className="bg-white/[0.03] rounded-2xl p-4 border border-white/[0.06] hover:bg-white/[0.05] transition-colors group">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-full flex items-center justify-center text-xl">
+                  <div className="w-11 h-11 bg-accent/15 rounded-full flex items-center justify-center text-lg">
                     ⚔️
                   </div>
                   <div className="flex-1">
-                    <p className="text-white font-bold">Aviel Bitton</p>
-                    <p className="text-white/50 text-xs">Live boldly as a FREE SPIRIT</p>
+                    <p className="text-white font-semibold text-[15px]">Aviel Bitton</p>
+                    <p className="text-white/35 text-xs">Live boldly as a FREE SPIRIT</p>
                   </div>
-                  <svg className="w-5 h-5 text-white/30 group-hover:text-violet-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  <svg className="w-4 h-4 text-white/15 group-hover:text-white/30 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 18l6-6-6-6"/>
                   </svg>
                 </div>
-              </motion.div>
+              </div>
             </a>
           </motion.div>
         </main>
@@ -382,4 +309,3 @@ function TraineeApp({ traineeId }) {
 }
 
 export default TraineeApp
-

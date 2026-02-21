@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 
-// Parse date string to Date object
 function parseDate(dateStr) {
   const months = {
     'January': 0, 'February': 1, 'March': 2, 'April': 3,
@@ -36,7 +35,6 @@ function RaceCard({ name, distance, date, url, index = 0, themeColor = 'violet' 
           minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
         })
         
-        // Calculate progress (from 90 days before race to race day)
         const totalDays = 90
         const daysUntilRace = Math.floor(diff / (1000 * 60 * 60 * 24))
         const progressPercent = Math.max(0, Math.min(100, ((totalDays - daysUntilRace) / totalDays) * 100))
@@ -45,7 +43,7 @@ function RaceCard({ name, distance, date, url, index = 0, themeColor = 'violet' 
     }
     
     updateTime()
-    const timer = setInterval(updateTime, 60000) // Update every minute
+    const timer = setInterval(updateTime, 60000)
     return () => clearInterval(timer)
   }, [raceDate, isPast])
 
@@ -54,39 +52,24 @@ function RaceCard({ name, distance, date, url, index = 0, themeColor = 'violet' 
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1, duration: 0.4 }}
-      whileHover={{ scale: 1.02, y: -2 }}
-      whileTap={{ scale: 0.98 }}
-      className="block relative group"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: index * 0.08, duration: 0.3 }}
+      className="block group"
     >
-      {/* Glow Effect */}
-      <div className={`absolute inset-0 rounded-2xl blur-xl transition-opacity duration-500 opacity-0 group-hover:opacity-100 ${
+      <div className={`relative overflow-hidden rounded-2xl border transition-all ${
         isPast 
-          ? 'bg-green-500/20' 
-          : themeColor === 'emerald' 
-            ? 'bg-gradient-to-r from-emerald-500/30 to-teal-500/30'
-            : 'bg-gradient-to-r from-violet-500/30 to-fuchsia-500/30'
-      }`} />
-      
-      {/* Card */}
-      <div className={`relative overflow-hidden rounded-2xl border transition-all duration-300 ${
-        isPast 
-          ? 'bg-white/5 border-green-500/20' 
-          : themeColor === 'emerald'
-            ? 'bg-gradient-to-br from-white/10 to-white/5 border-white/10 group-hover:border-emerald-500/30'
-            : 'bg-gradient-to-br from-white/10 to-white/5 border-white/10 group-hover:border-violet-500/30'
+          ? 'bg-white/[0.02] border-white/[0.04]' 
+          : 'bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.05]'
       }`}>
-        
-        {/* Progress Bar Background */}
         {!isPast && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/5">
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/[0.04]">
             <motion.div
-              className={`h-full bg-gradient-to-r ${themeColor === 'emerald' ? 'from-emerald-500 to-teal-500' : 'from-violet-500 to-fuchsia-500'}`}
+              className="h-full bg-accent"
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 1, ease: "easeOut" }}
+              style={{ opacity: 0.6 }}
             />
           </div>
         )}
@@ -94,53 +77,43 @@ function RaceCard({ name, distance, date, url, index = 0, themeColor = 'violet' 
         <div className="p-4">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              {/* Race Name */}
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-white font-bold text-base">
-                  {name}
-                </h3>
+                <h3 className="text-white font-semibold text-[15px]">{name}</h3>
                 {isPast && (
-                  <span className="bg-green-500/20 text-green-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    ✓ DONE
+                  <span className="bg-[#30D158]/15 text-[#30D158] text-[9px] font-semibold px-2 py-0.5 rounded-full">
+                    DONE
                   </span>
                 )}
               </div>
               
-              {/* Distance */}
-              <p className="text-white/60 text-sm mb-2">
-                {distance}
-              </p>
+              <p className="text-white/35 text-sm mb-2">{distance}</p>
               
-              {/* Date & Countdown */}
               <div className="flex items-center justify-between">
-                <p className="text-white/40 text-xs">
-                  📅 {date}
-                </p>
+                <p className="text-white/20 text-xs font-medium">📅 {date}</p>
                 
                 {!isPast ? (
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 bg-white/5 rounded-lg px-2 py-1">
-                      <span className={`font-bold text-xs ${themeColor === 'emerald' ? 'text-emerald-400' : 'text-violet-400'}`}>{timeLeft.days}</span>
-                      <span className="text-white/30 text-[10px]">d</span>
+                  <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-lg px-2 py-1">
+                      <span className="font-semibold text-xs text-white/60">{timeLeft.days}</span>
+                      <span className="text-white/20 text-[9px] font-medium">d</span>
                     </div>
-                    <div className="flex items-center gap-1 bg-white/5 rounded-lg px-2 py-1">
-                      <span className={`font-bold text-xs ${themeColor === 'emerald' ? 'text-emerald-400' : 'text-violet-400'}`}>{timeLeft.hours}</span>
-                      <span className="text-white/30 text-[10px]">h</span>
+                    <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-lg px-2 py-1">
+                      <span className="font-semibold text-xs text-white/60">{timeLeft.hours}</span>
+                      <span className="text-white/20 text-[9px] font-medium">h</span>
                     </div>
-                    <div className="flex items-center gap-1 bg-white/5 rounded-lg px-2 py-1">
-                      <span className={`font-bold text-xs ${themeColor === 'emerald' ? 'text-emerald-400' : 'text-violet-400'}`}>{timeLeft.minutes}</span>
-                      <span className="text-white/30 text-[10px]">m</span>
+                    <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-lg px-2 py-1">
+                      <span className="font-semibold text-xs text-white/60">{timeLeft.minutes}</span>
+                      <span className="text-white/20 text-[9px] font-medium">m</span>
                     </div>
                   </div>
                 ) : (
-                  <span className="text-green-400/60 text-xs">Completed</span>
+                  <span className="text-[#30D158]/40 text-xs font-medium">Completed</span>
                 )}
               </div>
             </div>
             
-            {/* External Link Icon */}
-            <div className={`text-white/20 transition-colors ml-3 ${themeColor === 'emerald' ? 'group-hover:text-emerald-400' : 'group-hover:text-violet-400'}`}>
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <div className="text-white/10 group-hover:text-white/25 transition-colors ml-3">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                 <polyline points="15 3 21 3 21 9" />
                 <line x1="10" y1="14" x2="21" y2="3" />

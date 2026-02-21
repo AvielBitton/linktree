@@ -9,7 +9,6 @@ import GearSection from './components/GearSection'
 import Footer from './components/Footer'
 import { loadWorkouts, isCompletedRun } from './utils/workouts'
 
-// Parse race date
 function parseDate(dateStr) {
   const months = {
     'January': 0, 'February': 1, 'March': 2, 'April': 3,
@@ -23,7 +22,6 @@ function parseDate(dateStr) {
   return new Date(year, month, day)
 }
 
-// Next race data
 const nextRace = {
   name: 'Tel Aviv Marathon',
   date: '28 February 2026',
@@ -31,7 +29,6 @@ const nextRace = {
   goal: '3:45:00'
 }
 
-// Hero Countdown Component
 function HeroCountdown({ targetDate }) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   
@@ -55,25 +52,18 @@ function HeroCountdown({ targetDate }) {
   }, [targetDate])
   
   const TimeBox = ({ value, label }) => (
-    <motion.div 
-      className="flex flex-col items-center"
-      whileHover={{ scale: 1.1 }}
-      transition={{ type: "spring", stiffness: 400 }}
-    >
-      <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-xl blur-lg opacity-50" />
-        <div className="relative bg-black/60 backdrop-blur-xl rounded-xl px-3 py-2 sm:px-4 sm:py-3 border border-white/10">
-          <span className="text-2xl sm:text-4xl md:text-5xl font-black text-white tabular-nums">
-            {String(value).padStart(2, '0')}
-          </span>
-        </div>
+    <div className="flex flex-col items-center">
+      <div className="bg-white/[0.04] rounded-2xl px-4 py-3 sm:px-5 sm:py-4 border border-white/[0.06]">
+        <span className="text-2xl sm:text-4xl md:text-5xl font-semibold text-white tabular-nums tracking-tight">
+          {String(value).padStart(2, '0')}
+        </span>
       </div>
-      <span className="text-[10px] sm:text-xs text-white/50 mt-2 uppercase tracking-widest">{label}</span>
-    </motion.div>
+      <span className="text-[10px] sm:text-xs text-white/30 mt-2 uppercase tracking-widest font-medium">{label}</span>
+    </div>
   )
   
   return (
-    <div className="flex justify-center gap-2 sm:gap-4">
+    <div className="flex justify-center gap-2.5 sm:gap-3">
       <TimeBox value={timeLeft.days} label="Days" />
       <TimeBox value={timeLeft.hours} label="Hours" />
       <TimeBox value={timeLeft.minutes} label="Min" />
@@ -82,55 +72,49 @@ function HeroCountdown({ targetDate }) {
   )
 }
 
-// Stat Card Component
 function StatCard({ icon, value, label, suffix = '', delay = 0, isTime = false }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.5 }}
-      className="relative group"
+      transition={{ delay, duration: 0.4 }}
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:border-white/20 transition-all">
-        <div className="text-2xl mb-2">{icon}</div>
-        <div className="text-xl sm:text-2xl font-black text-white">
+      <div className="bg-white/[0.03] rounded-2xl p-4 border border-white/[0.06]">
+        <div className="text-lg mb-1.5">{icon}</div>
+        <div className="text-xl sm:text-2xl font-semibold text-white tracking-tight">
           {isTime ? (
             <span>{value}</span>
           ) : (
             <CountUp end={value} duration={2} delay={delay} separator="," />
           )}
-          <span className="text-white/60 text-sm ml-1">{suffix}</span>
+          <span className="text-white/30 text-sm ml-1 font-normal">{suffix}</span>
         </div>
-        <div className="text-white/40 text-xs mt-1">{label}</div>
+        <div className="text-white/30 text-xs mt-1 font-medium">{label}</div>
       </div>
     </motion.div>
   )
 }
 
-// Tab Button Component
 function TabButton({ id, label, icon, isActive, onClick }) {
   return (
-    <motion.button
+    <button
       onClick={onClick}
-      className={`relative px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-        isActive ? 'text-white' : 'text-white/50 hover:text-white/80'
+      className={`relative px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+        isActive ? 'text-white' : 'text-white/40 hover:text-white/60'
       }`}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
     >
       {isActive && (
         <motion.div
           layoutId="activeTab"
-          className="absolute inset-0 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-xl"
-          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+          className="absolute inset-0 bg-white/[0.08] rounded-xl"
+          transition={{ type: "spring", stiffness: 500, damping: 35 }}
         />
       )}
-      <span className="relative flex items-center gap-2">
-        <span>{icon}</span>
+      <span className="relative flex items-center gap-1.5">
+        <span className="text-sm">{icon}</span>
         <span>{label}</span>
       </span>
-    </motion.button>
+    </button>
   )
 }
 
@@ -141,7 +125,6 @@ function App() {
   })
   const [totalStats, setTotalStats] = useState({ distance: 0, hours: 0, runs: 0 })
   
-  // Load total stats
   useEffect(() => {
     async function fetchStats() {
       const workouts = await loadWorkouts()
@@ -164,7 +147,6 @@ function App() {
     fetchStats()
   }, [])
   
-  // Handle URL hash
   useEffect(() => {
     if (activeTab === 'races') {
       history.replaceState(null, '', window.location.pathname)
@@ -202,140 +184,97 @@ function App() {
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden bg-black">
-      {/* Background - Pure Black */}
       <div className="fixed inset-0 bg-black" />
-      
-      {/* Gradient Overlay */}
-      <div className="fixed inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black" />
-      
-      {/* Animated Gradient Orbs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          className="absolute -top-40 -right-40 w-80 h-80 bg-violet-500/20 rounded-full blur-3xl"
-          animate={{ 
-            x: [0, 50, 0],
-            y: [0, 30, 0],
-            scale: [1, 1.2, 1]
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-fuchsia-500/20 rounded-full blur-3xl"
-          animate={{ 
-            x: [0, -30, 0],
-            y: [0, -50, 0],
-            scale: [1, 1.3, 1]
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </div>
 
-      {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col">
-        <main className="flex-1 flex flex-col items-center px-4 sm:px-6 pt-8 sm:pt-12 pb-8">
+        <main className="flex-1 flex flex-col items-center px-5 sm:px-6 pt-12 sm:pt-16 pb-8">
           
-          {/* Hero Section */}
+          {/* Hero */}
           <motion.div 
-            className="text-center mb-6"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            className="text-center mb-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
           >
-            {/* Animated Gradient Name */}
-            <motion.h1 
-              className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight mb-3"
-              style={{
-                background: 'linear-gradient(135deg, #fff 0%, #8b5cf6 50%, #ec4899 100%)',
-                backgroundSize: '200% 200%',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-              animate={{
-                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
-              }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            >
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight mb-2">
               Aviel Bitton
-            </motion.h1>
-            <p className="text-white/60 text-sm sm:text-base font-medium">
-              Live boldly as a <span className="text-violet-400 font-bold">FREE SPIRIT</span>
+            </h1>
+            <p className="text-white/40 text-sm sm:text-base font-medium">
+              Live boldly as a <span className="text-accent font-semibold">FREE SPIRIT</span>
             </p>
           </motion.div>
 
           {/* Social Icons */}
           <motion.div 
-            className="mb-8"
+            className="mb-10"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
           >
             <SocialIcons />
           </motion.div>
           
-          {/* Next Race Countdown */}
+          {/* Countdown */}
           <motion.div
-            className="mb-8 text-center"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
+            className="mb-10 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
           >
-            <p className="text-white/40 text-xs uppercase tracking-[0.2em] mb-3">
-              Countdown to {nextRace.name}
+            <p className="text-white/25 text-[11px] uppercase tracking-[0.2em] mb-4 font-medium">
+              {nextRace.name}
             </p>
             <HeroCountdown targetDate={nextRace.date} />
-            <div className="mt-3 flex items-center justify-center gap-4">
-              <span className="text-white/30 text-xs">🎯 Goal: {nextRace.goal}</span>
-              <span className="text-white/30 text-xs">📏 {nextRace.distance} km</span>
+            <div className="mt-4 flex items-center justify-center gap-4">
+              <span className="text-white/20 text-xs font-medium">🎯 {nextRace.goal}</span>
+              <span className="text-white/20 text-xs font-medium">📏 {nextRace.distance} km</span>
             </div>
           </motion.div>
           
-          {/* Quick Stats Row */}
+          {/* Quick Stats */}
           <motion.div 
-            className="grid grid-cols-3 gap-3 sm:gap-4 w-full max-w-md mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+            className="grid grid-cols-3 gap-2.5 sm:gap-3 w-full max-w-md mb-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
           >
-            <StatCard icon="⚡" value="22:57" suffix="" label="Best 5K" delay={0.6} isTime={true} />
-            <StatCard icon="⏱️" value={totalStats.hours} suffix="h" label="Run Time" delay={0.7} />
-            <StatCard icon="✅" value={totalStats.runs} suffix="" label="Runs Done" delay={0.8} />
+            <StatCard icon="⚡" value="22:57" suffix="" label="Best 5K" delay={0.5} isTime={true} />
+            <StatCard icon="⏱️" value={totalStats.hours} suffix="h" label="Run Time" delay={0.6} />
+            <StatCard icon="✅" value={totalStats.runs} suffix="" label="Runs Done" delay={0.7} />
           </motion.div>
 
-          {/* Running Playlist Button */}
+          {/* Spotify */}
           <motion.a
             href="https://open.spotify.com/playlist/7n2NWN00He9JPNcRlVBuNH"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full max-w-md mb-8 block"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.55 }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            className="w-full max-w-md mb-10 block"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.45 }}
           >
-            <div className="bg-gradient-to-r from-green-500/20 to-green-600/10 backdrop-blur-sm rounded-xl p-3 border border-green-500/20 flex items-center gap-3 hover:border-green-500/40 transition-all">
-              <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+            <div className="bg-white/[0.03] rounded-2xl p-3.5 border border-white/[0.06] flex items-center gap-3 hover:bg-white/[0.05] transition-colors">
+              <div className="w-9 h-9 bg-[#1DB954] rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg className="w-4.5 h-4.5 text-white" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
                 </svg>
               </div>
-              <div className="flex-1">
-                <p className="text-white font-medium text-sm">locked in | run mode</p>
-                <p className="text-white/50 text-xs">My running playlist 🎧</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-white/90 font-medium text-sm">locked in | run mode</p>
+                <p className="text-white/30 text-xs">Running playlist</p>
               </div>
-              <svg className="w-4 h-4 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg className="w-4 h-4 text-white/20 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </div>
           </motion.a>
 
-          {/* Tab Navigation */}
+          {/* Tabs */}
           <motion.div 
-            className="bg-white/5 backdrop-blur-xl rounded-2xl p-1.5 mb-6 border border-white/10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
+            className="bg-white/[0.03] rounded-2xl p-1 mb-8 border border-white/[0.06]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
           >
             <div className="flex">
               {tabs.map(tab => (
@@ -350,57 +289,45 @@ function App() {
           </motion.div>
 
           {/* Tab Content */}
-          <motion.div 
-            className="w-full max-w-md"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7 }}
-          >
+          <div className="w-full max-w-md">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.2 }}
               >
                 {tabContent[activeTab]}
               </motion.div>
             </AnimatePresence>
-          </motion.div>
+          </div>
 
-          {/* My Team Section */}
+          {/* My Team */}
           <motion.div
-            className="w-full max-w-md mt-12"
+            className="w-full max-w-md mt-16"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
+            transition={{ delay: 0.6 }}
           >
             <div className="text-center mb-4">
-              <p className="text-white/30 text-xs uppercase tracking-[0.2em]">My Team</p>
+              <p className="text-white/20 text-[11px] uppercase tracking-[0.2em] font-medium">My Team</p>
             </div>
-            <a
-              href="/asaf"
-              className="block"
-            >
-              <motion.div 
-                className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:border-emerald-500/30 transition-all group"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
+            <a href="/asaf" className="block">
+              <div className="bg-white/[0.03] rounded-2xl p-4 border border-white/[0.06] hover:bg-white/[0.05] transition-colors group">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center text-xl">
+                  <div className="w-11 h-11 bg-accent-emerald/15 rounded-full flex items-center justify-center text-lg">
                     🦁
                   </div>
                   <div className="flex-1">
-                    <p className="text-white font-bold">Asaf Berman</p>
-                    <p className="text-white/50 text-xs">🩺 <strong>Doctor</strong> by day. 🦁 <strong>Lion</strong> by miles.</p>
+                    <p className="text-white font-semibold text-[15px]">Asaf Berman</p>
+                    <p className="text-white/35 text-xs">🩺 Doctor by day. 🦁 Lion by miles.</p>
                   </div>
-                  <svg className="w-5 h-5 text-white/30 group-hover:text-emerald-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  <svg className="w-4 h-4 text-white/15 group-hover:text-white/30 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 18l6-6-6-6"/>
                   </svg>
                 </div>
-              </motion.div>
+              </div>
             </a>
           </motion.div>
         </main>

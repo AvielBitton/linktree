@@ -1,29 +1,27 @@
 function Footer({ onToggleStealth }) {
   return (
-    <footer className="relative z-10 pb-6 pt-4">
-      <div className="flex items-center justify-center gap-2 text-white/50 text-xs">
+    <footer className="relative z-10 pb-8 pt-4">
+      <div className="flex items-center justify-center gap-3 text-white/20 text-xs">
         <a 
           href="#" 
-          className="hover:text-white/80 transition-colors"
+          className="hover:text-white/40 transition-colors"
           onClick={(e) => {
             e.preventDefault()
-            // Report functionality
           }}
         >
           Report
         </a>
         <span 
-          className="cursor-pointer select-none hover:text-white/80 transition-colors px-1"
+          className="cursor-pointer select-none hover:text-white/40 transition-colors"
           onClick={onToggleStealth}
         >
           ·
         </span>
         <a 
           href="#" 
-          className="hover:text-white/80 transition-colors"
+          className="hover:text-white/40 transition-colors"
           onClick={(e) => {
             e.preventDefault()
-            // Privacy functionality
           }}
         >
           Privacy
@@ -34,4 +32,3 @@ function Footer({ onToggleStealth }) {
 }
 
 export default Footer
-
