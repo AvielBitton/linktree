@@ -271,19 +271,19 @@ function WorkoutDetailModal({ workout, onClose }) {
   const feelingLabels = { 1: 'Terrible', 2: 'Poor', 3: 'Normal', 4: 'Good', 5: 'Great', 6: 'Superb', 7: 'Peak' }
 
   return (
-    <AnimatePresence>
+    <motion.div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
       <motion.div
-        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        onClick={onClose}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-      >
-        <motion.div
-          className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-          onClick={onClose}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        />
+      />
 
         <motion.div
           className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto bg-[#131922] rounded-t-3xl sm:rounded-3xl border border-white/[0.08] shadow-2xl"
@@ -292,28 +292,28 @@ function WorkoutDetailModal({ workout, onClose }) {
           exit={{ y: '100%', opacity: 0 }}
           transition={{ type: 'spring', damping: 30, stiffness: 300 }}
         >
-          <div className="w-1.5 h-1.5 rounded-full bg-white/15 mx-auto mt-3 sm:hidden" />
+          <div className="w-1 h-1 rounded-full bg-white/15 mx-auto mt-2 sm:hidden" />
 
-          <div className="h-1 rounded-full mx-6 mt-3" style={{ backgroundColor: color }} />
+          <div className="h-0.5 rounded-full mx-5 mt-2" style={{ backgroundColor: color }} />
 
-          <div className="px-6 pt-4 pb-6">
-            <div className="flex items-start justify-between mb-4">
+          <div className="px-5 pt-3 pb-4">
+            <div className="flex items-start justify-between mb-3">
               <div className="flex-1 min-w-0">
-                <p className="text-white/30 text-xs font-medium mb-1">
+                <p className="text-white/30 text-[11px] font-medium mb-0.5">
                   {formatWorkoutDate(workout.date)}
                 </p>
-                <h2 className="text-white font-bold text-xl tracking-tight leading-tight">
+                <h2 className="text-white font-bold text-lg tracking-tight leading-tight">
                   {workout.Title}
                 </h2>
-                <div className="flex items-center gap-2 mt-1.5">
+                <div className="flex items-center gap-1.5 mt-1">
                   <span
-                    className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                    className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
                     style={{ backgroundColor: color + '20', color }}
                   >
                     {workout.WorkoutType}
                   </span>
                   {completed && (
-                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">
                       Completed
                     </span>
                   )}
@@ -321,84 +321,83 @@ function WorkoutDetailModal({ workout, onClose }) {
               </div>
               <button
                 onClick={onClose}
-                className="w-8 h-8 rounded-full bg-white/[0.06] flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/[0.1] transition-colors flex-shrink-0 ml-3"
+                className="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/[0.1] transition-colors flex-shrink-0 ml-2"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                   <path d="M18 6L6 18M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
             {(distDisplay || durationDisplay) && (
-              <div className="flex gap-3 mb-5">
+              <div className="flex gap-2 mb-3">
                 {distDisplay && (
-                  <div className="flex-1 bg-white/[0.04] rounded-xl p-3 text-center">
-                    <p className="text-white font-bold text-lg">{distDisplay}</p>
-                    <p className="text-white/30 text-[11px] font-medium">Distance</p>
+                  <div className="flex-1 bg-white/[0.04] rounded-lg p-2 text-center">
+                    <p className="text-white font-bold text-base">{distDisplay}</p>
+                    <p className="text-white/30 text-[10px] font-medium">Distance</p>
                   </div>
                 )}
                 {durationDisplay && (
-                  <div className="flex-1 bg-white/[0.04] rounded-xl p-3 text-center">
-                    <p className="text-white font-bold text-lg">{durationDisplay}</p>
-                    <p className="text-white/30 text-[11px] font-medium">Duration</p>
+                  <div className="flex-1 bg-white/[0.04] rounded-lg p-2 text-center">
+                    <p className="text-white font-bold text-base">{durationDisplay}</p>
+                    <p className="text-white/30 text-[10px] font-medium">Duration</p>
                   </div>
                 )}
               </div>
             )}
 
             {completed && isRun && (pace || avgHR || cadence || rpe) && (
-              <div className="grid grid-cols-2 gap-2 mb-5">
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
                 {pace && (
-                  <div className="bg-white/[0.04] rounded-xl p-3">
-                    <p className="text-white font-bold text-base">{formatPace(pace)}</p>
-                    <p className="text-white/30 text-[11px] font-medium">Avg Pace</p>
+                  <div className="bg-white/[0.04] rounded-lg p-2">
+                    <p className="text-white font-bold text-sm">{formatPace(pace)}</p>
+                    <p className="text-white/30 text-[10px] font-medium">Avg Pace</p>
                   </div>
                 )}
                 {avgHR && (
-                  <div className="bg-white/[0.04] rounded-xl p-3">
-                    <p className="text-white font-bold text-base">{Math.round(avgHR)}{maxHR ? <span className="text-white/25 font-normal text-xs"> / {Math.round(maxHR)}</span> : ''}</p>
-                    <p className="text-white/30 text-[11px] font-medium">Avg / Max HR</p>
+                  <div className="bg-white/[0.04] rounded-lg p-2">
+                    <p className="text-white font-bold text-sm">{Math.round(avgHR)}{maxHR ? <span className="text-white/25 font-normal text-[11px]"> / {Math.round(maxHR)}</span> : ''}</p>
+                    <p className="text-white/30 text-[10px] font-medium">Avg / Max HR</p>
                   </div>
                 )}
                 {cadence && (
-                  <div className="bg-white/[0.04] rounded-xl p-3">
-                    <p className="text-white font-bold text-base">{Math.round(cadence)}</p>
-                    <p className="text-white/30 text-[11px] font-medium">Cadence</p>
+                  <div className="bg-white/[0.04] rounded-lg p-2">
+                    <p className="text-white font-bold text-sm">{Math.round(cadence)}</p>
+                    <p className="text-white/30 text-[10px] font-medium">Cadence</p>
                   </div>
                 )}
                 {rpe && (
-                  <div className="bg-white/[0.04] rounded-xl p-3">
-                    <p className="text-white font-bold text-base">{rpe}/10</p>
-                    <p className="text-white/30 text-[11px] font-medium">RPE{feeling ? ` · ${feelingLabels[feeling] || feeling}` : ''}</p>
+                  <div className="bg-white/[0.04] rounded-lg p-2">
+                    <p className="text-white font-bold text-sm">{rpe}/10</p>
+                    <p className="text-white/30 text-[10px] font-medium">RPE{feeling ? ` · ${feelingLabels[feeling] || feeling}` : ''}</p>
                   </div>
                 )}
               </div>
             )}
 
             {description && (
-              <div className="mb-4" dir="rtl">
-                <p className="text-white/25 text-[11px] uppercase tracking-wider mb-2 font-semibold text-right">פרטי אימון</p>
-                <p className="text-white/45 text-[13px] leading-relaxed whitespace-pre-line text-right">{description}</p>
+              <div className="mb-3" dir="rtl">
+                <p className="text-white/25 text-[10px] uppercase tracking-wider mb-1 font-semibold text-right">פרטי אימון</p>
+                <p className="text-white/45 text-xs leading-relaxed whitespace-pre-line text-right">{description}</p>
               </div>
             )}
 
             {coachComments && (
-              <div className="mb-4" dir="rtl">
-                <p className="text-white/25 text-[11px] uppercase tracking-wider mb-2 font-semibold text-right">הערות מאמן</p>
-                <p className="text-white/45 text-[13px] leading-relaxed whitespace-pre-line text-right">{coachComments}</p>
+              <div className="mb-3" dir="rtl">
+                <p className="text-white/25 text-[10px] uppercase tracking-wider mb-1 font-semibold text-right">הערות מאמן</p>
+                <p className="text-white/45 text-xs leading-relaxed whitespace-pre-line text-right">{coachComments}</p>
               </div>
             )}
 
             {completed && athleteComments && (
-              <div className="mb-4" dir="rtl">
-                <p className="text-white/25 text-[11px] uppercase tracking-wider mb-2 font-semibold text-right">סיכום אישי</p>
-                <p className="text-white/45 text-[13px] leading-relaxed whitespace-pre-line text-right">{athleteComments}</p>
+              <div className="mb-2" dir="rtl">
+                <p className="text-white/25 text-[10px] uppercase tracking-wider mb-1 font-semibold text-right">סיכום אישי</p>
+                <p className="text-white/45 text-xs leading-relaxed whitespace-pre-line text-right">{athleteComments}</p>
               </div>
             )}
           </div>
         </motion.div>
       </motion.div>
-    </AnimatePresence>
   )
 }
 
@@ -599,12 +598,15 @@ function App() {
         </motion.div>
       </div>
 
-      {selectedWorkout && (
-        <WorkoutDetailModal
-          workout={selectedWorkout}
-          onClose={() => setSelectedWorkout(null)}
-        />
-      )}
+      <AnimatePresence>
+        {selectedWorkout && (
+          <WorkoutDetailModal
+            key="workout-modal"
+            workout={selectedWorkout}
+            onClose={() => setSelectedWorkout(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
