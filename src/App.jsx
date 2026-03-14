@@ -164,8 +164,8 @@ function WorkoutCard({ workout }) {
     ? formatActualDuration(parseFloat(workout.TimeTotalInHours) || 0)
     : formatPlannedDuration(parseFloat(workout.PlannedDuration) || 0)
 
-  const distText = isRun ? runDist.text : nonRunDistKm
-  const subtitle = [distText, duration].filter(Boolean).join(' \u00B7 ')
+  const nonRunSubtitle = [nonRunDistKm, duration].filter(Boolean).join(' \u00B7 ')
+  const runSubtitle = duration || ''
 
   return (
     <div className="flex-1 min-w-[140px] bg-[#161D2A] rounded-xl border border-white/[0.07] overflow-hidden flex">
@@ -174,9 +174,10 @@ function WorkoutCard({ workout }) {
         <div className="min-w-0 flex-1">
           <p className="text-white font-semibold text-[13px] leading-tight truncate">
             {workout.Title}
+            {isRun && runDist.text && ` | ${runDist.text}`}
           </p>
-          {subtitle && (
-            <p className="text-white/40 text-xs mt-0.5">{subtitle}</p>
+          {(isRun ? runSubtitle : nonRunSubtitle) && (
+            <p className="text-white/40 text-xs mt-0.5">{isRun ? runSubtitle : nonRunSubtitle}</p>
           )}
         </div>
         {completed ? (
@@ -280,7 +281,9 @@ function App() {
 
   const isCurrentWeek = currentSunday && getWeekSunday(new Date()).getTime() === currentSunday.getTime()
   const canGoBack = currentSunday && firstDate && currentSunday > getWeekSunday(firstDate)
-  const canGoForward = currentSunday && lastDate && currentSunday < getWeekSunday(lastDate)
+  const maxForwardSunday = getWeekSunday(new Date())
+  maxForwardSunday.setDate(maxForwardSunday.getDate() + 3 * 7)
+  const canGoForward = currentSunday && currentSunday < maxForwardSunday && lastDate && currentSunday < getWeekSunday(lastDate)
 
   const weekData = currentSunday && firstDate
     ? buildWeekData(allWorkouts, currentSunday, firstDate)
