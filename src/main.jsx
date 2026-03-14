@@ -39,11 +39,11 @@ function Root() {
   const route = getRoute()
 
   if (route.type === 'trainee') {
-    return <TraineeApp traineeId={route.traineeId} />
+    return <TraineeApp traineeId={route.traineeId} dataPath={`telaviv2026/${route.traineeId}`} />
   }
 
   if (route.type === 'telaviv2026') {
-    return <TelAviv2026App />
+    return <TelAviv2026App dataPath="telaviv2026/aviel" />
   }
 
   return <App />

@@ -91,7 +91,7 @@ const defaultColors = {
   accentHover: 'violet-500/30'
 }
 
-function TraineeApp({ traineeId }) {
+function TraineeApp({ traineeId, dataPath }) {
   const [activeTab, setActiveTab] = useState('stats')
   const [totalStats, setTotalStats] = useState({ hours: 0, runs: 0 })
   
@@ -101,7 +101,7 @@ function TraineeApp({ traineeId }) {
 
   useEffect(() => {
     async function fetchStats() {
-      const workouts = await loadWorkouts(traineeId)
+      const workouts = await loadWorkouts(dataPath || traineeId)
       const completedRuns = workouts.filter(isCompletedRun)
       
       let totalHours = 0
@@ -125,8 +125,8 @@ function TraineeApp({ traineeId }) {
   ]
   
   const tabContent = {
-    plan: <PlanSection traineeId={traineeId} themeColor={colors.primary} />,
-    stats: <StatsSection traineeId={traineeId} />,
+    plan: <PlanSection traineeId={dataPath || traineeId} themeColor={colors.primary} />,
+    stats: <StatsSection traineeId={dataPath || traineeId} />,
     races: <RacesSection excludeRaces={['hever-race']} themeColor={colors.primary} />
   }
 

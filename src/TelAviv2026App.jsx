@@ -81,7 +81,7 @@ function TabButton({ id, label, icon, isActive, onClick }) {
   )
 }
 
-function TelAviv2026App() {
+function TelAviv2026App({ dataPath }) {
   const [activeTab, setActiveTab] = useState(() => {
     const hash = window.location.hash.slice(1)
     return ['stats', 'races', 'plan', 'gear'].includes(hash) ? hash : 'stats'
@@ -90,7 +90,7 @@ function TelAviv2026App() {
   
   useEffect(() => {
     async function fetchStats() {
-      const workouts = await loadWorkouts()
+      const workouts = await loadWorkouts(dataPath)
       const completedRuns = workouts.filter(isCompletedRun)
       
       let totalDistance = 0
@@ -140,8 +140,8 @@ function TelAviv2026App() {
   
   const tabContent = {
     races: <RacesSection />,
-    plan: <PlanSection />,
-    stats: <StatsSection />,
+    plan: <PlanSection traineeId={dataPath} />,
+    stats: <StatsSection traineeId={dataPath} />,
     gear: <GearSection />
   }
 
