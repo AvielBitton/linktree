@@ -2,9 +2,9 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
+import TelAviv2026App from './TelAviv2026App.jsx'
 import TraineeApp from './TraineeApp.jsx'
 
-// Handle GitHub Pages SPA redirect
 function handleGitHubPagesRedirect() {
   const redirectPath = sessionStorage.getItem('redirect_path')
   if (redirectPath) {
@@ -13,32 +13,39 @@ function handleGitHubPagesRedirect() {
   }
 }
 
-// Simple path-based routing
-// Supports: /asaf, /trainee/asaf, etc.
-function getTraineeFromPath() {
-  const path = window.location.pathname
-  
-  // Check for direct trainee path like /asaf
-  const traineeIds = ['asaf']
-  for (const id of traineeIds) {
-    if (path === `/${id}` || path === `/${id}/`) {
-      return id
-    }
+function getRoute() {
+  const path = window.location.pathname.replace(/\/+$/, '') || '/'
+
+  if (path === '/telaviv2026/asaf') {
+    return { type: 'trainee', traineeId: 'asaf' }
   }
-  
-  return null
+
+  if (path === '/telaviv2026') {
+    return { type: 'telaviv2026' }
+  }
+
+  // Backwards compatibility: redirect /asaf to /telaviv2026/asaf
+  if (path === '/asaf') {
+    window.history.replaceState(null, '', '/telaviv2026/asaf')
+    return { type: 'trainee', traineeId: 'asaf' }
+  }
+
+  return { type: 'home' }
 }
 
-// Handle redirect before rendering
 handleGitHubPagesRedirect()
 
 function Root() {
-  const traineeId = getTraineeFromPath()
-  
-  if (traineeId) {
-    return <TraineeApp traineeId={traineeId} />
+  const route = getRoute()
+
+  if (route.type === 'trainee') {
+    return <TraineeApp traineeId={route.traineeId} />
   }
-  
+
+  if (route.type === 'telaviv2026') {
+    return <TelAviv2026App />
+  }
+
   return <App />
 }
 
@@ -47,4 +54,3 @@ createRoot(document.getElementById('root')).render(
     <Root />
   </StrictMode>,
 )
-

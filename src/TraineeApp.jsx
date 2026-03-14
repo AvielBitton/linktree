@@ -7,62 +7,6 @@ import RacesSection from './components/RacesSection'
 import Footer from './components/Footer'
 import { loadWorkouts, isCompletedRun } from './utils/workouts'
 
-function parseDate(dateStr) {
-  const months = {
-    'January': 0, 'February': 1, 'March': 2, 'April': 3,
-    'May': 4, 'June': 5, 'July': 6, 'August': 7,
-    'September': 8, 'October': 9, 'November': 10, 'December': 11
-  }
-  const parts = dateStr.split(' ')
-  const day = parseInt(parts[0])
-  const month = months[parts[1]]
-  const year = parseInt(parts[2])
-  return new Date(year, month, day)
-}
-
-function HeroCountdown({ targetDate }) {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-  
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date()
-      const target = parseDate(targetDate)
-      const diff = target - now
-      
-      if (diff > 0) {
-        setTimeLeft({
-          days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((diff % (1000 * 60)) / 1000)
-        })
-      }
-    }, 1000)
-    
-    return () => clearInterval(timer)
-  }, [targetDate])
-  
-  const TimeBox = ({ value, label }) => (
-    <div className="flex flex-col items-center">
-      <div className="bg-white/[0.04] rounded-2xl px-4 py-3 sm:px-5 sm:py-4 border border-white/[0.06]">
-        <span className="text-2xl sm:text-4xl md:text-5xl font-semibold text-white tabular-nums tracking-tight">
-          {String(value).padStart(2, '0')}
-        </span>
-      </div>
-      <span className="text-[10px] sm:text-xs text-white/30 mt-2 uppercase tracking-widest font-medium">{label}</span>
-    </div>
-  )
-  
-  return (
-    <div className="flex justify-center gap-2.5 sm:gap-3">
-      <TimeBox value={timeLeft.days} label="Days" />
-      <TimeBox value={timeLeft.hours} label="Hours" />
-      <TimeBox value={timeLeft.minutes} label="Min" />
-      <TimeBox value={timeLeft.seconds} label="Sec" />
-    </div>
-  )
-}
-
 function StatCard({ icon, value, label, suffix = '', delay = 0, isTime = false }) {
   return (
     <motion.div
@@ -114,11 +58,11 @@ const traineeProfiles = {
     name: 'Asaf Berman',
     tagline: <span>🩺 Doctor by day. 🦁 Lion by miles.</span>,
     best5K: '23:57',
-    nextRace: {
-      name: 'Tel Aviv Marathon',
+    marathonResult: {
+      name: 'Tel Aviv Marathon 2026',
       date: '28 February 2026',
-      distance: 42.2,
-      goal: '3:45:00'
+      distance: '42.4 km',
+      finishTime: '3:59:48'
     },
     colors: {
       primary: 'emerald',
@@ -208,8 +152,8 @@ function TraineeApp({ traineeId }) {
             </p>
           </motion.div>
 
-          {/* Countdown */}
-          {profile.nextRace && (
+          {/* Marathon Result */}
+          {profile.marathonResult && (
             <motion.div
               className="mb-10 text-center"
               initial={{ opacity: 0 }}
@@ -217,12 +161,16 @@ function TraineeApp({ traineeId }) {
               transition={{ delay: 0.15, duration: 0.5 }}
             >
               <p className="text-white/25 text-[11px] uppercase tracking-[0.2em] mb-4 font-medium">
-                {profile.nextRace.name}
+                {profile.marathonResult.name}
               </p>
-              <HeroCountdown targetDate={profile.nextRace.date} />
-              <div className="mt-4 flex items-center justify-center gap-4">
-                <span className="text-white/20 text-xs font-medium">🎯 {profile.nextRace.goal}</span>
-                <span className="text-white/20 text-xs font-medium">📏 {profile.nextRace.distance} km</span>
+              <div className="bg-white/[0.04] rounded-2xl px-8 py-5 border border-white/[0.06] inline-block mb-3">
+                <span className="text-4xl sm:text-5xl md:text-6xl font-semibold text-white tabular-nums tracking-tight">
+                  {profile.marathonResult.finishTime}
+                </span>
+              </div>
+              <div className="flex items-center justify-center gap-4 mt-1">
+                <span className="text-white/20 text-xs font-medium">📏 {profile.marathonResult.distance}</span>
+                <span className="text-white/20 text-xs font-medium">📅 {profile.marathonResult.date}</span>
               </div>
             </motion.div>
           )}
@@ -283,7 +231,7 @@ function TraineeApp({ traineeId }) {
             <div className="text-center mb-4">
               <p className="text-white/20 text-[11px] uppercase tracking-[0.2em] font-medium">My Team</p>
             </div>
-            <a href="/" className="block">
+            <a href="/telaviv2026" className="block">
               <div className="bg-white/[0.03] rounded-2xl p-4 border border-white/[0.06] hover:bg-white/[0.05] transition-colors group">
                 <div className="flex items-center gap-4">
                   <div className="w-11 h-11 bg-accent/15 rounded-full flex items-center justify-center text-lg">
