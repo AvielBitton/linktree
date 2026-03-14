@@ -152,6 +152,20 @@ function TelAviv2026App({ dataPath }) {
       <div className="relative z-10 min-h-screen flex flex-col">
         <main className="flex-1 flex flex-col items-center px-5 sm:px-6 pt-12 sm:pt-16 pb-8">
           
+          {/* Back to Home */}
+          <motion.a
+            href="/"
+            className="mb-8 inline-flex items-center gap-1.5 bg-white/[0.04] rounded-full px-3.5 py-1.5 border border-white/[0.06] hover:bg-white/[0.06] transition-colors"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <svg className="w-3 h-3 text-white/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+            <span className="text-white/50 text-xs font-medium">Home</span>
+          </motion.a>
+
           {/* Hero */}
           <motion.div 
             className="text-center mb-8"

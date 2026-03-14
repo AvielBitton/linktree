@@ -316,6 +316,14 @@ function App() {
             </div>
             <div className="flex items-center gap-1">
               <NavArrow direction="left" onClick={() => navigateWeek(-1)} disabled={!canGoBack} />
+              {!isCurrentWeek && (
+                <button
+                  onClick={() => setCurrentSunday(getWeekSunday(new Date()))}
+                  className="text-[11px] font-semibold text-run/80 hover:text-run px-2 py-1 rounded-full hover:bg-white/[0.06] transition-colors"
+                >
+                  Today
+                </button>
+              )}
               <NavArrow direction="right" onClick={() => navigateWeek(1)} disabled={!canGoForward} />
             </div>
           </div>
