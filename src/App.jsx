@@ -121,23 +121,51 @@ function buildWeekData(workouts, sunday, firstDate) {
   }
 }
 
+const AVG_PACE_MIN_PER_KM = 6 + 10 / 60
+
+function estimateDistance(durationHours) {
+  if (!durationHours || durationHours <= 0) return null
+  const km = (durationHours * 60) / AVG_PACE_MIN_PER_KM
+  return Math.floor(km * 2) / 2
+}
+
+function getRunDistance(workout, completed) {
+  const isRun = (workout.WorkoutType || '').toLowerCase() === 'run'
+  if (!isRun) return { text: '', estimated: false }
+
+  if (completed) {
+    const actual = parseFloat(workout.DistanceInMeters) || 0
+    if (actual > 0) return { text: `${Math.round(actual / 100) / 10} km`, estimated: false }
+  }
+
+  const planned = parseFloat(workout.PlannedDistanceInMeters) || 0
+  if (planned > 0) return { text: `${Math.round(planned / 100) / 10} km`, estimated: false }
+
+  const duration = parseFloat(workout.PlannedDuration) || 0
+  const est = estimateDistance(duration)
+  if (est) return { text: `~${est} km`, estimated: true }
+
+  return { text: '', estimated: false }
+}
+
 function WorkoutCard({ workout }) {
   const completed = isWorkoutCompleted(workout)
   const color = getTypeColor(workout.WorkoutType)
+  const isRun = (workout.WorkoutType || '').toLowerCase() === 'run'
 
-  const distanceM = completed
+  const runDist = getRunDistance(workout, completed)
+
+  const nonRunDistanceM = !isRun && completed
     ? parseFloat(workout.DistanceInMeters) || 0
-    : parseFloat(workout.PlannedDistanceInMeters) || 0
-  const distanceKm = distanceM > 0 ? Math.round(distanceM / 100) / 10 : 0
+    : !isRun ? parseFloat(workout.PlannedDistanceInMeters) || 0 : 0
+  const nonRunDistKm = nonRunDistanceM > 0 ? `${Math.round(nonRunDistanceM / 100) / 10} km` : ''
 
   const duration = completed
     ? formatActualDuration(parseFloat(workout.TimeTotalInHours) || 0)
     : formatPlannedDuration(parseFloat(workout.PlannedDuration) || 0)
 
-  const subtitle = [
-    distanceKm > 0 ? `${distanceKm} km` : '',
-    duration,
-  ].filter(Boolean).join(' \u00B7 ')
+  const distText = isRun ? runDist.text : nonRunDistKm
+  const subtitle = [distText, duration].filter(Boolean).join(' \u00B7 ')
 
   return (
     <div className="flex-1 min-w-[140px] bg-[#161D2A] rounded-xl border border-white/[0.07] overflow-hidden flex">
@@ -314,16 +342,24 @@ function App() {
                 Week {weekData.weekNum}
               </span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               <NavArrow direction="left" onClick={() => navigateWeek(-1)} disabled={!canGoBack} />
-              {!isCurrentWeek && (
-                <button
-                  onClick={() => setCurrentSunday(getWeekSunday(new Date()))}
-                  className="text-[11px] font-semibold text-run/80 hover:text-run px-2 py-1 rounded-full hover:bg-white/[0.06] transition-colors"
-                >
-                  Today
-                </button>
-              )}
+              <button
+                onClick={() => setCurrentSunday(getWeekSunday(new Date()))}
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                  isCurrentWeek
+                    ? 'text-run cursor-default'
+                    : 'text-white/30 hover:text-run hover:bg-white/[0.06] active:bg-white/[0.1]'
+                }`}
+              >
+                <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  {isCurrentWeek && <circle cx="12" cy="15" r="2" fill="currentColor" stroke="none" />}
+                </svg>
+              </button>
               <NavArrow direction="right" onClick={() => navigateWeek(1)} disabled={!canGoForward} />
             </div>
           </div>
