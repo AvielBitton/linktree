@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import SocialIcons from './components/SocialIcons'
-import { loadWorkouts } from './utils/workouts'
+import { loadWorkouts, formatPace, formatWorkoutDate } from './utils/workouts'
 
 const DAY_NAMES = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -148,7 +148,7 @@ function getRunDistance(workout, completed) {
   return { text: '', estimated: false }
 }
 
-function WorkoutCard({ workout }) {
+function WorkoutCard({ workout, onClick }) {
   const completed = isWorkoutCompleted(workout)
   const color = getTypeColor(workout.WorkoutType)
   const isRun = (workout.WorkoutType || '').toLowerCase() === 'run'
@@ -168,7 +168,10 @@ function WorkoutCard({ workout }) {
   const runSubtitle = duration || ''
 
   return (
-    <div className="flex-1 min-w-[140px] bg-[#161D2A] rounded-xl border border-white/[0.07] overflow-hidden flex">
+    <div
+      className="flex-1 min-w-[140px] bg-[#161D2A] rounded-xl border border-white/[0.07] overflow-hidden flex cursor-pointer hover:bg-[#1a2332] active:bg-[#1e2840] transition-colors"
+      onClick={onClick}
+    >
       <div className="w-1 flex-shrink-0" style={{ backgroundColor: color }} />
       <div className="flex-1 px-3 py-2.5 flex items-center justify-between gap-2">
         <div className="min-w-0 flex-1">
@@ -198,7 +201,7 @@ function WorkoutCard({ workout }) {
   )
 }
 
-function DayRow({ dayName, dateNum, workouts, isToday }) {
+function DayRow({ dayName, dateNum, workouts, isToday, onSelectWorkout }) {
   const hasWorkouts = workouts.length > 0
 
   return (
@@ -215,7 +218,7 @@ function DayRow({ dayName, dateNum, workouts, isToday }) {
       {hasWorkouts ? (
         <div className="flex-1 flex flex-wrap gap-2">
           {workouts.map((w, i) => (
-            <WorkoutCard key={i} workout={w} />
+            <WorkoutCard key={i} workout={w} onClick={() => onSelectWorkout(w)} />
           ))}
         </div>
       ) : (
@@ -224,6 +227,178 @@ function DayRow({ dayName, dateNum, workouts, isToday }) {
         </div>
       )}
     </div>
+  )
+}
+
+function WorkoutDetailModal({ workout, onClose }) {
+  if (!workout) return null
+
+  const completed = isWorkoutCompleted(workout)
+  const color = getTypeColor(workout.WorkoutType)
+  const isRun = (workout.WorkoutType || '').toLowerCase() === 'run'
+
+  const actualDist = parseFloat(workout.DistanceInMeters) || 0
+  const plannedDist = parseFloat(workout.PlannedDistanceInMeters) || 0
+  const actualDuration = parseFloat(workout.TimeTotalInHours) || 0
+  const plannedDuration = parseFloat(workout.PlannedDuration) || 0
+
+  const velocity = parseFloat(workout.VelocityAverage) || 0
+  const pace = velocity > 0 ? (1000 / velocity) / 60 : null
+  const avgHR = parseFloat(workout.HeartRateAverage) || null
+  const maxHR = parseFloat(workout.HeartRateMax) || null
+  const cadence = parseFloat(workout.CadenceAverage) || null
+  const rpe = parseFloat(workout.Rpe) || null
+  const feeling = parseFloat(workout.Feeling) || null
+
+  const description = workout.WorkoutDescription || ''
+  const coachComments = workout.CoachComments || ''
+  const athleteComments = workout.AthleteComments || ''
+
+  const distDisplay = completed && actualDist > 0
+    ? `${Math.round(actualDist / 100) / 10} km`
+    : plannedDist > 0
+      ? `${Math.round(plannedDist / 100) / 10} km`
+      : isRun && plannedDuration > 0
+        ? `~${estimateDistance(plannedDuration)} km`
+        : null
+
+  const durationDisplay = completed && actualDuration > 0
+    ? formatActualDuration(actualDuration)
+    : plannedDuration > 0
+      ? formatPlannedDuration(plannedDuration)
+      : null
+
+  const feelingLabels = { 1: 'Terrible', 2: 'Poor', 3: 'Normal', 4: 'Good', 5: 'Great', 6: 'Superb', 7: 'Peak' }
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <motion.div
+          className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+          onClick={onClose}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        />
+
+        <motion.div
+          className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto bg-[#131922] rounded-t-3xl sm:rounded-3xl border border-white/[0.08] shadow-2xl"
+          initial={{ y: '100%', opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: '100%', opacity: 0 }}
+          transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        >
+          <div className="w-1.5 h-1.5 rounded-full bg-white/15 mx-auto mt-3 sm:hidden" />
+
+          <div className="h-1 rounded-full mx-6 mt-3" style={{ backgroundColor: color }} />
+
+          <div className="px-6 pt-4 pb-6">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1 min-w-0">
+                <p className="text-white/30 text-xs font-medium mb-1">
+                  {formatWorkoutDate(workout.date)}
+                </p>
+                <h2 className="text-white font-bold text-xl tracking-tight leading-tight">
+                  {workout.Title}
+                </h2>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <span
+                    className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                    style={{ backgroundColor: color + '20', color }}
+                  >
+                    {workout.WorkoutType}
+                  </span>
+                  {completed && (
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">
+                      Completed
+                    </span>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={onClose}
+                className="w-8 h-8 rounded-full bg-white/[0.06] flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/[0.1] transition-colors flex-shrink-0 ml-3"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {(distDisplay || durationDisplay) && (
+              <div className="flex gap-3 mb-5">
+                {distDisplay && (
+                  <div className="flex-1 bg-white/[0.04] rounded-xl p-3 text-center">
+                    <p className="text-white font-bold text-lg">{distDisplay}</p>
+                    <p className="text-white/30 text-[11px] font-medium">Distance</p>
+                  </div>
+                )}
+                {durationDisplay && (
+                  <div className="flex-1 bg-white/[0.04] rounded-xl p-3 text-center">
+                    <p className="text-white font-bold text-lg">{durationDisplay}</p>
+                    <p className="text-white/30 text-[11px] font-medium">Duration</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {completed && isRun && (pace || avgHR || cadence || rpe) && (
+              <div className="grid grid-cols-2 gap-2 mb-5">
+                {pace && (
+                  <div className="bg-white/[0.04] rounded-xl p-3">
+                    <p className="text-white font-bold text-base">{formatPace(pace)}</p>
+                    <p className="text-white/30 text-[11px] font-medium">Avg Pace</p>
+                  </div>
+                )}
+                {avgHR && (
+                  <div className="bg-white/[0.04] rounded-xl p-3">
+                    <p className="text-white font-bold text-base">{Math.round(avgHR)}{maxHR ? <span className="text-white/25 font-normal text-xs"> / {Math.round(maxHR)}</span> : ''}</p>
+                    <p className="text-white/30 text-[11px] font-medium">Avg / Max HR</p>
+                  </div>
+                )}
+                {cadence && (
+                  <div className="bg-white/[0.04] rounded-xl p-3">
+                    <p className="text-white font-bold text-base">{Math.round(cadence)}</p>
+                    <p className="text-white/30 text-[11px] font-medium">Cadence</p>
+                  </div>
+                )}
+                {rpe && (
+                  <div className="bg-white/[0.04] rounded-xl p-3">
+                    <p className="text-white font-bold text-base">{rpe}/10</p>
+                    <p className="text-white/30 text-[11px] font-medium">RPE{feeling ? ` · ${feelingLabels[feeling] || feeling}` : ''}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {description && (
+              <div className="mb-4" dir="rtl">
+                <p className="text-white/25 text-[11px] uppercase tracking-wider mb-2 font-semibold text-right">פרטי אימון</p>
+                <p className="text-white/45 text-[13px] leading-relaxed whitespace-pre-line text-right">{description}</p>
+              </div>
+            )}
+
+            {coachComments && (
+              <div className="mb-4" dir="rtl">
+                <p className="text-white/25 text-[11px] uppercase tracking-wider mb-2 font-semibold text-right">הערות מאמן</p>
+                <p className="text-white/45 text-[13px] leading-relaxed whitespace-pre-line text-right">{coachComments}</p>
+              </div>
+            )}
+
+            {completed && athleteComments && (
+              <div className="mb-4" dir="rtl">
+                <p className="text-white/25 text-[11px] uppercase tracking-wider mb-2 font-semibold text-right">סיכום אישי</p>
+                <p className="text-white/45 text-[13px] leading-relaxed whitespace-pre-line text-right">{athleteComments}</p>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   )
 }
 
@@ -254,6 +429,12 @@ function App() {
   const [lastDate, setLastDate] = useState(null)
   const [currentSunday, setCurrentSunday] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [selectedWorkout, setSelectedWorkout] = useState(null)
+
+  useEffect(() => {
+    document.body.style.overflow = selectedWorkout ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [selectedWorkout])
 
   useEffect(() => {
     async function load() {
@@ -396,6 +577,7 @@ function App() {
                 dateNum={day.dateNum}
                 workouts={day.workouts}
                 isToday={day.isToday}
+                onSelectWorkout={setSelectedWorkout}
               />
             ))}
           </motion.div>
@@ -416,6 +598,13 @@ function App() {
           </p>
         </motion.div>
       </div>
+
+      {selectedWorkout && (
+        <WorkoutDetailModal
+          workout={selectedWorkout}
+          onClose={() => setSelectedWorkout(null)}
+        />
+      )}
     </div>
   )
 }
