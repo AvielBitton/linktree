@@ -205,7 +205,7 @@ function DayRow({ dayName, dateNum, workouts, isToday, onSelectWorkout }) {
   const hasWorkouts = workouts.length > 0
 
   return (
-    <div className={`flex items-start gap-3 py-3.5 border-b border-white/[0.04] last:border-b-0 ${isToday ? 'bg-white/[0.02] -mx-5 px-5 rounded-2xl' : ''}`}>
+    <div className={"flex items-start gap-3 py-3.5 border-b border-white/[0.04] last:border-b-0"}>
       <div className="w-11 flex-shrink-0 text-center pt-0.5">
         <p className={`text-[11px] font-semibold tracking-wider ${isToday ? 'text-run' : 'text-white/30'}`}>
           {dayName}
@@ -478,13 +478,13 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0D1117]">
-      <div className="max-w-lg mx-auto px-5 py-8 sm:py-12">
+    <div className="h-[100dvh] bg-[#0D1117] overflow-hidden">
+      <div className="max-w-lg mx-auto px-5 py-4 sm:py-12 h-full flex flex-col">
 
         {/* Archive Chip */}
         <motion.a
           href="/telaviv2026"
-          className="inline-flex items-center gap-1.5 bg-white/[0.04] rounded-full px-3.5 py-1.5 border border-white/[0.07] mb-8 hover:border-white/[0.15] transition-colors"
+          className="inline-flex items-center gap-1.5 bg-white/[0.04] rounded-full px-3.5 py-1.5 border border-white/[0.07] mb-4 hover:border-white/[0.15] transition-colors self-start"
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
@@ -497,7 +497,7 @@ function App() {
 
         {/* Hero */}
         <motion.div
-          className="mb-10"
+          className="mb-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.05, duration: 0.6 }}
@@ -561,41 +561,28 @@ function App() {
         <div className="h-px bg-gradient-to-r from-white/[0.06] via-white/[0.03] to-transparent mb-1" />
 
         {/* Day Rows */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentSunday?.getTime()}
-            initial={{ opacity: 0, x: 0 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            {weekData.days.map((day, i) => (
-              <DayRow
-                key={i}
-                dayName={day.dayName}
-                dateNum={day.dateNum}
-                workouts={day.workouts}
-                isToday={day.isToday}
-                onSelectWorkout={setSelectedWorkout}
-              />
-            ))}
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Building Next Prep */}
-        <motion.div
-          className="mt-12 text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-        >
-          <p className="text-white/10 text-[10px] uppercase tracking-[0.3em] font-medium mb-2">
-            Next chapter
-          </p>
-          <p className="text-white/20 text-sm font-medium tracking-tight">
-            Building next prep...
-          </p>
-        </motion.div>
+        <div className="flex-1 min-h-0">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentSunday?.getTime()}
+              initial={{ opacity: 0, x: 0 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {weekData.days.map((day, i) => (
+                <DayRow
+                  key={i}
+                  dayName={day.dayName}
+                  dateNum={day.dateNum}
+                  workouts={day.workouts}
+                  isToday={day.isToday}
+                  onSelectWorkout={setSelectedWorkout}
+                />
+              ))}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
 
       <AnimatePresence>
