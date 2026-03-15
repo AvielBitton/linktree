@@ -175,12 +175,12 @@ function WorkoutCard({ workout, onClick }) {
       <div className="w-1 flex-shrink-0" style={{ backgroundColor: color }} />
       <div className="flex-1 px-3 py-2.5 flex items-center justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <p className="text-white font-semibold text-[13px] leading-tight truncate">
+          <p className="text-white font-semibold text-[12px] leading-tight truncate">
             {workout.Title}
             {isRun && runDist.text && ` | ${runDist.text}`}
           </p>
           {(isRun ? runSubtitle : nonRunSubtitle) && (
-            <p className="text-white/40 text-xs mt-0.5">{isRun ? runSubtitle : nonRunSubtitle}</p>
+            <p className="text-white/40 text-[11px] mt-0.5">{isRun ? runSubtitle : nonRunSubtitle}</p>
           )}
         </div>
         {completed ? (
@@ -205,12 +205,12 @@ function DayRow({ dayName, dateNum, workouts, isToday, onSelectWorkout }) {
   const hasWorkouts = workouts.length > 0
 
   return (
-    <div className={`flex items-start gap-3 py-3.5 border-b border-white/[0.04] last:border-b-0 ${isToday ? 'bg-white/[0.02] -mx-5 px-5 rounded-2xl' : ''}`}>
+    <div className="flex items-start gap-3 py-3.5 border-b border-white/[0.04] last:border-b-0">
       <div className="w-11 flex-shrink-0 text-center pt-0.5">
-        <p className={`text-[11px] font-semibold tracking-wider ${isToday ? 'text-run' : 'text-white/30'}`}>
+        <p className={`text-[10px] font-semibold tracking-wider ${isToday ? 'text-run' : 'text-white/30'}`}>
           {dayName}
         </p>
-        <p className={`text-xl font-bold leading-tight ${isToday ? 'text-white' : 'text-white/45'}`}>
+        <p className={`text-lg font-bold leading-tight ${isToday ? 'text-white' : 'text-white/45'}`}>
           {dateNum}
         </p>
       </div>
@@ -223,7 +223,7 @@ function DayRow({ dayName, dateNum, workouts, isToday, onSelectWorkout }) {
         </div>
       ) : (
         <div className="flex-1 flex items-center pt-2.5">
-          <span className="text-white/20 text-sm font-medium">Rest Day</span>
+          <span className="text-white/20 text-xs font-medium">Rest Day</span>
         </div>
       )}
     </div>
@@ -497,18 +497,20 @@ function App() {
 
         {/* Hero */}
         <motion.div
-          className="mb-10"
+          className="mb-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.05, duration: 0.6 }}
         >
-          <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-1">
-            Aviel Bitton
-          </h1>
-          <p className="text-white/30 text-sm font-medium mb-4">
+          <div className="flex items-center justify-between mb-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              Aviel Bitton
+            </h1>
+            <SocialIcons />
+          </div>
+          <p className="text-white/30 text-xs font-medium">
             Live boldly as a <span className="text-amber-400/80 font-semibold">FREE SPIRIT</span>
           </p>
-          <SocialIcons />
         </motion.div>
 
         {/* Week Header with Navigation */}
@@ -518,10 +520,10 @@ function App() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.5 }}
         >
-          <div className="flex items-center justify-between mb-1.5">
+          <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2.5">
-              <h2 className="text-white font-bold text-lg tracking-tight">{weekData.dateRange}</h2>
-              <span className="bg-white/[0.08] text-white/60 text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+              <h2 className="text-white font-bold text-base tracking-tight">{weekData.dateRange}</h2>
+              <span className="bg-white/[0.08] text-white/60 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                 Week {weekData.weekNum}
               </span>
             </div>
@@ -546,7 +548,7 @@ function App() {
               <NavArrow direction="right" onClick={() => navigateWeek(1)} disabled={!canGoForward} />
             </div>
           </div>
-          <p className="text-run/80 text-sm font-medium">
+          <p className="text-run/80 text-xs font-medium">
             Total:{' '}
             <span className="text-white font-bold">
               {weekData.totalActualKm > 0 ? weekData.totalActualKm : weekData.totalPlannedKm} km
@@ -582,20 +584,6 @@ function App() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Building Next Prep */}
-        <motion.div
-          className="mt-12 text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-        >
-          <p className="text-white/10 text-[10px] uppercase tracking-[0.3em] font-medium mb-2">
-            Next chapter
-          </p>
-          <p className="text-white/20 text-sm font-medium tracking-tight">
-            Building next prep...
-          </p>
-        </motion.div>
       </div>
 
       <AnimatePresence>
