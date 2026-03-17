@@ -45,6 +45,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add public/data/aviel/2026.csv
           git commit -m "Auto-sync TrainingPeaks data"
+          git pull --rebase
           git push
 
       - name: Deploy to GitHub Pages
