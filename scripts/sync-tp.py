@@ -7,6 +7,7 @@ Usage: python3 scripts/sync-tp.py
 
 import csv
 import json
+import os
 import re
 import sys
 import time
@@ -48,25 +49,27 @@ TYPE_MAP = {
 
 
 def load_env():
-    """Load TP_AUTH_COOKIE and TP_ATHLETE_ID from .env file."""
-    if not ENV_FILE.exists():
-        print(f"Error: {ENV_FILE} not found.")
-        sys.exit(1)
-    env = {}
-    for line in ENV_FILE.read_text().splitlines():
-        line = line.strip()
-        if "=" in line and not line.startswith("#"):
-            key, val = line.split("=", 1)
-            env[key.strip()] = val.strip()
+    """Load TP_AUTH_COOKIE and TP_ATHLETE_ID from env vars or .env file."""
+    cookie = os.environ.get("TP_AUTH_COOKIE", "")
+    athlete_id = os.environ.get("TP_ATHLETE_ID", "")
 
-    cookie = env.get("TP_AUTH_COOKIE", "")
+    if not cookie or not athlete_id:
+        if ENV_FILE.exists():
+            for line in ENV_FILE.read_text().splitlines():
+                line = line.strip()
+                if "=" in line and not line.startswith("#"):
+                    key, val = line.split("=", 1)
+                    key, val = key.strip(), val.strip()
+                    if key == "TP_AUTH_COOKIE" and not cookie:
+                        cookie = val
+                    elif key == "TP_ATHLETE_ID" and not athlete_id:
+                        athlete_id = val
+
     if not cookie or cookie == "PASTE_YOUR_COOKIE_HERE":
-        print("Error: TP_AUTH_COOKIE not set in .env")
+        print("Error: TP_AUTH_COOKIE not set (env var or .env)")
         sys.exit(1)
-
-    athlete_id = env.get("TP_ATHLETE_ID", "")
     if not athlete_id:
-        print("Error: TP_ATHLETE_ID not set in .env")
+        print("Error: TP_ATHLETE_ID not set (env var or .env)")
         sys.exit(1)
 
     return cookie, int(athlete_id)
