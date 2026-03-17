@@ -2,9 +2,9 @@ name: Sync TrainingPeaks Data
 
 on:
   schedule:
-    - cron: '0 7 * * *'   # Daily at 07:00 UTC (10:00 Israel)
-    - cron: '0 19 * * *'  # Daily at 19:00 UTC (22:00 Israel)
-  workflow_dispatch:       # Manual trigger
+    - cron: '0 7 * * *'   # 10:00 Israel time
+    - cron: '0 19 * * *'  # 22:00 Israel time
+  workflow_dispatch:
 
 jobs:
   sync:
@@ -29,27 +29,24 @@ jobs:
           TP_ATHLETE_ID: ${{ secrets.TP_ATHLETE_ID }}
         run: python3 scripts/sync-tp.py
 
-      - name: Check for changes
-        id: changes
+      - name: Commit and push if changed
+        id: commit
         run: |
           if git diff --quiet public/data/aviel/2026.csv; then
+            echo "No changes detected"
             echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
-
-      - name: Commit updated data
-        if: steps.changes.outputs.changed == 'true'
-        run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add public/data/aviel/2026.csv
           git commit -m "Auto-sync TrainingPeaks data"
-          git pull --rebase
+          git pull --rebase origin main
           git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Deploy to GitHub Pages
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.commit.outputs.changed == 'true'
         run: |
           npm ci
           npm run deploy
