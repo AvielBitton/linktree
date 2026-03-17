@@ -121,6 +121,33 @@ function buildWeekData(workouts, sunday, firstDate) {
   }
 }
 
+function calcStructureDistance(structure, thresholdSpeed) {
+  if (!structure || !structure.blocks || !thresholdSpeed) return null
+  let totalMeters = 0
+  const processStep = (step) => {
+    if (step.unit === 'meter') {
+      totalMeters += (step.value || 0)
+    } else if (step.unit === 'second' && step.targetMin != null) {
+      const avgPct = step.targetMax != null ? (step.targetMin + step.targetMax) / 2 : step.targetMin
+      const speed = thresholdSpeed * (avgPct / 100)
+      totalMeters += speed * (step.value || 0)
+    }
+  }
+  for (const block of structure.blocks) {
+    if (block.type === 'repeat') {
+      for (const step of block.steps) {
+        const reps = block.reps || 1
+        const saved = totalMeters
+        processStep(step)
+        totalMeters = saved + (totalMeters - saved) * reps
+      }
+    } else {
+      processStep(block)
+    }
+  }
+  return totalMeters > 0 ? Math.round(totalMeters / 100) / 10 : null
+}
+
 const AVG_PACE_MIN_PER_KM = 6 + 10 / 60
 
 function estimateDistance(durationHours) {
@@ -140,6 +167,9 @@ function getRunDistance(workout, completed) {
 
   const planned = parseFloat(workout.PlannedDistanceInMeters) || 0
   if (planned > 0) return { text: `${Math.round(planned / 100) / 10} km`, estimated: false }
+
+  const structDist = calcStructureDistance(workout.structure, workout.thresholdSpeed)
+  if (structDist) return { text: `~${structDist} km`, estimated: true }
 
   const duration = parseFloat(workout.PlannedDuration) || 0
   const est = estimateDistance(duration)
@@ -291,13 +321,16 @@ function WorkoutDetailModal({ workout, onClose }) {
     return `${targetMin}%`
   }
 
+  const structDist = calcStructureDistance(structure, thresholdSpeed)
   const distDisplay = completed && actualDist > 0
     ? `${Math.round(actualDist / 100) / 10} km`
     : plannedDist > 0
       ? `${Math.round(plannedDist / 100) / 10} km`
-      : isRun && plannedDuration > 0
-        ? `~${estimateDistance(plannedDuration)} km`
-        : null
+      : structDist
+        ? `~${structDist} km`
+        : isRun && plannedDuration > 0
+          ? `~${estimateDistance(plannedDuration)} km`
+          : null
 
   const durationDisplay = completed && actualDuration > 0
     ? formatActualDuration(actualDuration)
