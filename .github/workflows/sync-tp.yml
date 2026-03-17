@@ -32,14 +32,14 @@ jobs:
       - name: Commit and push if changed
         id: commit
         run: |
-          if git diff --quiet public/data/aviel/2026.csv; then
+          if git diff --quiet public/data/aviel/2026.csv public/data/aviel/2026-extra.json; then
             echo "No changes detected"
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/data/aviel/2026.csv
+          git add public/data/aviel/2026.csv public/data/aviel/2026-extra.json
           git commit -m "Auto-sync TrainingPeaks data"
           git pull --rebase origin main
           git push

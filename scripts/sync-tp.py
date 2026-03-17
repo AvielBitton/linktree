@@ -19,6 +19,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 ENV_FILE = PROJECT_ROOT / ".env"
 OUTPUT_CSV = PROJECT_ROOT / "public" / "data" / "aviel" / "2026.csv"
+OUTPUT_JSON = PROJECT_ROOT / "public" / "data" / "aviel" / "2026-extra.json"
 
 TP_API_BASE = "https://tpapi.trainingpeaks.com"
 MIN_REQUEST_INTERVAL = 0.15
@@ -167,10 +168,10 @@ def fetch_workouts(token, athlete_id, start_date, end_date):
 
 
 def fetch_workout_zones(workout_id, token, athlete_id):
-    """Fetch HR and Power zone data from the details endpoint."""
+    """Fetch HR/Power zone data and threshold speed from the details endpoint."""
     data = api_get(f"/fitness/v6/athletes/{athlete_id}/workouts/{workout_id}/details", token)
     if not data:
-        return {}, {}
+        return {}, {}, None
 
     hr_zones = {}
     hr_data = data.get("timeInHeartRateZones")
@@ -190,8 +191,13 @@ def fetch_workout_zones(workout_id, token, athlete_id):
                 minutes = round(z.get("seconds", 0) / 60.0)
                 pwr_zones[i + 1] = str(minutes)
 
+    threshold_speed = None
+    speed_data = data.get("timeInSpeedZones")
+    if speed_data and isinstance(speed_data, dict):
+        threshold_speed = speed_data.get("threshold")
+
     time.sleep(MIN_REQUEST_INTERVAL)
-    return hr_zones, pwr_zones
+    return hr_zones, pwr_zones, threshold_speed
 
 
 def is_completed(w):
@@ -253,11 +259,89 @@ def map_workout(w, hr_zones, pwr_zones):
     return row
 
 
+def format_step(step):
+    length = step.get("length", {})
+    targets = step.get("targets", [])
+    target = targets[0] if targets else {}
+    return {
+        "name": step.get("name", step.get("intensityClass", "")),
+        "intensityClass": step.get("intensityClass", "active"),
+        "value": length.get("value"),
+        "unit": length.get("unit", ""),
+        "targetMin": target.get("minValue"),
+        "targetMax": target.get("maxValue"),
+    }
+
+
+def format_structure(structure):
+    """Convert TP structure into grouped intervals with repeat blocks."""
+    if not structure:
+        return None
+    metric = structure.get("primaryIntensityMetric", "")
+    blocks = []
+    for block in structure.get("structure", []):
+        reps = block.get("length", {}).get("value", 1)
+        steps = [format_step(s) for s in block.get("steps", [])]
+        if not steps:
+            continue
+        if reps > 1 or len(steps) > 1:
+            blocks.append({"type": "repeat", "reps": reps, "steps": steps})
+        else:
+            blocks.append({**steps[0], "type": "single"})
+    return {"metric": metric, "blocks": blocks} if blocks else None
+
+
+def build_extra_data(workouts, threshold_speed=None):
+    """Build the extra JSON data (structure, compliance, etc.) for each workout."""
+    extra = {}
+    if threshold_speed:
+        extra["_thresholdSpeed"] = round(threshold_speed, 6)
+    for w in workouts:
+        day = str(w.get("workoutDay", ""))[:10]
+        title = safe(w.get("title"))
+        key = f"{day}_{title}"
+
+        entry = {}
+
+        struct = format_structure(w.get("structure"))
+        if struct:
+            entry["structure"] = struct
+
+        compliance = {}
+        if w.get("complianceDurationPercent") is not None:
+            compliance["duration"] = round(w["complianceDurationPercent"], 1)
+        if w.get("complianceTssPercent") is not None:
+            compliance["tss"] = round(w["complianceTssPercent"], 1)
+        if w.get("complianceDistancePercent") is not None:
+            compliance["distance"] = round(w["complianceDistancePercent"], 1)
+        if compliance:
+            entry["compliance"] = compliance
+
+        if w.get("elevationGain") is not None:
+            entry["elevationGain"] = round(w["elevationGain"])
+        if w.get("elevationLoss") is not None:
+            entry["elevationLoss"] = round(w["elevationLoss"])
+        if w.get("normalizedSpeedActual") is not None:
+            entry["normalizedSpeed"] = w["normalizedSpeedActual"]
+        if w.get("calories") is not None:
+            entry["calories"] = w["calories"]
+        if w.get("startTime"):
+            entry["startTime"] = w["startTime"]
+        if w.get("tssPlanned") is not None:
+            entry["tssPlanned"] = w["tssPlanned"]
+        if w.get("ifPlanned") is not None:
+            entry["ifPlanned"] = round(w["ifPlanned"], 4)
+
+        if entry:
+            extra[key] = entry
+
+    return extra
+
+
 def write_csv(rows, output_path):
     rows.sort(key=lambda r: r.get("WorkoutDay", ""))
 
     with open(output_path, "w", newline="", encoding="utf-8") as f:
-        # Write header with leading space to match TP export format
         header_line = ' "' + '","'.join(CSV_HEADERS) + '"\n'
         f.write(header_line)
 
@@ -266,6 +350,12 @@ def write_csv(rows, output_path):
             writer.writerow(row)
 
     print(f"Wrote {len(rows)} workouts to {output_path}")
+
+
+def write_extra_json(extra, output_path):
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(extra, f, ensure_ascii=False, separators=(",", ":"))
+    print(f"Wrote {len(extra)} entries to {output_path}")
 
 
 def main():
@@ -293,22 +383,33 @@ def main():
     print(f"\nFetching zone data for {len(completed_ids)} completed workouts...")
 
     zones_cache = {}
+    threshold_speed = None
     for i, wid in enumerate(completed_ids):
         if (i + 1) % 10 == 0:
             print(f"  {i + 1}/{len(completed_ids)}...", flush=True)
-        hr_z, pwr_z = fetch_workout_zones(wid, token, athlete_id)
+        hr_z, pwr_z, t_speed = fetch_workout_zones(wid, token, athlete_id)
         zones_cache[wid] = (hr_z, pwr_z)
+        if t_speed and not threshold_speed:
+            threshold_speed = t_speed
 
     print(f"  Done ({len(zones_cache)} workouts with zone data)")
+    if threshold_speed:
+        tp = 1000 / threshold_speed / 60
+        print(f"  Threshold pace: {int(tp)}:{int((tp % 1) * 60):02d}/km")
 
     rows = []
     for w in workouts:
         wid = w["workoutId"]
-        hr_z, pwr_z = zones_cache.get(wid, ({}, {}))
-        rows.append(map_workout(w, hr_z, pwr_z))
+        cached = zones_cache.get(wid, ({}, {}))
+        rows.append(map_workout(w, cached[0], cached[1]))
 
     write_csv(rows, OUTPUT_CSV)
-    print("\nDone! Run 'npm run deploy' to push to production.")
+
+    print("\nBuilding extra data (structure, compliance)...")
+    extra = build_extra_data(workouts, threshold_speed)
+    write_extra_json(extra, OUTPUT_JSON)
+
+    print("\nDone!")
 
 
 if __name__ == "__main__":

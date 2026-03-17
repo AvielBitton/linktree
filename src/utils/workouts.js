@@ -139,23 +139,37 @@ async function loadCSVFile(filename, traineeId = null) {
   return parseCSV(csvText)
 }
 
+async function loadExtraJSON(traineeId = null) {
+  const basePath = `/data/${traineeId || 'aviel'}`
+  try {
+    const response = await fetch(`${basePath}/2026-extra.json`)
+    if (!response.ok) return {}
+    return await response.json()
+  } catch {
+    return {}
+  }
+}
+
 // Load all workouts from both year files (2025 + 2026)
 // traineeId: optional string to load trainee-specific data (e.g., 'asaf')
 export async function loadWorkouts(traineeId = null) {
   try {
-    // Load both years in parallel
-    const [workouts2025, workouts2026] = await Promise.all([
+    const [workouts2025, workouts2026, extra] = await Promise.all([
       loadCSVFile('2025.csv', traineeId),
-      loadCSVFile('2026.csv', traineeId)
+      loadCSVFile('2026.csv', traineeId),
+      loadExtraJSON(traineeId)
     ])
     
-    // Merge all workouts
     const allWorkouts = [...workouts2025, ...workouts2026]
+    const thresholdSpeed = extra._thresholdSpeed || null
     
-    return allWorkouts.map(w => ({
-      ...w,
-      date: w.WorkoutDay ? new Date(w.WorkoutDay) : null
-    })).filter(w => w.date && !isNaN(w.date.getTime()))
+    return allWorkouts.map(w => {
+      const date = w.WorkoutDay ? new Date(w.WorkoutDay) : null
+      const day = w.WorkoutDay ? w.WorkoutDay.slice(0, 10) : ''
+      const key = `${day}_${w.Title || ''}`
+      const extraData = extra[key] || {}
+      return { ...w, ...extraData, thresholdSpeed, date }
+    }).filter(w => w.date && !isNaN(w.date.getTime()))
   } catch (err) {
     console.error('Error loading workouts:', err)
     return []
