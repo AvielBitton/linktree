@@ -1,46 +1,11 @@
-/**
- * Unified workouts data module
- * Loads and processes all workouts from a single CSV file
- */
-
-// Parse CSV string into array of objects
-function parseCSV(csvText) {
-  const lines = csvText.trim().split('\n')
-  if (lines.length < 2) return []
-  
-  // Parse header row (remove quotes)
-  const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, ''))
-  
-  // Parse data rows
-  const data = []
-  for (let i = 1; i < lines.length; i++) {
-    const values = []
-    let current = ''
-    let inQuotes = false
-    
-    for (const char of lines[i]) {
-      if (char === '"') {
-        inQuotes = !inQuotes
-      } else if (char === ',' && !inQuotes) {
-        values.push(current.replace(/^"|"$/g, ''))
-        current = ''
-      } else {
-        current += char
-      }
-    }
-    values.push(current.replace(/^"|"$/g, ''))
-    
-    const row = {}
-    headers.forEach((header, idx) => {
-      row[header] = values[idx] || ''
-    })
-    data.push(row)
-  }
-  
-  return data
+export function hydrateWorkouts(workouts) {
+  return workouts.map(w => ({
+    ...w,
+    date: w.WorkoutDay ? new Date(w.WorkoutDay) : null,
+  })).filter(w => w.date && !isNaN(w.date.getTime()))
 }
 
-// Check if a workout is a real run (type check only)
+
 function isRunType(workout) {
   const type = (workout.WorkoutType || '').toLowerCase()
   
@@ -125,55 +90,6 @@ export function formatDuration(hours) {
     return `${Math.round(hours * 60)}m`
   }
   return `${Math.round(hours * 10) / 10}h`
-}
-
-// Load workouts from a single CSV file
-async function loadCSVFile(filename, traineeId = null) {
-  const basePath = `/data/${traineeId || 'aviel'}`
-  const response = await fetch(`${basePath}/${filename}`)
-  if (!response.ok) {
-    console.warn(`Failed to load ${filename}`)
-    return []
-  }
-  const csvText = await response.text()
-  return parseCSV(csvText)
-}
-
-async function loadExtraJSON(traineeId = null) {
-  const basePath = `/data/${traineeId || 'aviel'}`
-  try {
-    const response = await fetch(`${basePath}/2026-extra.json`)
-    if (!response.ok) return {}
-    return await response.json()
-  } catch {
-    return {}
-  }
-}
-
-// Load all workouts from both year files (2025 + 2026)
-// traineeId: optional string to load trainee-specific data (e.g., 'asaf')
-export async function loadWorkouts(traineeId = null) {
-  try {
-    const [workouts2025, workouts2026, extra] = await Promise.all([
-      loadCSVFile('2025.csv', traineeId),
-      loadCSVFile('2026.csv', traineeId),
-      loadExtraJSON(traineeId)
-    ])
-    
-    const allWorkouts = [...workouts2025, ...workouts2026]
-    const thresholdSpeed = extra._thresholdSpeed || null
-    
-    return allWorkouts.map(w => {
-      const date = w.WorkoutDay ? new Date(w.WorkoutDay) : null
-      const day = w.WorkoutDay ? w.WorkoutDay.slice(0, 10) : ''
-      const key = `${day}_${w.Title || ''}`
-      const extraData = extra[key] || {}
-      return { ...w, ...extraData, thresholdSpeed, date }
-    }).filter(w => w.date && !isNaN(w.date.getTime()))
-  } catch (err) {
-    console.error('Error loading workouts:', err)
-    return []
-  }
 }
 
 // Group workouts by ISO week
@@ -351,7 +267,7 @@ export function formatWorkoutDate(date) {
 }
 
 export default {
-  loadWorkouts,
+  hydrateWorkouts,
   groupByWeek,
   getCurrentWeekStats,
   getAllWeeksStats,

@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react'
+'use client'
+
+import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import CountUp from 'react-countup'
 import SocialIcons from './components/SocialIcons'
@@ -7,7 +9,7 @@ import StatsSection from './components/StatsSection'
 import PlanSection from './components/PlanSection'
 import GearSection from './components/GearSection'
 import Footer from './components/Footer'
-import { loadWorkouts, isCompletedRun } from './utils/workouts'
+import { hydrateWorkouts, isCompletedRun } from './utils/workouts'
 
 const marathonResult = {
   name: 'Tel Aviv Marathon 2026',
@@ -81,34 +83,29 @@ function TabButton({ id, label, icon, isActive, onClick }) {
   )
 }
 
-function TelAviv2026App({ dataPath }) {
+function TelAviv2026App({ initialWorkouts = [], dataPath }) {
+  const workouts = useMemo(() => hydrateWorkouts(initialWorkouts), [initialWorkouts])
+
   const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window === 'undefined') return 'stats'
     const hash = window.location.hash.slice(1)
     return ['stats', 'races', 'plan', 'gear'].includes(hash) ? hash : 'stats'
   })
-  const [totalStats, setTotalStats] = useState({ distance: 0, hours: 0, runs: 0 })
-  
-  useEffect(() => {
-    async function fetchStats() {
-      const workouts = await loadWorkouts(dataPath)
-      const completedRuns = workouts.filter(isCompletedRun)
-      
-      let totalDistance = 0
-      let totalHours = 0
-      
-      for (const run of completedRuns) {
-        totalDistance += parseFloat(run.DistanceInMeters) || 0
-        totalHours += parseFloat(run.TimeTotalInHours) || 0
-      }
-      
-      setTotalStats({
-        distance: Math.round(totalDistance / 1000),
-        hours: Math.round(totalHours),
-        runs: completedRuns.length
-      })
+
+  const totalStats = useMemo(() => {
+    const completedRuns = workouts.filter(isCompletedRun)
+    let totalDistance = 0
+    let totalHours = 0
+    for (const run of completedRuns) {
+      totalDistance += parseFloat(run.DistanceInMeters) || 0
+      totalHours += parseFloat(run.TimeTotalInHours) || 0
     }
-    fetchStats()
-  }, [])
+    return {
+      distance: Math.round(totalDistance / 1000),
+      hours: Math.round(totalHours),
+      runs: completedRuns.length,
+    }
+  }, [workouts])
   
   useEffect(() => {
     if (activeTab === 'races') {
@@ -140,8 +137,8 @@ function TelAviv2026App({ dataPath }) {
   
   const tabContent = {
     races: <RacesSection />,
-    plan: <PlanSection traineeId={dataPath} />,
-    stats: <StatsSection traineeId={dataPath} />,
+    plan: <PlanSection traineeId={dataPath} workouts={workouts} />,
+    stats: <StatsSection traineeId={dataPath} workouts={workouts} />,
     gear: <GearSection />
   }
 

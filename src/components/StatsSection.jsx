@@ -1,7 +1,9 @@
-import { useState, useEffect, useMemo } from 'react'
+'use client'
+
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, BarChart, Bar } from 'recharts'
-import { loadWorkouts, getAllWeeksStats, formatPace, isCompletedRun } from '../utils/workouts'
+import { getAllWeeksStats, formatPace, isCompletedRun } from '../utils/workouts'
 import WeekCard from './WeekCard'
 import AllWorkoutsView from './AllWorkoutsView'
 
@@ -67,71 +69,45 @@ const colorThemes = {
   }
 }
 
-function StatsSection({ traineeId = null }) {
-  const [weeks, setWeeks] = useState([])
-  const [allWorkouts, setAllWorkouts] = useState([])
-  const [allTimeStats, setAllTimeStats] = useState({ distance: 0, runs: 0 })
-  const [loading, setLoading] = useState(true)
+function StatsSection({ traineeId = null, workouts: inputWorkouts = [] }) {
   const [selectedView, setSelectedView] = useState('distance')
   const [workoutsTab, setWorkoutsTab] = useState('weeks')
-  
-  const theme = traineeId && colorThemes[traineeId] ? colorThemes[traineeId] : colorThemes.default
-  
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const workouts = await loadWorkouts(traineeId)
-        const stats = getAllWeeksStats(workouts)
-        setWeeks(stats.slice(0, 12))
-        
-        const completedRuns = workouts.filter(isCompletedRun)
-        const processedWorkouts = completedRuns.map(w => {
-          const distance = parseFloat(w.DistanceInMeters) || 0
-          const velocity = parseFloat(w.VelocityAverage) || 0
-          const pace = velocity > 0 ? (1000 / velocity) / 60 : null
-          
-          return {
-            ...w,
-            distanceKm: Math.round(distance / 100) / 10,
-            pace: pace,
-            paceFormatted: formatPace(pace),
-            hr: parseFloat(w.HeartRateAverage) || null,
-            durationHours: parseFloat(w.TimeTotalInHours) || 0,
-            cadence: parseFloat(w.CadenceAverage) || null,
-            rpe: parseFloat(w.Rpe) || null,
-          }
-        }).sort((a, b) => new Date(b.WorkoutDay) - new Date(a.WorkoutDay))
-        
-        setAllWorkouts(processedWorkouts)
-        
-        let totalDist = 0
-        for (const run of completedRuns) {
-          totalDist += parseFloat(run.DistanceInMeters) || 0
-        }
-        setAllTimeStats({
-          distance: Math.round(totalDist / 1000),
-          runs: completedRuns.length
-        })
-      } catch (err) {
-        console.error('Error loading stats:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchData()
-  }, [traineeId])
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <motion.div 
-          className={`w-6 h-6 border-2 ${theme.spinnerColor} border-t-transparent rounded-full`}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        />
-      </div>
-    )
-  }
+  const theme = traineeId && colorThemes[traineeId] ? colorThemes[traineeId] : colorThemes.default
+
+  const { weeks, allWorkouts, allTimeStats } = useMemo(() => {
+    const stats = getAllWeeksStats(inputWorkouts)
+    const completedRuns = inputWorkouts.filter(isCompletedRun)
+    const processedWorkouts = completedRuns.map(w => {
+      const distance = parseFloat(w.DistanceInMeters) || 0
+      const velocity = parseFloat(w.VelocityAverage) || 0
+      const pace = velocity > 0 ? (1000 / velocity) / 60 : null
+      return {
+        ...w,
+        distanceKm: Math.round(distance / 100) / 10,
+        pace,
+        paceFormatted: formatPace(pace),
+        hr: parseFloat(w.HeartRateAverage) || null,
+        durationHours: parseFloat(w.TimeTotalInHours) || 0,
+        cadence: parseFloat(w.CadenceAverage) || null,
+        rpe: parseFloat(w.Rpe) || null,
+      }
+    }).sort((a, b) => new Date(b.WorkoutDay) - new Date(a.WorkoutDay))
+
+    let totalDist = 0
+    for (const run of completedRuns) {
+      totalDist += parseFloat(run.DistanceInMeters) || 0
+    }
+
+    return {
+      weeks: stats.slice(0, 12),
+      allWorkouts: processedWorkouts,
+      allTimeStats: {
+        distance: Math.round(totalDist / 1000),
+        runs: completedRuns.length,
+      },
+    }
+  }, [inputWorkouts])
 
   if (weeks.length === 0) {
     return (

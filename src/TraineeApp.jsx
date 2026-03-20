@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react'
+'use client'
+
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import CountUp from 'react-countup'
 import StatsSection from './components/StatsSection'
 import PlanSection from './components/PlanSection'
 import RacesSection from './components/RacesSection'
 import Footer from './components/Footer'
-import { loadWorkouts, isCompletedRun } from './utils/workouts'
+import { hydrateWorkouts, isCompletedRun } from './utils/workouts'
 
 function StatCard({ icon, value, label, suffix = '', delay = 0, isTime = false }) {
   return (
@@ -91,32 +93,26 @@ const defaultColors = {
   accentHover: 'violet-500/30'
 }
 
-function TraineeApp({ traineeId, dataPath }) {
+function TraineeApp({ initialWorkouts = [], traineeId, dataPath }) {
+  const workouts = useMemo(() => hydrateWorkouts(initialWorkouts), [initialWorkouts])
+
   const [activeTab, setActiveTab] = useState('stats')
-  const [totalStats, setTotalStats] = useState({ hours: 0, runs: 0 })
-  
+
   const profile = traineeProfiles[traineeId] || { name: traineeId, tagline: 'Training to be unstoppable' }
   const colors = profile.colors || defaultColors
   const displayName = profile.name
 
-  useEffect(() => {
-    async function fetchStats() {
-      const workouts = await loadWorkouts(dataPath || traineeId)
-      const completedRuns = workouts.filter(isCompletedRun)
-      
-      let totalHours = 0
-      
-      for (const run of completedRuns) {
-        totalHours += parseFloat(run.TimeTotalInHours) || 0
-      }
-      
-      setTotalStats({
-        hours: Math.round(totalHours),
-        runs: completedRuns.length
-      })
+  const totalStats = useMemo(() => {
+    const completedRuns = workouts.filter(isCompletedRun)
+    let totalHours = 0
+    for (const run of completedRuns) {
+      totalHours += parseFloat(run.TimeTotalInHours) || 0
     }
-    fetchStats()
-  }, [traineeId])
+    return {
+      hours: Math.round(totalHours),
+      runs: completedRuns.length,
+    }
+  }, [workouts])
 
   const tabs = [
     { id: 'stats', label: 'Stats', icon: '📊' },
@@ -125,8 +121,8 @@ function TraineeApp({ traineeId, dataPath }) {
   ]
   
   const tabContent = {
-    plan: <PlanSection traineeId={dataPath || traineeId} themeColor={colors.primary} />,
-    stats: <StatsSection traineeId={dataPath || traineeId} />,
+    plan: <PlanSection traineeId={dataPath || traineeId} themeColor={colors.primary} workouts={workouts} />,
+    stats: <StatsSection traineeId={dataPath || traineeId} workouts={workouts} />,
     races: <RacesSection excludeRaces={['hever-race']} themeColor={colors.primary} />
   }
 

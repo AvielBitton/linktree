@@ -1,7 +1,9 @@
-import { useState, useEffect, useCallback } from 'react'
+'use client'
+
+import { useState, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import SocialIcons from './components/SocialIcons'
-import { loadWorkouts, formatPace, formatWorkoutDate } from './utils/workouts'
+import { hydrateWorkouts, formatPace, formatWorkoutDate } from './utils/workouts'
 
 const DAY_NAMES = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -602,34 +604,19 @@ function NavArrow({ direction, onClick, disabled }) {
   )
 }
 
-function App() {
-  const [allWorkouts, setAllWorkouts] = useState([])
-  const [firstDate, setFirstDate] = useState(null)
-  const [lastDate, setLastDate] = useState(null)
-  const [currentSunday, setCurrentSunday] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [selectedWorkout, setSelectedWorkout] = useState(null)
+function App({ initialWorkouts = [] }) {
+  const allWorkouts = useMemo(() => hydrateWorkouts(initialWorkouts), [initialWorkouts])
 
-  useEffect(() => {
-    document.body.style.overflow = selectedWorkout ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
-  }, [selectedWorkout])
-
-  useEffect(() => {
-    async function load() {
-      const workouts = await loadWorkouts()
-      const sorted = [...workouts].sort((a, b) => a.date - b.date)
-      const first = sorted.length > 0 ? sorted[0].date : new Date()
-      const last = sorted.length > 0 ? sorted[sorted.length - 1].date : new Date()
-
-      setAllWorkouts(workouts)
-      setFirstDate(first)
-      setLastDate(last)
-      setCurrentSunday(getWeekSunday(new Date()))
-      setLoading(false)
+  const { firstDate, lastDate } = useMemo(() => {
+    const sorted = [...allWorkouts].sort((a, b) => a.date - b.date)
+    return {
+      firstDate: sorted.length > 0 ? sorted[0].date : new Date(),
+      lastDate: sorted.length > 0 ? sorted[sorted.length - 1].date : new Date(),
     }
-    load()
-  }, [])
+  }, [allWorkouts])
+
+  const [currentSunday, setCurrentSunday] = useState(() => getWeekSunday(new Date()))
+  const [selectedWorkout, setSelectedWorkout] = useState(null)
 
   const navigateWeek = useCallback((offset) => {
     setCurrentSunday(prev => {
@@ -648,14 +635,6 @@ function App() {
   const weekData = currentSunday && firstDate
     ? buildWeekData(allWorkouts, currentSunday, firstDate)
     : null
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0D1117] flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-white/15 border-t-white/50 rounded-full animate-spin" />
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen bg-[#0D1117]">

@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react'
+'use client'
+
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { loadWorkouts, formatWorkoutDate, formatDuration } from '../utils/workouts'
+import { formatWorkoutDate, formatDuration } from '../utils/workouts'
 
 function getUpcomingWorkouts(workouts, type = 'run') {
   const today = new Date()
@@ -235,41 +237,13 @@ function StrengthWorkoutCard({ workout, index, themeColor = 'violet' }) {
   )
 }
 
-function PlanSection({ traineeId = null, themeColor = 'violet' }) {
-  const [allWorkouts, setAllWorkouts] = useState([])
+function PlanSection({ traineeId = null, themeColor = 'violet', workouts = [] }) {
   const [activeTab, setActiveTab] = useState('run')
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const workouts = await loadWorkouts(traineeId)
-        setAllWorkouts(workouts)
-      } catch (err) {
-        console.error('Error loading plan:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchData()
-  }, [traineeId])
+  const upcomingWorkouts = getUpcomingWorkouts(workouts, activeTab)
 
-  const upcomingWorkouts = getUpcomingWorkouts(allWorkouts, activeTab)
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <motion.div 
-          className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        />
-      </div>
-    )
-  }
-
-  const runCount = getUpcomingWorkouts(allWorkouts, 'run').length
-  const strengthCount = getUpcomingWorkouts(allWorkouts, 'strength').length
+  const runCount = getUpcomingWorkouts(workouts, 'run').length
+  const strengthCount = getUpcomingWorkouts(workouts, 'strength').length
 
   return (
     <div className="space-y-4">

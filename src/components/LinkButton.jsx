@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useRef, useEffect } from 'react'
 
 function LinkButton({ title, url, icon, isMenuOpen, onMenuToggle }) {

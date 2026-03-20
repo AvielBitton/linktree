@@ -1,3 +1,5 @@
+'use client'
+
 function Footer({ onToggleStealth }) {
   return (
     <footer className="relative z-10 pb-8 pt-4">
