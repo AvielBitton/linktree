@@ -110,8 +110,29 @@ function buildWeekData(workouts, sunday, firstDate) {
   })
 
   const runWorkouts = weekWorkouts.filter(w => (w.WorkoutType || '').toLowerCase() === 'run')
-  const totalPlanned = runWorkouts.reduce((s, w) => s + ((parseFloat(w.PlannedDistanceInMeters) || 0) / 1000), 0)
   const totalActual = runWorkouts.reduce((s, w) => s + ((parseFloat(w.DistanceInMeters) || 0) / 1000), 0)
+
+  let totalPlanned = 0
+  let hasEstimate = false
+  for (const w of runWorkouts) {
+    const planned = parseFloat(w.PlannedDistanceInMeters) || 0
+    if (planned > 0) {
+      totalPlanned += planned / 1000
+    } else {
+      const structDist = calcStructureDistance(w.structure, w.thresholdSpeed)
+      if (structDist) {
+        totalPlanned += structDist
+        hasEstimate = true
+      } else {
+        const duration = parseFloat(w.PlannedDuration) || 0
+        const est = estimateDistance(duration)
+        if (est) {
+          totalPlanned += est
+          hasEstimate = true
+        }
+      }
+    }
+  }
 
   return {
     sunday,
@@ -120,11 +141,13 @@ function buildWeekData(workouts, sunday, firstDate) {
     days,
     totalPlannedKm: Math.round(totalPlanned * 10) / 10,
     totalActualKm: Math.round(totalActual * 10) / 10,
+    plannedIsEstimate: hasEstimate,
   }
 }
 
 function calcStructureDistance(structure, thresholdSpeed) {
   if (!structure || !structure.blocks || !thresholdSpeed) return null
+  if (structure.metric === 'rpe') return null
   let totalMeters = 0
   const processStep = (step) => {
     if (step.unit === 'meter') {
@@ -707,15 +730,28 @@ function App({ initialWorkouts = [] }) {
               <NavArrow direction="right" onClick={() => navigateWeek(1)} disabled={!canGoForward} />
             </div>
           </div>
-          <p className="text-run/80 text-xs font-medium">
-            Total:{' '}
-            <span className="text-white font-bold">
-              {weekData.totalActualKm > 0 ? weekData.totalActualKm : weekData.totalPlannedKm} km
-            </span>
-            {weekData.totalActualKm > 0 && weekData.totalPlannedKm > 0 && (
-              <span className="text-white/25 font-normal"> / {weekData.totalPlannedKm} km</span>
+          <div className="flex items-center gap-4 text-xs font-medium">
+            {weekData.totalPlannedKm === 0 && weekData.totalActualKm === 0 ? (
+              <p className="text-white/25">Recovery Week</p>
+            ) : (
+              <>
+                {weekData.totalPlannedKm > 0 && (
+                  <p className="text-white/30">
+                    Plan:{' '}
+                    <span className="text-white/50 font-bold">
+                      {weekData.plannedIsEstimate ? '~' : ''}{weekData.totalPlannedKm} km
+                    </span>
+                  </p>
+                )}
+                <p className="text-run/80">
+                  Done:{' '}
+                  <span className="text-white font-bold">
+                    {weekData.totalActualKm} km
+                  </span>
+                </p>
+              </>
             )}
-          </p>
+          </div>
         </motion.div>
 
         {/* Divider */}
