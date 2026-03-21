@@ -11,8 +11,15 @@ const inter = Inter({
 export const metadata = {
   title: 'Aviel Bitton',
   description: 'avielbitton - Live boldly as a FREE SPIRIT | Join my journey | MARATHON',
+  manifest: '/manifest.json',
   icons: {
     icon: '/favicon.svg',
+    apple: '/apple-touch-icon.png',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Aviel',
   },
 }
 
