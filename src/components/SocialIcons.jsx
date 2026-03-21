@@ -23,7 +23,7 @@ const socials = [
   }
 ]
 
-function SocialIcons() {
+function SocialIcons({ onShare }) {
   return (
     <div className="flex items-center gap-2">
       {socials.map((social, index) => (
@@ -41,6 +41,22 @@ function SocialIcons() {
           {social.icon}
         </motion.a>
       ))}
+      {onShare && (
+        <motion.button
+          onClick={onShare}
+          aria-label="Share"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.4 }}
+          className="bg-white/[0.05] p-2.5 rounded-full border border-white/[0.06] text-white/50 hover:text-white/80 hover:bg-white/[0.08] transition-all"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
+            <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
+            <polyline points="16 6 12 2 8 6" />
+            <line x1="12" y1="2" x2="12" y2="15" />
+          </svg>
+        </motion.button>
+      )}
     </div>
   )
 }

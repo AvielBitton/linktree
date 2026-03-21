@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import SocialIcons from './components/SocialIcons'
 import DayRow from './components/dashboard/DayRow'
@@ -22,8 +22,11 @@ function App({ initialWorkouts = [] }) {
 
   const [currentSunday, setCurrentSunday] = useState(() => getWeekSunday(new Date()))
   const [selectedWorkout, setSelectedWorkout] = useState(null)
+  const [swipeDir, setSwipeDir] = useState(0)
+  const touchRef = useRef(null)
 
   const navigateWeek = useCallback((offset) => {
+    setSwipeDir(offset)
     setCurrentSunday(prev => {
       const next = new Date(prev)
       next.setDate(prev.getDate() + offset * 7)
@@ -40,6 +43,30 @@ function App({ initialWorkouts = [] }) {
   const weekData = currentSunday && firstDate
     ? buildWeekData(allWorkouts, currentSunday, firstDate)
     : null
+
+  const handleTouchStart = useCallback((e) => {
+    touchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+  }, [])
+
+  const handleTouchEnd = useCallback((e) => {
+    if (!touchRef.current) return
+    const dx = e.changedTouches[0].clientX - touchRef.current.x
+    const dy = e.changedTouches[0].clientY - touchRef.current.y
+    touchRef.current = null
+    if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return
+    if (dx > 0 && canGoBack) navigateWeek(-1)
+    else if (dx < 0 && canGoForward) navigateWeek(1)
+  }, [canGoBack, canGoForward, navigateWeek])
+
+  const handleShare = useCallback(async () => {
+    const text = `Week ${weekData?.weekNum} | ${weekData?.dateRange} | Done: ${weekData?.totalActualKm} km`
+    const url = typeof window !== 'undefined' ? window.location.href : 'https://aviel.club'
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Aviel Bitton', text, url }) } catch {}
+    } else {
+      await navigator.clipboard.writeText(`${text}\n${url}`)
+    }
+  }, [weekData])
 
   return (
     <div className="min-h-screen bg-[#0D1117]">
@@ -70,7 +97,7 @@ function App({ initialWorkouts = [] }) {
             <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
               Aviel Bitton
             </h1>
-            <SocialIcons />
+            <SocialIcons onShare={handleShare} />
           </div>
           <p className="text-white/30 text-xs font-medium">
             Live boldly as a <span className="text-amber-400/80 font-semibold">FREE SPIRIT</span>
@@ -140,12 +167,13 @@ function App({ initialWorkouts = [] }) {
         <div className="h-px bg-gradient-to-r from-white/[0.06] via-white/[0.03] to-transparent mb-1" />
 
         {/* Day Rows */}
+        <div onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSunday?.getTime()}
-            initial={{ opacity: 0, x: 0 }}
+            initial={{ opacity: 0, x: swipeDir * 40 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0 }}
+            exit={{ opacity: 0, x: swipeDir * -40 }}
             transition={{ duration: 0.2 }}
           >
             {weekData.days.map((day, i) => (
@@ -160,6 +188,7 @@ function App({ initialWorkouts = [] }) {
             ))}
           </motion.div>
         </AnimatePresence>
+        </div>
 
       </div>
 
