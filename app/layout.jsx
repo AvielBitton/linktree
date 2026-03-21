@@ -9,7 +9,7 @@ const inter = Inter({
 })
 
 export const metadata = {
-  title: 'Aviel Bitton',
+  title: 'Aviel Bitton | Running Dashboard',
   description: 'avielbitton - Live boldly as a FREE SPIRIT | Join my journey | MARATHON',
   icons: {
     icon: '/favicon.svg',
