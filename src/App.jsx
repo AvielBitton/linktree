@@ -181,8 +181,8 @@ function App({ initialWorkouts = [] }) {
                 key={i}
                 dayName={day.dayName}
                 dateNum={day.dateNum}
+                dateStr={day.dateStr}
                 workouts={day.workouts}
-                isToday={day.isToday}
                 onSelectWorkout={setSelectedWorkout}
               />
             ))}

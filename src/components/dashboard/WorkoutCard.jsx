@@ -8,8 +8,9 @@ import {
   formatPlannedDuration,
 } from '../../utils/dashboard'
 
-export default function WorkoutCard({ workout, onClick }) {
+export default function WorkoutCard({ workout, onClick, isPast }) {
   const completed = isWorkoutCompleted(workout)
+  const missed = isPast && !completed
   const color = getTypeColor(workout.WorkoutType)
   const isRun = (workout.WorkoutType || '').toLowerCase() === 'run'
 
@@ -29,24 +30,30 @@ export default function WorkoutCard({ workout, onClick }) {
 
   return (
     <div
-      className="flex-1 min-w-[140px] bg-[#161D2A] rounded-xl border border-white/[0.07] overflow-hidden flex cursor-pointer hover:bg-[#1a2332] active:bg-[#1e2840] transition-colors"
+      className={`flex-1 min-w-[140px] bg-[#161D2A] rounded-xl border overflow-hidden flex cursor-pointer hover:bg-[#1a2332] active:bg-[#1e2840] transition-colors ${missed ? 'border-red-500/20 opacity-60' : 'border-white/[0.07]'}`}
       onClick={onClick}
     >
-      <div className="w-1 flex-shrink-0" style={{ backgroundColor: color }} />
-      <div className="flex-1 px-3 py-2.5 flex items-center justify-between gap-2">
+      <div className="w-1 flex-shrink-0" style={{ backgroundColor: missed ? '#EF4444' : color }} />
+      <div className="flex-1 px-3 py-2.5 flex items-center justify-between gap-2 min-w-0">
         <div className="min-w-0 flex-1">
           <p className="text-white font-semibold text-[12px] leading-tight truncate">
             {workout.Title}
             {isRun && runDist.text && ` | ${runDist.text}`}
           </p>
           {(isRun ? runSubtitle : nonRunSubtitle) && (
-            <p className="text-white/40 text-[11px] mt-0.5">{isRun ? runSubtitle : nonRunSubtitle}</p>
+            <p className="text-white/40 text-[11px] mt-0.5 truncate">{isRun ? runSubtitle : nonRunSubtitle}</p>
           )}
         </div>
         {completed ? (
           <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
             <svg className="w-3 h-3 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
               <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+        ) : missed ? (
+          <div className="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+            <svg className="w-3 h-3 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+              <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </div>
         ) : (

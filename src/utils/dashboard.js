@@ -155,8 +155,8 @@ export function buildWeekData(workouts, sunday, firstDate) {
     return {
       dayName: DAY_NAMES[i],
       dateNum: dayDate.getDate(),
+      dateStr: dayDate.toDateString(),
       workouts: dayWorkouts,
-      isToday: dayDate.toDateString() === new Date().toDateString(),
     }
   })
 

@@ -2,7 +2,12 @@
 
 import WorkoutCard from './WorkoutCard'
 
-export default function DayRow({ dayName, dateNum, workouts, isToday, onSelectWorkout }) {
+const DAY_OFF_PATTERN = /^day\s*off$/i
+
+export default function DayRow({ dayName, dateNum, dateStr, workouts, onSelectWorkout }) {
+  const todayStr = new Date().toDateString()
+  const isToday = dateStr === todayStr
+  const isPast = new Date(dateStr) < new Date(todayStr)
   const hasWorkouts = workouts.length > 0
 
   return (
@@ -17,10 +22,19 @@ export default function DayRow({ dayName, dateNum, workouts, isToday, onSelectWo
       </div>
 
       {hasWorkouts ? (
-        <div className="flex-1 flex flex-wrap gap-2">
-          {workouts.map((w, i) => (
-            <WorkoutCard key={i} workout={w} onClick={() => onSelectWorkout(w)} />
-          ))}
+        <div className="flex-1 flex flex-wrap gap-2 min-w-0">
+          {workouts.map((w, i) => {
+            if (DAY_OFF_PATTERN.test((w.Title || '').trim())) {
+              return (
+                <div key={i} className="w-full rounded-xl border border-dashed border-white/[0.06] px-3 py-2.5">
+                  <span className="text-white/20 text-xs font-medium">Day Off</span>
+                </div>
+              )
+            }
+            return (
+              <WorkoutCard key={i} workout={w} onClick={() => onSelectWorkout(w)} isPast={isPast} />
+            )
+          })}
         </div>
       ) : (
         <div className="flex-1 flex items-center pt-2.5">
