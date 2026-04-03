@@ -136,9 +136,9 @@ function TelAviv2026App({ initialWorkouts = [], dataPath }) {
   ]
   
   const tabContent = {
+    stats: <StatsSection traineeId={dataPath} workouts={workouts} />,
     races: <RacesSection />,
     plan: <PlanSection traineeId={dataPath} workouts={workouts} />,
-    stats: <StatsSection traineeId={dataPath} workouts={workouts} />,
     gear: <GearSection />
   }
 

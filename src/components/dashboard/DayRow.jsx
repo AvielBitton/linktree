@@ -37,8 +37,10 @@ export default function DayRow({ dayName, dateNum, dateStr, workouts, onSelectWo
           })}
         </div>
       ) : (
-        <div className="flex-1 flex items-center pt-2.5">
-          <span className="text-white/20 text-xs font-medium">Rest Day</span>
+        <div className="flex-1 min-w-0">
+          <div className="w-full rounded-xl border border-dashed border-white/[0.06] px-3 py-2.5">
+            <span className="text-white/20 text-xs font-medium">Rest Day</span>
+          </div>
         </div>
       )}
     </div>

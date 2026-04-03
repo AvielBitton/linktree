@@ -1,0 +1,127 @@
+{
+  "last_sync": "2026-04-03T22:00:00",
+  "last_activity_ts": 1743692786,
+  "processed_ids": [],
+  "records": [
+    {
+      "name": "400m",
+      "distance_meters": 400,
+      "elapsed_time": 95,
+      "formatted_time": "1:35",
+      "pace": "3:57",
+      "date": "2026-01-20",
+      "activity_name": "Morning Run",
+      "activity_id": 1
+    },
+    {
+      "name": "1/2 mile",
+      "distance_meters": 804.672,
+      "elapsed_time": 199,
+      "formatted_time": "3:19",
+      "pace": "4:07",
+      "date": "2026-01-20",
+      "activity_name": "Morning Run",
+      "activity_id": 2
+    },
+    {
+      "name": "1K",
+      "distance_meters": 1000,
+      "elapsed_time": 255,
+      "formatted_time": "4:15",
+      "pace": "4:15",
+      "date": "2025-12-13",
+      "activity_name": "30 min test",
+      "activity_id": 3
+    },
+    {
+      "name": "1 mile",
+      "distance_meters": 1609.34,
+      "elapsed_time": 411,
+      "formatted_time": "6:51",
+      "pace": "4:15",
+      "date": "2025-12-13",
+      "activity_name": "30 min test",
+      "activity_id": 4
+    },
+    {
+      "name": "2 mile",
+      "distance_meters": 3218.69,
+      "elapsed_time": 849,
+      "formatted_time": "14:09",
+      "pace": "4:23",
+      "date": "2025-12-13",
+      "activity_name": "30 min test",
+      "activity_id": 5
+    },
+    {
+      "name": "5K",
+      "distance_meters": 5000,
+      "elapsed_time": 1377,
+      "formatted_time": "22:57",
+      "pace": "4:35",
+      "date": "2025-12-13",
+      "activity_name": "30 min test",
+      "activity_id": 6
+    },
+    {
+      "name": "10K",
+      "distance_meters": 10000,
+      "elapsed_time": 3103,
+      "formatted_time": "51:43",
+      "pace": "5:10",
+      "date": "2026-01-20",
+      "activity_name": "Morning Run",
+      "activity_id": 7
+    },
+    {
+      "name": "15K",
+      "distance_meters": 15000,
+      "elapsed_time": 4857,
+      "formatted_time": "1:20:57",
+      "pace": "5:23",
+      "date": "2026-02-06",
+      "activity_name": "HALF MARATHON DEAD SEA",
+      "activity_id": 8
+    },
+    {
+      "name": "10 mile",
+      "distance_meters": 16093.4,
+      "elapsed_time": 5220,
+      "formatted_time": "1:27:00",
+      "pace": "5:24",
+      "date": "2026-02-06",
+      "activity_name": "HALF MARATHON DEAD SEA",
+      "activity_id": 9
+    },
+    {
+      "name": "20K",
+      "distance_meters": 20000,
+      "elapsed_time": 6530,
+      "formatted_time": "1:48:50",
+      "pace": "5:26",
+      "date": "2026-02-06",
+      "activity_name": "HALF MARATHON DEAD SEA",
+      "activity_id": 10
+    },
+    {
+      "name": "Half-Marathon",
+      "distance_meters": 21097.5,
+      "elapsed_time": 6899,
+      "formatted_time": "1:54:59",
+      "pace": "5:27",
+      "date": "2026-02-06",
+      "activity_name": "HALF MARATHON DEAD SEA",
+      "activity_id": 11
+    },
+    {
+      "name": "Marathon",
+      "distance_meters": 42195,
+      "elapsed_time": 14289,
+      "formatted_time": "3:58:09",
+      "pace": "5:38",
+      "date": "2026-02-27",
+      "activity_name": "MARATHON TEL AVIV",
+      "activity_id": 12
+    }
+  ]
+}

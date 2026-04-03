@@ -29,4 +29,7 @@ dist-ssr
 .env.local
 .env.*.local
 
+# Service account keys
+sparta-492117-*.json
+
 .vercel

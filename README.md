@@ -71,4 +71,50 @@ export GOOGLE_CALENDAR_ID=your-calendar-id@gmail.com
 python3 scripts/sync-gcal.py
 ```
 
+## Strava Personal Records
+
+Personal Records (PRs) are fetched from Strava and displayed on the main dashboard.
+
+The sync script scans all run activities, extracts `best_efforts` for standard distances (400m through Marathon), and saves the all-time bests to `public/data/aviel/strava-prs.json`.
+
+**Features:**
+- Incremental sync — only fetches new activities on subsequent runs
+- Resumable — saves progress if rate-limited, just run again to continue
+- No external dependencies — uses Python stdlib only
+
+**Run locally:**
+
+```bash
+python3 scripts/sync-strava.py
+```
+
+**Required `.env` variables:**
+
+| Variable | Value |
+|----------|-------|
+| `STRAVA_CLIENT_ID` | Your Strava API app Client ID |
+| `STRAVA_CLIENT_SECRET` | Your Strava API app Client Secret |
+| `STRAVA_REFRESH_TOKEN` | OAuth refresh token with `activity:read_all` scope |
+
+**Getting a refresh token:**
+
+1. Create an app at [strava.com/settings/api](https://www.strava.com/settings/api)
+2. Authorize with the correct scope:
+   ```
+   https://www.strava.com/oauth/authorize?client_id=YOUR_ID&response_type=code&redirect_uri=http://localhost&scope=activity:read_all
+   ```
+3. Exchange the `code` from the redirect URL:
+   ```bash
+   curl -X POST https://www.strava.com/oauth/token \
+     -d client_id=YOUR_ID \
+     -d client_secret=YOUR_SECRET \
+     -d code=THE_CODE \
+     -d grant_type=authorization_code
+   ```
+4. Save the `refresh_token` from the response to `.env`
+
+**Rate limits:** Strava allows 200 requests per 15 minutes. The first full sync (~112 calls for ~111 runs) fits within this limit. Subsequent syncs only fetch new activities.
+
+---
+
 Live at: https://aviel.club

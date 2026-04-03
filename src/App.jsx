@@ -6,10 +6,11 @@ import SocialIcons from './components/SocialIcons'
 import DayRow from './components/dashboard/DayRow'
 import WorkoutDetailModal from './components/dashboard/WorkoutDetailModal'
 import NavArrow from './components/dashboard/NavArrow'
+import PersonalRecords from './components/PersonalRecords'
 import { hydrateWorkouts } from './utils/workouts'
 import { getWeekSunday, buildWeekData } from './utils/dashboard'
 
-function App({ initialWorkouts = [] }) {
+function App({ initialWorkouts = [], stravaPRs = [] }) {
   const allWorkouts = useMemo(() => hydrateWorkouts(initialWorkouts), [initialWorkouts])
 
   const { firstDate, lastDate } = useMemo(() => {
@@ -189,6 +190,18 @@ function App({ initialWorkouts = [] }) {
           </motion.div>
         </AnimatePresence>
         </div>
+
+        {/* Personal Records */}
+        {stravaPRs.length > 0 && (
+          <motion.div
+            className="mt-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <PersonalRecords records={stravaPRs} />
+          </motion.div>
+        )}
 
       </div>
 
