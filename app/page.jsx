@@ -5,5 +5,6 @@ import App from '@/src/App'
 export default function HomePage() {
   const workouts = loadWorkoutsFromDisk()
   const stravaPRs = loadStravaPRs()
-  return <App initialWorkouts={workouts} stravaPRs={stravaPRs} />
+  const archiveWorkouts = loadWorkoutsFromDisk('telaviv2026/aviel')
+  return <App initialWorkouts={workouts} stravaPRs={stravaPRs} archiveWorkouts={archiveWorkouts} />
 }

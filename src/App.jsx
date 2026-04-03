@@ -2,15 +2,18 @@
 
 import { useState, useCallback, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Tabs, TabsContent } from '@/src/components/ui/tabs'
 import SocialIcons from './components/SocialIcons'
+import BottomNav from './components/BottomNav'
 import DayRow from './components/dashboard/DayRow'
 import WorkoutDetailModal from './components/dashboard/WorkoutDetailModal'
 import NavArrow from './components/dashboard/NavArrow'
 import PersonalRecords from './components/PersonalRecords'
+import TelAviv2026Content from './components/TelAviv2026Content'
 import { hydrateWorkouts } from './utils/workouts'
 import { getWeekSunday, buildWeekData } from './utils/dashboard'
 
-function App({ initialWorkouts = [], stravaPRs = [] }) {
+function App({ initialWorkouts = [], stravaPRs = [], archiveWorkouts = [] }) {
   const allWorkouts = useMemo(() => hydrateWorkouts(initialWorkouts), [initialWorkouts])
 
   const { firstDate, lastDate } = useMemo(() => {
@@ -70,24 +73,10 @@ function App({ initialWorkouts = [], stravaPRs = [] }) {
   }, [weekData])
 
   return (
-    <div className="min-h-screen bg-[#0D1117]">
-      <div className="max-w-lg mx-auto px-5 py-8 sm:py-12">
+    <Tabs defaultValue="home" className="min-h-screen bg-[#0D1117]">
+      <div className="max-w-lg mx-auto px-5 py-8 sm:py-12 pb-24">
 
-        {/* Archive Chip */}
-        <motion.a
-          href="/telaviv2026"
-          className="inline-flex items-center gap-1.5 bg-white/[0.04] rounded-full px-3.5 py-1.5 border border-white/[0.07] mb-8 hover:border-white/[0.15] transition-colors"
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <span className="text-white/45 text-xs font-medium">Tel Aviv 2026</span>
-          <svg className="w-3 h-3 text-white/25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M9 18l6-6-6-6" />
-          </svg>
-        </motion.a>
-
-        {/* Hero */}
+        {/* Header */}
         <motion.div
           className="mb-4"
           initial={{ opacity: 0 }}
@@ -105,105 +94,108 @@ function App({ initialWorkouts = [], stravaPRs = [] }) {
           </p>
         </motion.div>
 
-        {/* Week Header with Navigation */}
-        <motion.div
-          className="mb-3"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.5 }}
-        >
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2.5">
-              <h2 className="text-white font-bold text-base tracking-tight">{weekData.dateRange}</h2>
-              <span className="bg-white/[0.08] text-white/60 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                Week {weekData.weekNum}
-              </span>
+        {/* Home Tab */}
+        <TabsContent value="home" className="mt-0">
+          {/* Week Header with Navigation */}
+          <motion.div
+            className="mb-3"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.5 }}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2.5">
+                <h2 className="text-white font-bold text-base tracking-tight">{weekData?.dateRange}</h2>
+                <span className="bg-white/[0.08] text-white/60 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  Week {weekData?.weekNum}
+                </span>
+              </div>
+              <div className="flex items-center gap-0.5">
+                <NavArrow direction="left" onClick={() => navigateWeek(-1)} disabled={!canGoBack} />
+                <button
+                  onClick={() => setCurrentSunday(getWeekSunday(new Date()))}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                    isCurrentWeek
+                      ? 'text-run cursor-default'
+                      : 'text-white/30 hover:text-run hover:bg-white/[0.06] active:bg-white/[0.1]'
+                  }`}
+                >
+                  <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    {isCurrentWeek && <circle cx="12" cy="15" r="2" fill="currentColor" stroke="none" />}
+                  </svg>
+                </button>
+                <NavArrow direction="right" onClick={() => navigateWeek(1)} disabled={!canGoForward} />
+              </div>
             </div>
-            <div className="flex items-center gap-0.5">
-              <NavArrow direction="left" onClick={() => navigateWeek(-1)} disabled={!canGoBack} />
-              <button
-                onClick={() => setCurrentSunday(getWeekSunday(new Date()))}
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                  isCurrentWeek
-                    ? 'text-run cursor-default'
-                    : 'text-white/30 hover:text-run hover:bg-white/[0.06] active:bg-white/[0.1]'
-                }`}
-              >
-                <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  {isCurrentWeek && <circle cx="12" cy="15" r="2" fill="currentColor" stroke="none" />}
-                </svg>
-              </button>
-              <NavArrow direction="right" onClick={() => navigateWeek(1)} disabled={!canGoForward} />
-            </div>
-          </div>
-          <div className="flex items-center gap-4 text-xs font-medium">
-            {weekData.totalPlannedKm === 0 && weekData.totalActualKm === 0 ? (
-              <p className="text-white/25">Recovery Week</p>
-            ) : (
-              <>
-                {weekData.totalPlannedKm > 0 && (
-                  <p className="text-white/30">
-                    Plan:{' '}
-                    <span className="text-white/50 font-bold">
-                      {weekData.plannedIsEstimate ? '~' : ''}{weekData.totalPlannedKm} km
+            <div className="flex items-center gap-4 text-xs font-medium">
+              {weekData?.totalPlannedKm === 0 && weekData?.totalActualKm === 0 ? (
+                <p className="text-white/25">Recovery Week</p>
+              ) : (
+                <>
+                  {weekData?.totalPlannedKm > 0 && (
+                    <p className="text-white/30">
+                      Plan:{' '}
+                      <span className="text-white/50 font-bold">
+                        {weekData?.plannedIsEstimate ? '~' : ''}{weekData?.totalPlannedKm} km
+                      </span>
+                    </p>
+                  )}
+                  <p className="text-run/80">
+                    Done:{' '}
+                    <span className="text-white font-bold">
+                      {weekData?.totalActualKm} km
                     </span>
                   </p>
-                )}
-                <p className="text-run/80">
-                  Done:{' '}
-                  <span className="text-white font-bold">
-                    {weekData.totalActualKm} km
-                  </span>
-                </p>
-              </>
-            )}
+                </>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Divider */}
+          <div className="h-px bg-gradient-to-r from-white/[0.06] via-white/[0.03] to-transparent mb-1" />
+
+          {/* Day Rows */}
+          <div onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentSunday?.getTime()}
+                initial={{ opacity: 0, x: swipeDir * 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: swipeDir * -40 }}
+                transition={{ duration: 0.2 }}
+              >
+                {weekData?.days.map((day, i) => (
+                  <DayRow
+                    key={i}
+                    dayName={day.dayName}
+                    dateNum={day.dateNum}
+                    dateStr={day.dateStr}
+                    workouts={day.workouts}
+                    onSelectWorkout={setSelectedWorkout}
+                  />
+                ))}
+              </motion.div>
+            </AnimatePresence>
           </div>
-        </motion.div>
+        </TabsContent>
 
-        {/* Divider */}
-        <div className="h-px bg-gradient-to-r from-white/[0.06] via-white/[0.03] to-transparent mb-1" />
+        {/* PRs Tab */}
+        <TabsContent value="prs" className="mt-0">
+          <PersonalRecords records={stravaPRs} fullView />
+        </TabsContent>
 
-        {/* Day Rows */}
-        <div onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentSunday?.getTime()}
-            initial={{ opacity: 0, x: swipeDir * 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: swipeDir * -40 }}
-            transition={{ duration: 0.2 }}
-          >
-            {weekData.days.map((day, i) => (
-              <DayRow
-                key={i}
-                dayName={day.dayName}
-                dateNum={day.dateNum}
-                dateStr={day.dateStr}
-                workouts={day.workouts}
-                onSelectWorkout={setSelectedWorkout}
-              />
-            ))}
-          </motion.div>
-        </AnimatePresence>
-        </div>
-
-        {/* Personal Records */}
-        {stravaPRs.length > 0 && (
-          <motion.div
-            className="mt-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <PersonalRecords records={stravaPRs} />
-          </motion.div>
-        )}
+        {/* Archive Tab */}
+        <TabsContent value="archive" className="mt-0">
+          <TelAviv2026Content initialWorkouts={archiveWorkouts} />
+        </TabsContent>
 
       </div>
+
+      <BottomNav />
 
       <AnimatePresence>
         {selectedWorkout && (
@@ -214,7 +206,7 @@ function App({ initialWorkouts = [], stravaPRs = [] }) {
           />
         )}
       </AnimatePresence>
-    </div>
+    </Tabs>
   )
 }
 
