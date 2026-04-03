@@ -33,6 +33,13 @@ SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 SKIP_TYPES = {"Day Off"}
 
+COLOR_MAP = {
+    "Run": "2",        # Sage (green)
+    "Strength": "8",   # Graphite (dark/black)
+    "Custom": "3",     # Grape (purple)
+    "Other": "5",      # Banana (yellow)
+}
+
 
 def load_credentials():
     """Load Google service account credentials from env var (JSON string or file path)."""
@@ -251,7 +258,7 @@ def build_event(workout):
     start = datetime.strptime(day, "%Y-%m-%d").replace(hour=DEFAULT_START_HOUR)
     end = start + duration
 
-    return {
+    event = {
         "id": event_id,
         "summary": summary,
         "description": build_description(workout),
@@ -259,6 +266,12 @@ def build_event(workout):
         "end": {"dateTime": end.isoformat(), "timeZone": TIMEZONE},
         "reminders": {"useDefault": False, "overrides": []},
     }
+
+    color_id = COLOR_MAP.get(wtype)
+    if color_id:
+        event["colorId"] = color_id
+
+    return event
 
 
 def upsert_event(service, calendar_id, event):
