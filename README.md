@@ -44,4 +44,31 @@ Deployed automatically via Vercel on every push to `main`.
 TrainingPeaks data is synced automatically via GitHub Actions (`.github/workflows/sync-tp.yml`).
 The workflow commits updated CSV/JSON files, and Vercel auto-deploys on push.
 
+## Google Calendar Sync
+
+Future workouts are synced to Google Calendar automatically after each TrainingPeaks sync (`.github/workflows/sync-gcal.yml`).
+
+Each workout creates a calendar event at **08:00 Israel time** with the planned duration, workout description, coach comments, and **calculated target paces** (converted from threshold pace percentages).
+
+Duplicate prevention uses deterministic event IDs — the script is idempotent and safe to run multiple times.
+
+### Setup
+
+Uses a Google Cloud **Service Account** shared with the target calendar with "Make changes to events" permission.
+
+**Required GitHub Secrets:**
+
+| Secret | Value |
+|--------|-------|
+| `GOOGLE_SERVICE_ACCOUNT_JSON` | Full JSON key content from the service account |
+| `GOOGLE_CALENDAR_ID` | Target calendar ID (your Google Calendar ID) |
+
+**Local testing:**
+
+```bash
+export GOOGLE_SERVICE_ACCOUNT_JSON=/path/to/service-account-key.json
+export GOOGLE_CALENDAR_ID=your-calendar-id@gmail.com
+python3 scripts/sync-gcal.py
+```
+
 Live at: https://aviel.club
