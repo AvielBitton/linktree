@@ -279,6 +279,44 @@ def upsert_event(service, calendar_id, event):
         raise
 
 
+def cleanup_orphaned_events(service, calendar_id, valid_event_ids, today):
+    """Delete future calendar events created by this script that no longer exist in the CSV."""
+    today_rfc = datetime.strptime(today, "%Y-%m-%d").isoformat() + "Z"
+
+    all_events = []
+    page_token = None
+    while True:
+        result = service.events().list(
+            calendarId=calendar_id,
+            timeMin=today_rfc,
+            maxResults=250,
+            singleEvents=True,
+            pageToken=page_token,
+        ).execute()
+        all_events.extend(result.get("items", []))
+        page_token = result.get("nextPageToken")
+        if not page_token:
+            break
+
+    deleted = 0
+    for event in all_events:
+        eid = event.get("id", "")
+        if not eid.startswith("tp"):
+            continue
+        if eid in valid_event_ids:
+            continue
+        try:
+            service.events().delete(calendarId=calendar_id, eventId=eid).execute()
+            summary = event.get("summary", "?")
+            start = event.get("start", {}).get("dateTime", "?")[:10]
+            print(f"  - {start} | {summary} (removed)")
+            deleted += 1
+        except HttpError:
+            pass
+
+    return deleted
+
+
 def main():
     print("Google Calendar Sync")
     print("=" * 40)
@@ -296,6 +334,7 @@ def main():
     updated = 0
     skipped = 0
     errors = 0
+    valid_event_ids = set()
 
     for w in workouts:
         day = (w.get("WorkoutDay") or "")[:10]
@@ -307,6 +346,7 @@ def main():
             continue
 
         event = build_event(w)
+        valid_event_ids.add(event["id"])
 
         try:
             action, _ = upsert_event(service, calendar_id, event)
@@ -320,7 +360,9 @@ def main():
             errors += 1
             print(f"  ! {day} | {event['summary']} – API error {e.resp.status}: {e.reason}")
 
-    print(f"\nDone! Created: {created}, Updated: {updated}, Skipped: {skipped}, Errors: {errors}")
+    deleted = cleanup_orphaned_events(service, calendar_id, valid_event_ids, today)
+
+    print(f"\nDone! Created: {created}, Updated: {updated}, Deleted: {deleted}, Skipped: {skipped}, Errors: {errors}")
     if errors:
         sys.exit(1)
 
