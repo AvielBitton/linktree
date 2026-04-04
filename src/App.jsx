@@ -9,6 +9,7 @@ import DayRow from './components/dashboard/DayRow'
 import WorkoutDetailModal from './components/dashboard/WorkoutDetailModal'
 import NavArrow from './components/dashboard/NavArrow'
 import PersonalRecords from './components/PersonalRecords'
+import NextWorkoutTab from './components/NextWorkoutTab'
 import TelAviv2026Content from './components/TelAviv2026Content'
 import { hydrateWorkouts } from './utils/workouts'
 import { getWeekSunday, buildWeekData } from './utils/dashboard'
@@ -181,6 +182,11 @@ function App({ initialWorkouts = [], stravaPRs = [], archiveWorkouts = [] }) {
               </motion.div>
             </AnimatePresence>
           </div>
+        </TabsContent>
+
+        {/* Next Workout Tab */}
+        <TabsContent value="next" className="mt-0">
+          <NextWorkoutTab workouts={allWorkouts} />
         </TabsContent>
 
         {/* PRs Tab */}
