@@ -418,7 +418,7 @@ function ActivityLog({ activities = [] }) {
         </div>
 
         {/* Type filters */}
-        <div className="flex gap-1.5">
+        <div className="flex gap-1 overflow-x-auto no-scrollbar">
           {availableTypes.map(type => {
             const infoKey = type === 'Gym' ? 'WeightTraining' : type
             const info = type === 'all' ? null : getTypeInfo(infoKey)
@@ -428,7 +428,7 @@ function ActivityLog({ activities = [] }) {
               <button
                 key={type}
                 onClick={() => { setSelectedType(isActive && type !== 'all' ? 'all' : type); setVisibleCount(15) }}
-                className="px-2.5 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap transition-all flex items-center gap-1"
+                className="px-2 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap transition-all flex items-center gap-1 flex-shrink-0"
                 style={isActive && info ? {
                   backgroundColor: info.color + '20',
                   color: info.color,
