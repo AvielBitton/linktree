@@ -10,11 +10,12 @@ import WorkoutDetailModal from './components/dashboard/WorkoutDetailModal'
 import NavArrow from './components/dashboard/NavArrow'
 import PersonalRecords from './components/PersonalRecords'
 import NextWorkoutTab from './components/NextWorkoutTab'
+import ActivityLog from './components/ActivityLog'
 import TelAviv2026Content from './components/TelAviv2026Content'
 import { hydrateWorkouts } from './utils/workouts'
 import { getWeekSunday, buildWeekData } from './utils/dashboard'
 
-function App({ initialWorkouts = [], stravaPRs = [], archiveWorkouts = [] }) {
+function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], archiveWorkouts = [] }) {
   const allWorkouts = useMemo(() => hydrateWorkouts(initialWorkouts), [initialWorkouts])
 
   const { firstDate, lastDate } = useMemo(() => {
@@ -187,6 +188,11 @@ function App({ initialWorkouts = [], stravaPRs = [], archiveWorkouts = [] }) {
         {/* Next Workout Tab */}
         <TabsContent value="next" className="mt-0">
           <NextWorkoutTab workouts={allWorkouts} />
+        </TabsContent>
+
+        {/* Log Tab */}
+        <TabsContent value="log" className="mt-0">
+          <ActivityLog activities={stravaActivities} />
         </TabsContent>
 
         {/* PRs Tab */}
