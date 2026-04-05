@@ -214,6 +214,7 @@ function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], arch
           <WorkoutDetailModal
             key="workout-modal"
             workout={selectedWorkout}
+            stravaActivities={stravaActivities}
             onClose={() => setSelectedWorkout(null)}
           />
         )}

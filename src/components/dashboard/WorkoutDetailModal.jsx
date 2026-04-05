@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { formatPace, formatWorkoutDate } from '../../utils/workouts'
 import {
@@ -11,7 +12,26 @@ import {
   formatPlannedDuration,
 } from '../../utils/dashboard'
 
-export default function WorkoutDetailModal({ workout, onClose }) {
+function findMatchingStravaActivity(workout, stravaActivities) {
+  if (!workout || !stravaActivities || stravaActivities.length === 0) return null
+  if (!workout.date) return null
+
+  const wDate = workout.date
+  const dateStr = `${wDate.getFullYear()}-${String(wDate.getMonth() + 1).padStart(2, '0')}-${String(wDate.getDate()).padStart(2, '0')}`
+  const wType = (workout.WorkoutType || '').toLowerCase()
+
+  const typeMap = { run: 'Run', bike: 'Ride', swim: 'Swim' }
+  const stravaType = typeMap[wType]
+
+  return stravaActivities.find(a => {
+    if (a.date !== dateStr) return false
+    if (stravaType && a.type !== stravaType) return false
+    if (!stravaType && a.type === 'Run' && wType !== 'run') return false
+    return true
+  }) || null
+}
+
+export default function WorkoutDetailModal({ workout, stravaActivities = [], onClose }) {
   if (!workout) return null
 
   const completed = isWorkoutCompleted(workout)
@@ -37,6 +57,12 @@ export default function WorkoutDetailModal({ workout, onClose }) {
   const structure = workout.structure || null
   const compliance = workout.compliance || null
   const thresholdSpeed = workout.thresholdSpeed || null
+
+  const matchedStrava = useMemo(
+    () => completed ? findMatchingStravaActivity(workout, stravaActivities) : null,
+    [workout, stravaActivities, completed]
+  )
+  const stravaSplits = matchedStrava?.splits_metric || []
   const tssActual = parseFloat(workout.TSS) || null
   const tssPlanned = workout.tssPlanned || null
   const ifActual = parseFloat(workout.IF) || null
@@ -64,9 +90,10 @@ export default function WorkoutDetailModal({ workout, onClose }) {
   function targetLabel(targetMin, targetMax, metric) {
     if (targetMin == null) return ''
     if (metric === 'percentOfThresholdPace' && thresholdSpeed) {
-      const pMin = pctToPace(targetMax)
       const pMax = pctToPace(targetMin)
+      const pMin = targetMax ? pctToPace(targetMax) : null
       if (pMin && pMax) return pMin === pMax ? `${pMin} /km` : `${pMin}–${pMax} /km`
+      if (pMax) return `${pMax} /km`
     }
     if (targetMax != null && targetMax !== targetMin) return `${targetMin}–${targetMax}%`
     return `${targetMin}%`
@@ -214,65 +241,299 @@ export default function WorkoutDetailModal({ workout, onClose }) {
               </div>
             )}
 
-            {structure && structure.blocks && structure.blocks.length > 0 && (() => {
-              const renderStep = (step, metric, idx, dimmed) => {
-                const isWarmCool = step.intensityClass === 'warmUp' || step.intensityClass === 'coolDown'
-                const dim = dimmed || isWarmCool
-                return (
-                  <div key={idx} className={`flex items-center gap-2 px-3 py-1.5 ${dim ? 'opacity-50' : ''}`}>
-                    <div className="w-1 h-5 rounded-full flex-shrink-0" style={{
-                      backgroundColor: isWarmCool ? '#60A5FA' : color,
-                      opacity: isWarmCool ? 0.5 : step.intensityClass === 'rest' ? 0.3 : 0.9
-                    }} />
-                    <span className="text-white/80 text-xs font-medium truncate flex-1">{step.name}</span>
-                    <span className="text-white/40 text-[11px] font-mono flex-shrink-0">{formatDur(step.value, step.unit)}</span>
-                    {step.targetMin != null && (
-                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-white/[0.05] flex-shrink-0" style={{ color }}>
-                        {targetLabel(step.targetMin, step.targetMax, metric)}
-                      </span>
-                    )}
-                  </div>
-                )
-              }
+            {(() => {
+              const hasStructure = structure && structure.blocks && structure.blocks.length > 0
+              const hasActualSplits = completed && stravaSplits.length > 0
+
+              if (!hasStructure && !hasActualSplits) return null
 
               const allSteps = []
-              structure.blocks.forEach(b => {
-                if (b.type === 'repeat') {
-                  for (let r = 0; r < b.reps; r++) b.steps.forEach(s => allSteps.push(s))
-                } else allSteps.push(b)
-              })
+              if (hasStructure) {
+                structure.blocks.forEach(b => {
+                  if (b.type === 'repeat') {
+                    for (let r = 0; r < (b.reps || 1); r++) b.steps.forEach(s => allSteps.push(s))
+                  } else allSteps.push(b)
+                })
+              }
               const totalDur = allSteps.reduce((sum, s) => sum + (s.value || 0), 0) || 1
+
+              const isDistanceBased = allSteps.length > 0 && allSteps[0].unit === 'meter'
+
+              const blockTimeline = []
+              let cumValue = 0
+              for (const step of allSteps) {
+                const stepVal = step.value || 0
+                const isWarmCool = step.intensityClass === 'warmUp' || step.intensityClass === 'coolDown'
+                const isRest = step.intensityClass === 'rest'
+                let targetFast = null
+                let targetSlow = null
+                if (step.targetMin != null && thresholdSpeed && structure.metric === 'percentOfThresholdPace') {
+                  const maxPct = step.targetMax || step.targetMin
+                  targetFast = 1000 / (thresholdSpeed * (maxPct / 100)) / 60
+                  targetSlow = 1000 / (thresholdSpeed * (step.targetMin / 100)) / 60
+                }
+                blockTimeline.push({
+                  start: cumValue,
+                  end: cumValue + stepVal,
+                  name: step.name,
+                  intensityClass: step.intensityClass,
+                  isWarmCool,
+                  isRest,
+                  targetFast,
+                  targetSlow,
+                  barColor: isWarmCool ? '#60A5FA' : isRest ? color : color,
+                  barOpacity: isWarmCool ? 0.5 : isRest ? 0.3 : 0.9,
+                  targetLabel: step.targetMin != null ? targetLabel(step.targetMin, step.targetMax, structure?.metric) : null,
+                })
+                cumValue += stepVal
+              }
+
+              function getBlockForValue(val) {
+                for (const b of blockTimeline) {
+                  if (val >= b.start && val < b.end) return b
+                }
+                return blockTimeline[blockTimeline.length - 1] || null
+              }
+
+              const splitBlocks = []
+              if (hasActualSplits && blockTimeline.length > 0) {
+                if (isDistanceBased) {
+                  let cumDist = 0
+                  for (const split of stravaSplits) {
+                    const midDist = cumDist + (split.distance || 1000) / 2
+                    splitBlocks.push(getBlockForValue(midDist))
+                    cumDist += (split.distance || 1000)
+                  }
+                } else {
+                  let cumTime = 0
+                  for (const split of stravaSplits) {
+                    const midTime = cumTime + (split.elapsed_time || 0) / 2
+                    splitBlocks.push(getBlockForValue(midTime))
+                    cumTime += (split.elapsed_time || 0)
+                  }
+                }
+              }
+
+              const paces = hasActualSplits ? stravaSplits.map(s => {
+                if (!s.average_speed || s.average_speed <= 0) return null
+                return 1000 / s.average_speed / 60
+              }).filter(Boolean) : []
+              const minPace = paces.length > 0 ? Math.min(...paces) : 0
+              const maxPace = paces.length > 0 ? Math.max(...paces) : 0
+              const paceRange = maxPace - minPace || 1
+
+              const blockAvgPaces = {}
+              if (hasActualSplits && blockTimeline.length > 0) {
+                const blockPaces = {}
+                stravaSplits.forEach((split, i) => {
+                  const block = splitBlocks[i]
+                  if (!block || !split.average_speed || split.average_speed <= 0) return
+                  if (!blockPaces[block.name]) blockPaces[block.name] = []
+                  blockPaces[block.name].push(1000 / split.average_speed / 60)
+                })
+                for (const [name, paceArr] of Object.entries(blockPaces)) {
+                  blockAvgPaces[name] = paceArr.reduce((a, b) => a + b, 0) / paceArr.length
+                }
+              }
+
+              const showUnified = hasStructure && hasActualSplits && blockTimeline.length > 0
 
               return (
                 <div className="mb-3">
-                  <p className="text-white/25 text-[10px] uppercase tracking-wider mb-1.5 font-semibold">Workout Plan</p>
-                  <div className="flex h-2 rounded-full overflow-hidden mb-2 gap-px">
-                    {allSteps.map((s, i) => {
-                      const isWC = s.intensityClass === 'warmUp' || s.intensityClass === 'coolDown'
-                      const isRest = s.intensityClass === 'rest'
-                      const bg = isWC ? '#60A5FA' : color
-                      const pct = Math.max(((s.value || 0) / totalDur) * 100, 2)
-                      return <div key={i} className="rounded-full" style={{ width: `${pct}%`, backgroundColor: bg, opacity: isWC ? 0.5 : isRest ? 0.3 : 0.9 }} />
-                    })}
-                  </div>
-                  <div className="bg-white/[0.03] rounded-lg overflow-hidden divide-y divide-white/[0.04]">
-                    {structure.blocks.map((block, i) => {
-                      if (block.type === 'repeat') {
+                  <p className="text-white/25 text-[10px] uppercase tracking-wider mb-1.5 font-semibold">
+                    {showUnified ? 'Plan vs Actual' : hasActualSplits ? 'Actual Splits' : 'Workout Plan'}
+                  </p>
+
+                  {hasStructure && (
+                    <div className="flex h-2 rounded-full overflow-hidden mb-2 gap-px">
+                      {allSteps.map((s, i) => {
+                        const isWC = s.intensityClass === 'warmUp' || s.intensityClass === 'coolDown'
+                        const isRest = s.intensityClass === 'rest'
+                        const bg = isWC ? '#60A5FA' : color
+                        const pct = Math.max(((s.value || 0) / totalDur) * 100, 2)
+                        return <div key={i} className="rounded-full" style={{ width: `${pct}%`, backgroundColor: bg, opacity: isWC ? 0.5 : isRest ? 0.3 : 0.9 }} />
+                      })}
+                    </div>
+                  )}
+
+                  {showUnified ? (
+                    <div className="bg-white/[0.03] rounded-xl overflow-hidden">
+                      {stravaSplits.map((split, i) => {
+                        if (!split.average_speed || split.average_speed <= 0) return null
+                        const paceMin = 1000 / split.average_speed / 60
+                        const barWidth = Math.max(25, ((paceMin - minPace + paceRange * 0.3) / (paceRange * 1.3)) * 100)
+                        const opacity = 0.25 + (1 - (paceMin - minPace) / paceRange) * 0.55
+
+                        const block = splitBlocks[i]
+                        const blockColor = block?.barColor || color
+                        const inTarget = block?.targetFast != null
+                          ? paceMin >= block.targetFast - 0.05 && paceMin <= block.targetSlow + 0.05
+                          : null
+
+                        const prevBlock = i > 0 ? splitBlocks[i - 1] : null
+                        const blockChanged = block && (!prevBlock || block.name !== prevBlock.name)
+
                         return (
                           <div key={i}>
-                            <div className="px-3 py-1.5 flex items-center gap-2">
-                              <div className="w-1 h-5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-                              <span className="text-white/60 text-[11px] font-semibold uppercase tracking-wide">Repeat {block.reps} times</span>
-                            </div>
-                            <div className="pl-4 divide-y divide-white/[0.03]">
-                              {block.steps.map((step, j) => renderStep(step, structure.metric, `${i}-${j}`, false))}
+                            {blockChanged && (() => {
+                              const avgPace = blockAvgPaces[block.name]
+                              const hitTarget = avgPace && block.targetFast != null
+                                ? avgPace >= block.targetFast - 0.05 && avgPace <= block.targetSlow + 0.05
+                                : null
+                              return (
+                                <div className="flex items-center gap-2 px-3 pt-2.5 pb-0.5">
+                                  <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: blockColor, opacity: block.barOpacity }} />
+                                  <span className="text-white/30 text-[10px] font-semibold uppercase tracking-wide">{block.name}</span>
+                                  <div className="flex items-center gap-2 ml-auto">
+                                    {avgPace && (
+                                      <div className="flex items-center gap-1">
+                                        <span className="text-white/25 text-[8px] uppercase">avg</span>
+                                        <span className={`text-[10px] font-bold tabular-nums ${hitTarget === true ? 'text-emerald-400' : hitTarget === false ? 'text-amber-400' : 'text-white/50'}`}>
+                                          {formatPace(avgPace)}
+                                        </span>
+                                      </div>
+                                    )}
+                                    {block.targetLabel && (
+                                      <div className="flex items-center gap-1">
+                                        <span className="text-white/25 text-[8px] uppercase">plan</span>
+                                        <span className="text-[10px] font-medium tabular-nums" style={{ color: blockColor }}>
+                                          {block.targetLabel}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )
+                            })()}
+                            <div className="flex items-center gap-2 px-3 py-1 relative">
+                              <span className="text-white/20 text-[10px] w-4 text-right tabular-nums font-medium flex-shrink-0">{split.split || i + 1}</span>
+                              <div className="flex-1 h-6 relative rounded-lg overflow-hidden">
+                                <motion.div
+                                  className="absolute inset-y-0 left-0 rounded-lg"
+                                  style={{ backgroundColor: blockColor, opacity: opacity * 0.2 }}
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${barWidth}%` }}
+                                  transition={{ duration: 0.4, delay: i * 0.03, ease: 'easeOut' }}
+                                />
+                                <div className="absolute inset-0 flex items-center px-2">
+                                  <span className="font-bold text-[12px] tabular-nums tracking-tight" style={{ color: blockColor, opacity }}>
+                                    {split.pace || formatPace(paceMin)}
+                                  </span>
+                                </div>
+                              </div>
+                              {split.average_heartrate > 0 && (
+                                <span className="text-white/20 text-[10px] tabular-nums w-7 text-right flex-shrink-0">
+                                  {Math.round(split.average_heartrate)}
+                                </span>
+                              )}
+                              {inTarget !== null && (
+                                <span className={`text-[8px] flex-shrink-0 ${inTarget ? 'text-emerald-400/60' : 'text-amber-400/60'}`}>
+                                  {inTarget ? '●' : '○'}
+                                </span>
+                              )}
                             </div>
                           </div>
                         )
-                      }
-                      return renderStep(block, structure.metric, i, false)
-                    })}
-                  </div>
+                      })}
+                    </div>
+                  ) : hasActualSplits ? (
+                    <div className="bg-white/[0.03] rounded-xl overflow-hidden">
+                      {stravaSplits.map((split, i) => {
+                        if (!split.average_speed || split.average_speed <= 0) return null
+                        const paceMin = 1000 / split.average_speed / 60
+                        const barWidth = Math.max(25, ((paceMin - minPace + paceRange * 0.3) / (paceRange * 1.3)) * 100)
+                        const opacity = 0.25 + (1 - (paceMin - minPace) / paceRange) * 0.55
+                        return (
+                          <div key={i} className="flex items-center gap-2 px-3 py-1 relative">
+                            <span className="text-white/20 text-[10px] w-4 text-right tabular-nums font-medium flex-shrink-0">{split.split || i + 1}</span>
+                            <div className="flex-1 h-6 relative rounded-lg overflow-hidden">
+                              <motion.div
+                                className="absolute inset-y-0 left-0 rounded-lg"
+                                style={{ backgroundColor: color, opacity: opacity * 0.2 }}
+                                initial={{ width: 0 }}
+                                animate={{ width: `${barWidth}%` }}
+                                transition={{ duration: 0.4, delay: i * 0.03, ease: 'easeOut' }}
+                              />
+                              <div className="absolute inset-0 flex items-center px-2">
+                                <span className="font-bold text-[12px] tabular-nums tracking-tight" style={{ color, opacity }}>
+                                  {split.pace || formatPace(paceMin)}
+                                </span>
+                              </div>
+                            </div>
+                            {split.average_heartrate > 0 && (
+                              <span className="text-white/20 text-[10px] tabular-nums w-7 text-right flex-shrink-0">
+                                {Math.round(split.average_heartrate)}
+                              </span>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <div className="bg-white/[0.03] rounded-lg overflow-hidden divide-y divide-white/[0.04]">
+                      {structure.blocks.map((block, i) => {
+                        if (block.type === 'repeat') {
+                          return (
+                            <div key={i}>
+                              <div className="px-3 py-1.5 flex items-center gap-2">
+                                <div className="w-1 h-5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+                                <span className="text-white/60 text-[11px] font-semibold uppercase tracking-wide">Repeat {block.reps} times</span>
+                              </div>
+                              <div className="pl-4 divide-y divide-white/[0.03]">
+                                {block.steps.map((step, j) => {
+                                  const isWC = step.intensityClass === 'warmUp' || step.intensityClass === 'coolDown'
+                                  return (
+                                    <div key={`${i}-${j}`} className={`flex items-center gap-2 px-3 py-1.5 ${isWC ? 'opacity-50' : ''}`}>
+                                      <div className="w-1 h-5 rounded-full flex-shrink-0" style={{
+                                        backgroundColor: isWC ? '#60A5FA' : color,
+                                        opacity: isWC ? 0.5 : step.intensityClass === 'rest' ? 0.3 : 0.9
+                                      }} />
+                                      <span className="text-white/80 text-xs font-medium truncate flex-1">{step.name}</span>
+                                      <span className="text-white/40 text-[11px] font-mono flex-shrink-0">{formatDur(step.value, step.unit)}</span>
+                                      {step.targetMin != null && (
+                                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-white/[0.05] flex-shrink-0" style={{ color }}>
+                                          {targetLabel(step.targetMin, step.targetMax, structure.metric)}
+                                        </span>
+                                      )}
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          )
+                        }
+                        const isWC = block.intensityClass === 'warmUp' || block.intensityClass === 'coolDown'
+                        return (
+                          <div key={i} className={`flex items-center gap-2 px-3 py-1.5 ${isWC ? 'opacity-50' : ''}`}>
+                            <div className="w-1 h-5 rounded-full flex-shrink-0" style={{
+                              backgroundColor: isWC ? '#60A5FA' : color,
+                              opacity: isWC ? 0.5 : block.intensityClass === 'rest' ? 0.3 : 0.9
+                            }} />
+                            <span className="text-white/80 text-xs font-medium truncate flex-1">{block.name}</span>
+                            <span className="text-white/40 text-[11px] font-mono flex-shrink-0">{formatDur(block.value, block.unit)}</span>
+                            {block.targetMin != null && (
+                              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-white/[0.05] flex-shrink-0" style={{ color }}>
+                                {targetLabel(block.targetMin, block.targetMax, structure.metric)}
+                              </span>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {showUnified && (
+                    <div className="flex items-center gap-3 mt-2 px-1">
+                      <div className="flex items-center gap-1">
+                        <span className="text-emerald-400/60 text-[8px]">●</span>
+                        <span className="text-white/20 text-[9px]">In zone</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-amber-400/60 text-[8px]">○</span>
+                        <span className="text-white/20 text-[9px]">Off target</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )
             })()}

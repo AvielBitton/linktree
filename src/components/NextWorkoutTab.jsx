@@ -269,9 +269,10 @@ function StructureBlocks({ structure, color, thresholdSpeed }) {
   function targetLabel(targetMin, targetMax, metric) {
     if (targetMin == null) return ''
     if (metric === 'percentOfThresholdPace' && thresholdSpeed) {
-      const pMin = pctToPace(targetMax)
       const pMax = pctToPace(targetMin)
+      const pMin = targetMax ? pctToPace(targetMax) : null
       if (pMin && pMax) return pMin === pMax ? `${pMin} /km` : `${pMin}–${pMax} /km`
+      if (pMax) return `${pMax} /km`
     }
     if (targetMax != null && targetMax !== targetMin) return `${targetMin}–${targetMax}%`
     return `${targetMin}%`
