@@ -1,7 +1,43 @@
 {
-  "last_sync": "2026-04-08T08:53:34.299197",
-  "last_activity_ts": 1775577925,
+  "last_sync": "2026-04-08T20:06:29.939014",
+  "last_activity_ts": 1775662000,
   "activities": [
+    {
+      "id": 18029671025,
+      "name": "Evening Weight Training",
+      "type": "WeightTraining",
+      "sport_type": "WeightTraining",
+      "date": "2026-04-08",
+      "start_time": "18:26:40",
+      "distance": 0.0,
+      "moving_time": 5054,
+      "elapsed_time": 5054,
+      "moving_time_formatted": "1:24:14",
+      "elapsed_time_formatted": "1:24:14",
+      "total_elevation_gain": 0,
+      "average_speed": 0.0,
+      "max_speed": 0.0,
+      "average_heartrate": 106.4,
+      "max_heartrate": 153.0,
+      "average_cadence": null,
+      "calories": 395.0,
+      "suffer_score": 14.0,
+      "has_heartrate": true,
+      "map_polyline": "",
+      "laps": [
+        {
+          "name": "Lap 1",
+          "distance": 0.0,
+          "elapsed_time": 5054,
+          "moving_time": 5054,
+          "average_speed": 0.0,
+          "average_heartrate": 106.4,
+          "max_heartrate": 153.0,
+          "average_cadence": null,
+          "pace": null
+        }
+      ]
+    },
     {
       "id": 18014319966,
       "name": "Afternoon Run",
