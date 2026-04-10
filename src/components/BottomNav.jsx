@@ -38,6 +38,20 @@ const tabs = [
     ),
   },
   {
+    value: 'gym',
+    label: 'Gym',
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6.5 6.5a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h0a2 2 0 0 1-2-2z" />
+        <path d="M13.5 6.5a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h0a2 2 0 0 1-2-2z" />
+        <path d="M4 12h2.5" />
+        <path d="M17.5 12H20" />
+        <path d="M2 10v4" />
+        <path d="M22 10v4" />
+      </svg>
+    ),
+  },
+  {
     value: 'prs',
     label: 'PRs',
     icon: (

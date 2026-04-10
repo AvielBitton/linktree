@@ -1,0 +1,215 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import YouTubeModal from './YouTubeModal'
+
+function formatRest(seconds) {
+  if (!seconds) return ''
+  if (seconds >= 60) {
+    const m = Math.floor(seconds / 60)
+    const s = seconds % 60
+    return s > 0 ? `${m}m${s}s` : `${m}m`
+  }
+  return `${seconds}s`
+}
+
+function ExerciseCard({ exercise, exerciseIndex, onSetComplete, completedSets = {}, supersetLabel, isLastInSuperset, templateColor = '#10B981', pr = 0, lastWeights = {} }) {
+  const setCount = exercise.sets || 3
+  const sets = Array.from({ length: setCount }, (_, i) => i + 1)
+  const [showVideo, setShowVideo] = useState(false)
+
+  const allCompleted = sets.every(s => completedSets[`${exercise.key}_${s}`])
+  const borderColor = supersetLabel ? 'border-l-2 border-l-purple-500/30' : ''
+
+  return (
+    <div className={`bg-white/[0.03] rounded-xl overflow-hidden border border-white/[0.05] ${borderColor} ${allCompleted ? 'opacity-60' : ''}`}>
+      {showVideo && exercise.videoId && (
+        <YouTubeModal
+          videoId={exercise.videoId}
+          title={exercise.name_en || exercise.key.replace(/_/g, ' ')}
+          onClose={() => setShowVideo(false)}
+        />
+      )}
+
+      <div className="px-4 pt-3 pb-2">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <p className="text-white font-semibold text-[13px] leading-tight">
+                {exercise.name_en || exercise.key.replace(/_/g, ' ')}
+              </p>
+              {exercise.videoId && (
+                <button
+                  onClick={() => setShowVideo(true)}
+                  className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors"
+                  title="Watch tutorial"
+                >
+                  <svg className="w-2.5 h-2.5 ml-[1px]" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                  </svg>
+                </button>
+              )}
+            </div>
+            <p className="text-white/25 text-[11px] mt-0.5 leading-tight">
+              {exercise.name}
+            </p>
+            <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+              <span
+                className="text-[10px] font-semibold tabular-nums px-1.5 py-0.5 rounded-md"
+                style={{ backgroundColor: templateColor + '12', color: templateColor + 'CC' }}
+              >
+                {exercise.sets}×{exercise.reps}
+              </span>
+              {exercise.rest && (!supersetLabel || isLastInSuperset) && (
+                <span className="text-[10px] text-white/20 bg-white/[0.04] px-1.5 py-0.5 rounded-md">
+                  {supersetLabel ? 'SS ' : ''}{formatRest(exercise.rest)} rest
+                </span>
+              )}
+              {exercise.tempo && (
+                <span className="text-[10px] bg-white/[0.04] text-white/25 px-1.5 py-0.5 rounded-md font-mono">
+                  {exercise.tempo}
+                </span>
+              )}
+              {supersetLabel && (
+                <span className="text-[10px] font-bold text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded-md">
+                  SS {supersetLabel}
+                </span>
+              )}
+              {pr > 0 && (
+                <span className="text-[10px] font-medium text-amber-400/60 bg-amber-500/[0.08] px-1.5 py-0.5 rounded-md">
+                  PR {pr}kg
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-4 pb-3">
+        <div className="grid grid-cols-[24px_1fr_1fr_1fr_36px] gap-x-1.5 mb-1 px-0.5">
+          <span className="text-[10px] text-white/15 uppercase font-medium">Set</span>
+          <span className="text-[10px] text-white/15 uppercase font-medium text-center">Prev</span>
+          <span className="text-[10px] text-white/15 uppercase font-medium text-center">kg</span>
+          <span className="text-[10px] text-white/15 uppercase font-medium text-center">Reps</span>
+          <span />
+        </div>
+
+        {sets.map(setNum => {
+          const setKey = `${exercise.key}_${setNum}`
+          const completed = completedSets[setKey]
+          const lastWeight = lastWeights[setNum] || null
+
+          return (
+            <SetRow
+              key={setNum}
+              setNum={setNum}
+              lastWeight={lastWeight}
+              pr={pr}
+              targetReps={exercise.reps}
+              completed={completed}
+              templateColor={templateColor}
+              onComplete={(w, r) => onSetComplete(exercise.key, setNum, w, r)}
+            />
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function SetRow({ setNum, lastWeight, pr, targetReps, completed, templateColor, onComplete }) {
+  const [weight, setWeight] = useState(completed?.weightKg?.toString() || '')
+  const [reps, setReps] = useState(completed?.reps?.toString() || '')
+  const [showPR, setShowPR] = useState(false)
+
+  useEffect(() => {
+    if (completed) {
+      setWeight(completed.weightKg?.toString() || '')
+      setReps(completed.reps?.toString() || '')
+    }
+  }, [completed])
+
+  function handleCheck() {
+    const w = parseFloat(weight) || 0
+    const r = parseInt(reps) || 0
+    if (pr && w > pr) setShowPR(true)
+    onComplete(w, r)
+  }
+
+  return (
+    <motion.div
+      className={`grid grid-cols-[24px_1fr_1fr_1fr_36px] gap-x-1.5 items-center py-1 px-0.5 rounded-lg transition-colors relative ${completed ? 'bg-white/[0.03]' : ''}`}
+      initial={false}
+      animate={completed ? { scale: [1, 1.02, 1] } : {}}
+      transition={{ duration: 0.15 }}
+    >
+      {completed && (
+        <div className="absolute left-0 top-1 bottom-1 w-[2px] rounded-full" style={{ backgroundColor: templateColor + '60' }} />
+      )}
+
+      <span className={`text-xs font-bold text-center tabular-nums ${completed ? 'text-white/40' : 'text-white/20'}`}
+        style={completed ? { color: templateColor + '80' } : undefined}
+      >
+        {setNum}
+      </span>
+
+      <div className="text-center">
+        <span className="text-[10px] text-white/15 tabular-nums">
+          {lastWeight ? `${lastWeight}` : '—'}
+        </span>
+      </div>
+
+      <input
+        type="number"
+        inputMode="decimal"
+        value={weight}
+        onChange={e => setWeight(e.target.value)}
+        placeholder={lastWeight ? String(lastWeight) : '—'}
+        disabled={!!completed}
+        className="w-full bg-white/[0.06] rounded-lg px-2 py-2 text-sm text-white text-center font-medium tabular-nums placeholder:text-white/10 focus:outline-none focus:ring-1 focus:ring-white/20 disabled:opacity-40 disabled:cursor-default [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+      />
+
+      <input
+        type="number"
+        inputMode="numeric"
+        value={reps}
+        onChange={e => setReps(e.target.value)}
+        placeholder={targetReps || '—'}
+        disabled={!!completed}
+        className="w-full bg-white/[0.06] rounded-lg px-2 py-2 text-sm text-white text-center font-medium tabular-nums placeholder:text-white/10 focus:outline-none focus:ring-1 focus:ring-white/20 disabled:opacity-40 disabled:cursor-default [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+      />
+
+      <button
+        onClick={handleCheck}
+        disabled={!!completed}
+        className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
+          completed
+            ? 'text-white/60'
+            : 'bg-white/[0.06] text-white/20 hover:bg-white/[0.1] hover:text-white/40 active:scale-90'
+        }`}
+        style={completed ? { backgroundColor: templateColor + '20', color: templateColor } : undefined}
+      >
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </button>
+
+      <AnimatePresence>
+        {showPR && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            onAnimationComplete={() => setTimeout(() => setShowPR(false), 2000)}
+            className="absolute -top-3 right-8 bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full"
+          >
+            NEW PR
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  )
+}
+
+export default ExerciseCard

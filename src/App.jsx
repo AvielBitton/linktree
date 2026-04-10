@@ -3,7 +3,9 @@
 import { useState, useCallback, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Tabs, TabsContent } from '@/src/components/ui/tabs'
+import { EditModeProvider } from './contexts/EditModeContext'
 import SocialIcons from './components/SocialIcons'
+import EditModeToggle from './components/EditModeToggle'
 import BottomNav from './components/BottomNav'
 import DayRow from './components/dashboard/DayRow'
 import WorkoutDetailModal from './components/dashboard/WorkoutDetailModal'
@@ -11,11 +13,13 @@ import NavArrow from './components/dashboard/NavArrow'
 import PersonalRecords from './components/PersonalRecords'
 import NextWorkoutTab from './components/NextWorkoutTab'
 import ActivityLog from './components/ActivityLog'
+import GymTab from './components/GymTab'
 import TelAviv2026Content from './components/TelAviv2026Content'
+import BodyWeightWidget from './components/dashboard/BodyWeightWidget'
 import { hydrateWorkouts } from './utils/workouts'
 import { getWeekSunday, buildWeekData } from './utils/dashboard'
 
-function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], archiveWorkouts = [] }) {
+function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], archiveWorkouts = [], gymTemplates = [], gymSessions = [], gymWeights = [] }) {
   const allWorkouts = useMemo(() => hydrateWorkouts(initialWorkouts), [initialWorkouts])
 
   const { firstDate, lastDate } = useMemo(() => {
@@ -75,6 +79,7 @@ function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], arch
   }, [weekData])
 
   return (
+    <EditModeProvider>
     <Tabs defaultValue="home" className="min-h-screen bg-[#0D1117]">
       <div className="max-w-lg mx-auto px-5 py-8 sm:py-12 pb-24">
 
@@ -89,7 +94,10 @@ function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], arch
             <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
               Aviel Bitton
             </h1>
-            <SocialIcons onShare={handleShare} />
+            <div className="flex items-center gap-1">
+              <EditModeToggle />
+              <SocialIcons onShare={handleShare} />
+            </div>
           </div>
           <p className="text-white/30 text-xs font-medium">
             Live boldly as a <span className="text-amber-400/80 font-semibold">FREE SPIRIT</span>
@@ -98,6 +106,8 @@ function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], arch
 
         {/* Home Tab */}
         <TabsContent value="home" className="mt-0">
+          <BodyWeightWidget weights={gymWeights} />
+
           {/* Week Header with Navigation */}
           <motion.div
             className="mb-3"
@@ -195,6 +205,11 @@ function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], arch
           <ActivityLog activities={stravaActivities} />
         </TabsContent>
 
+        {/* Gym Tab */}
+        <TabsContent value="gym" className="mt-0">
+          <GymTab templates={gymTemplates} sessions={gymSessions} />
+        </TabsContent>
+
         {/* PRs Tab */}
         <TabsContent value="prs" className="mt-0">
           <PersonalRecords records={stravaPRs} fullView />
@@ -220,6 +235,7 @@ function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], arch
         )}
       </AnimatePresence>
     </Tabs>
+    </EditModeProvider>
   )
 }
 
