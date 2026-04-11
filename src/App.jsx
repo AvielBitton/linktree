@@ -31,6 +31,7 @@ function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], arch
     }
   }, [allWorkouts])
 
+  const [activeTab, setActiveTab] = useState('home')
   const [currentSunday, setCurrentSunday] = useState(() => getWeekSunday(new Date()))
   const [selectedWorkout, setSelectedWorkout] = useState(null)
   const [swipeDir, setSwipeDir] = useState(0)
@@ -81,7 +82,7 @@ function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], arch
 
   return (
     <EditModeProvider>
-    <Tabs defaultValue="home" className="min-h-screen bg-[#0D1117]">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="min-h-screen bg-[#0D1117]">
       <div className="max-w-lg mx-auto px-5 py-8 sm:py-12 pb-24">
 
         {/* Header */}
@@ -228,7 +229,7 @@ function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], arch
 
       </div>
 
-      <BottomNav />
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
 
       <AnimatePresence>
         {selectedWorkout && (
