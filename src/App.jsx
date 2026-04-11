@@ -14,12 +14,13 @@ import PersonalRecords from './components/PersonalRecords'
 import NextWorkoutTab from './components/NextWorkoutTab'
 import ActivityLog from './components/ActivityLog'
 import GymTab from './components/GymTab'
+import NutritionTab from './components/NutritionTab'
 import TelAviv2026Content from './components/TelAviv2026Content'
 import BodyWeightWidget from './components/dashboard/BodyWeightWidget'
 import { hydrateWorkouts } from './utils/workouts'
 import { getWeekSunday, buildWeekData } from './utils/dashboard'
 
-function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], archiveWorkouts = [], gymTemplates = [], gymSessions = [], gymWeights = [] }) {
+function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], archiveWorkouts = [], gymTemplates = [], gymSessions = [], gymWeights = [], mealPlans = [], mealCompletions = [] }) {
   const allWorkouts = useMemo(() => hydrateWorkouts(initialWorkouts), [initialWorkouts])
 
   const { firstDate, lastDate } = useMemo(() => {
@@ -203,6 +204,11 @@ function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], arch
         {/* Log Tab */}
         <TabsContent value="log" className="mt-0">
           <ActivityLog activities={stravaActivities} />
+        </TabsContent>
+
+        {/* Nutrition Tab */}
+        <TabsContent value="nutrition" className="mt-0">
+          <NutritionTab plans={mealPlans} completions={mealCompletions} />
         </TabsContent>
 
         {/* Gym Tab */}

@@ -1,0 +1,38 @@
+---
+description: Supabase database workflow - creating tables, migrations, and data persistence patterns
+alwaysApply: true
+---
+
+# Supabase Database Workflow
+
+## Creating New Tables
+
+When a feature requires new Supabase tables:
+
+1. **Identify early**: During planning, flag any new tables needed before starting implementation.
+2. **Provide the SQL script**: Generate a complete `CREATE TABLE` statement with indexes and constraints. The user will run it in **Supabase Dashboard > SQL Editor**.
+3. **No direct DDL access**: The service role key (`SUPABASE_SERVICE_ROLE_KEY`) only allows CRUD on existing tables via the REST API. It cannot create/alter/drop tables.
+4. **Verify after creation**: After the user runs the SQL, verify tables exist by querying them with the Supabase JS client.
+
+## Project Database Details
+
+- **Project ref**: `lkbxveqpzjuxvpspvmnp`
+- **Client library**: `@supabase/supabase-js` initialized in `lib/supabase.js`
+- **Server actions**: Place in `lib/actions/` with `'use server'` directive, use `validateToken()` from `lib/auth`, and call `revalidatePath('/')` after mutations.
+- **Auth pattern**: Client stores edit token via `gym-store.js` (`getToken()`). Server validates with `bcrypt.compare` against `GYM_EDIT_KEY_HASH` env var.
+
+## Existing Tables
+
+| Table | Purpose |
+|-------|---------|
+| `gym_templates` | Workout template definitions |
+| `gym_sessions` | Completed workout sessions |
+| `gym_weights` | Body weight tracking entries |
+| `meal_plans` | Meal plan definitions (id, name, active, dates, meals jsonb) |
+| `meal_completions` | Daily meal completion tracking (plan_id, date, meal_id) |
+
+## Data Loading Pattern
+
+- Fetch data in `app/page.jsx` (RSC) via `supabase.from('table').select('*')`
+- Pass as props to client `<App />` component
+- Hardcoded fallback data lives in `lib/` (e.g., `lib/gym-data.js`, `lib/nutrition-data.js`)
