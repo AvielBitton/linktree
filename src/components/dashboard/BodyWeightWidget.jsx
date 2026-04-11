@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { toast } from 'sonner'
 import { useEditMode } from '@/src/contexts/EditModeContext'
 import { getSessionToken } from '@/lib/auth-client'
 import { logWeight as logWeightAction } from '@/lib/actions/gym'
@@ -27,6 +28,7 @@ function BodyWeightWidget({ weights = [] }) {
   const { editMode } = useEditMode()
   const [mounted, setMounted] = useState(false)
   const [inputValue, setInputValue] = useState('')
+  const [submitting, setSubmitting] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [range, setRange] = useState('week')
 
@@ -54,13 +56,30 @@ function BodyWeightWidget({ weights = [] }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    const w = parseFloat(inputValue)
-    if (!w || w < 20 || w > 300) return
+    const normalized = inputValue.replace(',', '.')
+    const w = parseFloat(normalized)
+    if (!w || w < 20 || w > 300) {
+      toast.error('Enter a valid weight (20-300 kg)')
+      return
+    }
     const token = getSessionToken()
-    if (!token) return
-    const result = await logWeightAction(token, w)
-    if (result.success) {
-      setInputValue('')
+    if (!token) {
+      toast.error('Not authenticated — unlock edit mode first')
+      return
+    }
+    setSubmitting(true)
+    try {
+      const result = await logWeightAction(token, w)
+      if (result.success) {
+        setInputValue('')
+        toast.success(`${w} kg logged`)
+      } else {
+        toast.error(result.error || 'Failed to save weight')
+      }
+    } catch (err) {
+      toast.error('Network error — check your connection')
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -222,19 +241,20 @@ function BodyWeightWidget({ weights = [] }) {
           {mounted && editMode && !todayWeight && (
             <form onSubmit={handleSubmit} onClick={e => e.stopPropagation()} className="flex items-center gap-1.5">
               <input
-                type="number"
+                type="text"
                 inputMode="decimal"
-                step="0.1"
+                pattern="[0-9]*[.,]?[0-9]*"
                 value={inputValue}
                 onChange={e => setInputValue(e.target.value)}
                 placeholder="kg"
-                className="w-16 bg-white/[0.06] rounded-lg px-2 py-1.5 text-xs text-white text-center font-medium tabular-nums placeholder:text-white/15 focus:outline-none focus:ring-1 focus:ring-blue-500/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-16 bg-white/[0.06] rounded-lg px-2 py-1.5 text-xs text-white text-center font-medium tabular-nums placeholder:text-white/15 focus:outline-none focus:ring-1 focus:ring-blue-500/30"
               />
               <button
                 type="submit"
-                className="w-7 h-7 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center hover:bg-blue-500/25 active:scale-95 transition-all"
+                disabled={submitting}
+                className="min-w-[36px] min-h-[36px] w-9 h-9 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center hover:bg-blue-500/25 active:scale-95 transition-all disabled:opacity-40"
               >
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               </button>
