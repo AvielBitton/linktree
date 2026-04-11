@@ -16,7 +16,7 @@ import ActivityLog from './components/ActivityLog'
 import GymTab from './components/GymTab'
 import NutritionTab from './components/NutritionTab'
 import TelAviv2026Content from './components/TelAviv2026Content'
-import BodyWeightWidget from './components/dashboard/BodyWeightWidget'
+import DashboardTab from './components/DashboardTab'
 import { hydrateWorkouts } from './utils/workouts'
 import { getWeekSunday, buildWeekData } from './utils/dashboard'
 
@@ -106,10 +106,23 @@ function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], arch
           </p>
         </motion.div>
 
-        {/* Home Tab */}
+        {/* Dashboard Tab (Home) */}
         <TabsContent value="home" className="mt-0">
-          <BodyWeightWidget weights={gymWeights} />
+          <DashboardTab
+            workouts={allWorkouts}
+            stravaActivities={stravaActivities}
+            stravaPRs={stravaPRs}
+            gymSessions={gymSessions}
+            gymTemplates={gymTemplates}
+            gymWeights={gymWeights}
+            mealPlans={mealPlans}
+            mealCompletions={mealCompletions}
+            onTabChange={setActiveTab}
+          />
+        </TabsContent>
 
+        {/* Schedule Tab (old Home) */}
+        <TabsContent value="schedule" className="mt-0">
           {/* Week Header with Navigation */}
           <motion.div
             className="mb-3"
