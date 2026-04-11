@@ -19,6 +19,6 @@ export async function POST(request) {
 
 export async function DELETE(request) {
   const token = request.headers.get('x-session-token')
-  logout(token)
+  await logout(token)
   return NextResponse.json({ ok: true })
 }
