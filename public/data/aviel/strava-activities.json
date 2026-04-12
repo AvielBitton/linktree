@@ -1,7 +1,43 @@
 {
-  "last_sync": "2026-04-12T09:39:58.112132",
-  "last_activity_ts": 1775884842,
+  "last_sync": "2026-04-12T19:56:49.255572",
+  "last_activity_ts": 1775970156,
   "activities": [
+    {
+      "id": 18076324898,
+      "name": "Morning Weight Training",
+      "type": "WeightTraining",
+      "sport_type": "WeightTraining",
+      "date": "2026-04-12",
+      "start_time": "08:02:36",
+      "distance": 0.0,
+      "moving_time": 4447,
+      "elapsed_time": 4447,
+      "moving_time_formatted": "1:14:07",
+      "elapsed_time_formatted": "1:14:07",
+      "total_elevation_gain": 0,
+      "average_speed": 0.0,
+      "max_speed": 0.0,
+      "average_heartrate": 87.2,
+      "max_heartrate": 129.0,
+      "average_cadence": null,
+      "calories": 237.0,
+      "suffer_score": 8.0,
+      "has_heartrate": true,
+      "map_polyline": "",
+      "laps": [
+        {
+          "name": "Lap 1",
+          "distance": 0.0,
+          "elapsed_time": 4447,
+          "moving_time": 4447,
+          "average_speed": 0.0,
+          "average_heartrate": 87.2,
+          "max_heartrate": 129.0,
+          "average_cadence": null,
+          "pace": null
+        }
+      ]
+    },
     {
       "id": 18061567469,
       "name": "Morning Run",
