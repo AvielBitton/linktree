@@ -47,6 +47,7 @@ function GymTab({ templates = [], sessions = [] }) {
               templates={templates}
               sessions={sessions}
               onStartWorkout={editMode ? handleStartWorkout : undefined}
+              editMode={editMode}
             />
 
             {editMode && (

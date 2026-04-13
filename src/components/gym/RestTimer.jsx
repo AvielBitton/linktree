@@ -4,8 +4,10 @@ import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 
 function RestTimer({ seconds, templateColor = '#3B82F6', onDismiss, onFinish }) {
+  const [endTime, setEndTime] = useState(() => Date.now() + seconds * 1000)
   const [remaining, setRemaining] = useState(seconds)
   const [paused, setPaused] = useState(false)
+  const pausedRemainingRef = useRef(null)
   const onFinishRef = useRef(onFinish)
   const onDismissRef = useRef(onDismiss)
 
@@ -15,13 +17,13 @@ function RestTimer({ seconds, templateColor = '#3B82F6', onDismiss, onFinish }) 
   useEffect(() => {
     if (paused) return
     const id = setInterval(() => {
-      setRemaining(prev => {
-        if (prev <= 1) { clearInterval(id); return 0 }
-        return prev - 1
-      })
-    }, 1000)
+      const now = Date.now()
+      const left = Math.max(0, Math.ceil((endTime - now) / 1000))
+      setRemaining(left)
+      if (left <= 0) clearInterval(id)
+    }, 250)
     return () => clearInterval(id)
-  }, [paused])
+  }, [paused, endTime])
 
   useEffect(() => {
     if (remaining === 0) {
@@ -29,6 +31,27 @@ function RestTimer({ seconds, templateColor = '#3B82F6', onDismiss, onFinish }) 
       onFinishRef.current?.()
     }
   }, [remaining])
+
+  function handlePause() {
+    if (paused) {
+      const ms = (pausedRemainingRef.current ?? remaining) * 1000
+      setEndTime(Date.now() + ms)
+      setPaused(false)
+    } else {
+      pausedRemainingRef.current = remaining
+      setPaused(true)
+    }
+  }
+
+  function handleAdd15() {
+    if (paused) {
+      pausedRemainingRef.current = (pausedRemainingRef.current ?? remaining) + 15
+      setRemaining(prev => prev + 15)
+    } else {
+      setEndTime(prev => prev + 15000)
+      setRemaining(prev => prev + 15)
+    }
+  }
 
   const totalSeconds = useRef(seconds).current
   const progress = 1 - remaining / totalSeconds
@@ -45,7 +68,7 @@ function RestTimer({ seconds, templateColor = '#3B82F6', onDismiss, onFinish }) 
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 60, scale: 0.9 }}
       transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-      className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[60]"
+      className="fixed bottom-20 inset-x-0 z-[60] flex justify-center px-4"
     >
       <div className="bg-[#161B22]/95 backdrop-blur-xl border border-white/[0.08] rounded-2xl shadow-2xl shadow-black/50 p-4 flex items-center gap-4">
         <div className={`relative w-[72px] h-[72px] flex-shrink-0 ${isEnding ? 'animate-pulse' : ''}`}>
@@ -72,7 +95,7 @@ function RestTimer({ seconds, templateColor = '#3B82F6', onDismiss, onFinish }) 
           <span className="text-[10px] text-white/30 font-medium uppercase tracking-wider">Rest</span>
           <div className="flex gap-1.5">
             <button
-              onClick={() => setPaused(p => !p)}
+              onClick={handlePause}
               className="w-9 h-9 rounded-lg bg-white/[0.06] flex items-center justify-center text-white/40 hover:bg-white/[0.1] active:scale-95 transition-all"
             >
               {paused ? (
@@ -82,7 +105,7 @@ function RestTimer({ seconds, templateColor = '#3B82F6', onDismiss, onFinish }) 
               )}
             </button>
             <button
-              onClick={() => setRemaining(prev => prev + 15)}
+              onClick={handleAdd15}
               className="h-9 px-3 rounded-lg bg-white/[0.06] text-[10px] text-white/30 font-medium hover:bg-white/[0.1] active:scale-95 transition-all"
             >
               +15s
