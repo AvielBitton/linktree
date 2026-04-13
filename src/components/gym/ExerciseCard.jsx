@@ -14,8 +14,8 @@ function formatRest(seconds) {
   return `${seconds}s`
 }
 
-function ExerciseCard({ exercise, exerciseIndex, onSetComplete, completedSets = {}, supersetLabel, isLastInSuperset, templateColor = '#10B981', pr = 0, lastWeights = {} }) {
-  const setCount = exercise.sets || 3
+function ExerciseCard({ exercise, exerciseIndex, onSetComplete, onSetUncomplete, completedSets = {}, supersetLabel, isLastInSuperset, templateColor = '#10B981', pr = 0, lastWeights = {}, extraSets = 0, onAddSet }) {
+  const setCount = (exercise.sets || 3) + extraSets
   const sets = Array.from({ length: setCount }, (_, i) => i + 1)
   const [showVideo, setShowVideo] = useState(false)
 
@@ -110,32 +110,55 @@ function ExerciseCard({ exercise, exerciseIndex, onSetComplete, completedSets = 
               completed={completed}
               templateColor={templateColor}
               onComplete={(w, r) => onSetComplete(exercise.key, setNum, w, r)}
+              onUncomplete={() => onSetUncomplete(exercise.key, setNum)}
             />
           )
         })}
+
+        {onAddSet && (
+          <button
+            onClick={() => onAddSet(exercise.key)}
+            className="w-full mt-1 py-1.5 rounded-lg border border-dashed border-white/[0.08] text-white/20 text-[11px] font-medium flex items-center justify-center gap-1 hover:bg-white/[0.03] hover:text-white/30 active:scale-[0.98] transition-all"
+          >
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Add Set
+          </button>
+        )}
       </div>
     </div>
   )
 }
 
-function SetRow({ setNum, lastWeight, pr, targetReps, completed, templateColor, onComplete }) {
+function SetRow({ setNum, lastWeight, pr, targetReps, completed, templateColor, onComplete, onUncomplete }) {
   const [weight, setWeight] = useState(completed?.weightKg?.toString() || '')
   const [reps, setReps] = useState(completed?.reps?.toString() || '')
   const [showPR, setShowPR] = useState(false)
+  const [editing, setEditing] = useState(false)
 
   useEffect(() => {
-    if (completed) {
+    if (completed && !editing) {
       setWeight(completed.weightKg?.toString() || '')
       setReps(completed.reps?.toString() || '')
     }
-  }, [completed])
+  }, [completed, editing])
 
   function handleCheck() {
+    if (completed && !editing) {
+      setEditing(true)
+      onUncomplete()
+      return
+    }
     const w = parseFloat(weight) || 0
     const r = parseInt(reps) || 0
     if (pr && w > pr) setShowPR(true)
+    setEditing(false)
     onComplete(w, r)
   }
+
+  const isLocked = !!completed && !editing
 
   return (
     <motion.div
@@ -166,7 +189,7 @@ function SetRow({ setNum, lastWeight, pr, targetReps, completed, templateColor, 
         value={weight}
         onChange={e => setWeight(e.target.value)}
         placeholder={lastWeight ? String(lastWeight) : '—'}
-        disabled={!!completed}
+        disabled={isLocked}
         className="w-full bg-white/[0.06] rounded-lg px-2 py-2 text-sm text-white text-center font-medium tabular-nums placeholder:text-white/10 focus:outline-none focus:ring-1 focus:ring-white/20 disabled:opacity-40 disabled:cursor-default [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
 
@@ -176,23 +199,30 @@ function SetRow({ setNum, lastWeight, pr, targetReps, completed, templateColor, 
         value={reps}
         onChange={e => setReps(e.target.value)}
         placeholder={targetReps || '—'}
-        disabled={!!completed}
+        disabled={isLocked}
         className="w-full bg-white/[0.06] rounded-lg px-2 py-2 text-sm text-white text-center font-medium tabular-nums placeholder:text-white/10 focus:outline-none focus:ring-1 focus:ring-white/20 disabled:opacity-40 disabled:cursor-default [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
 
       <button
         onClick={handleCheck}
-        disabled={!!completed}
         className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
-          completed
-            ? 'text-white/60'
-            : 'bg-white/[0.06] text-white/20 hover:bg-white/[0.1] hover:text-white/40 active:scale-90'
+          editing
+            ? 'bg-white/[0.06] text-white/20 hover:bg-white/[0.1] hover:text-white/40 active:scale-90 ring-1 ring-amber-500/40'
+            : completed
+              ? 'text-white/60'
+              : 'bg-white/[0.06] text-white/20 hover:bg-white/[0.1] hover:text-white/40 active:scale-90'
         }`}
-        style={completed ? { backgroundColor: templateColor + '20', color: templateColor } : undefined}
+        style={completed && !editing ? { backgroundColor: templateColor + '20', color: templateColor } : undefined}
       >
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
+        {editing ? (
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        ) : (
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        )}
       </button>
 
       <AnimatePresence>

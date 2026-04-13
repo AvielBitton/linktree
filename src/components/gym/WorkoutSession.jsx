@@ -13,9 +13,11 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
   const [startTime] = useState(() => Date.now())
   const [elapsed, setElapsed] = useState(0)
   const [completedSets, setCompletedSets] = useState({})
+  const [extraSets, setExtraSets] = useState({})
   const [restTimer, setRestTimer] = useState(null)
   const [showSummary, setShowSummary] = useState(false)
   const [showFinishConfirm, setShowFinishConfirm] = useState(false)
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
   const [sessionId] = useState(() => generateId())
   const scrollRef = useRef(null)
 
@@ -49,6 +51,7 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
     const saved = getActiveSession()
     if (saved && saved.templateId === template.id) {
       setCompletedSets(saved.completedSets || {})
+      setExtraSets(saved.extraSets || {})
     }
   }, [template.id])
 
@@ -58,31 +61,52 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
   }, [startTime])
 
   useEffect(() => {
-    if (Object.keys(completedSets).length > 0) {
-      saveActiveSession({ templateId: template.id, completedSets, startTime })
+    if (Object.keys(completedSets).length > 0 || Object.keys(extraSets).length > 0) {
+      saveActiveSession({ templateId: template.id, completedSets, extraSets, startTime })
     }
-  }, [completedSets, template.id, startTime])
+  }, [completedSets, extraSets, template.id, startTime])
 
   const handleSetComplete = useCallback((exerciseKey, setNum, weightKg, reps) => {
     const key = `${exerciseKey}_${setNum}`
-    setCompletedSets(prev => ({
-      ...prev,
-      [key]: { weightKg, reps, completedAt: Date.now() },
-    }))
 
-    try { navigator.vibrate?.(50) } catch {}
+    setCompletedSets(prev => {
+      const wasAlreadyCompleted = !!prev[key]
+      const next = { ...prev, [key]: { weightKg, reps, completedAt: Date.now() } }
 
-    const exercise = template.exercises.find(e => e.key === exerciseKey)
-    if (!exercise) return
+      if (!wasAlreadyCompleted) {
+        try { navigator.vibrate?.(50) } catch {}
 
-    if (exercise.superset) {
-      const ssGroup = template.exercises.filter(e => e.superset === exercise.superset)
-      const isLast = ssGroup.indexOf(exercise) === ssGroup.length - 1
-      if (isLast && exercise.rest) setRestTimer(exercise.rest)
-    } else if (exercise.rest) {
-      setRestTimer(exercise.rest)
-    }
+        const exercise = template.exercises.find(e => e.key === exerciseKey)
+        if (exercise) {
+          if (exercise.superset) {
+            const ssGroup = template.exercises.filter(e => e.superset === exercise.superset)
+            const isLast = ssGroup.indexOf(exercise) === ssGroup.length - 1
+            if (isLast && exercise.rest) setRestTimer(exercise.rest)
+          } else if (exercise.rest) {
+            setRestTimer(exercise.rest)
+          }
+        }
+      }
+
+      return next
+    })
   }, [template.exercises])
+
+  const handleSetUncomplete = useCallback((exerciseKey, setNum) => {
+    const key = `${exerciseKey}_${setNum}`
+    setCompletedSets(prev => {
+      const next = { ...prev }
+      delete next[key]
+      return next
+    })
+  }, [])
+
+  const handleAddSet = useCallback((exerciseKey) => {
+    setExtraSets(prev => ({
+      ...prev,
+      [exerciseKey]: (prev[exerciseKey] || 0) + 1,
+    }))
+  }, [])
 
   const handleFinish = useCallback(async () => {
     const exerciseLogs = []
@@ -122,7 +146,7 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
     })
   }, [completedSets, template, sessionId, startTime])
 
-  const totalSets = template.exercises.reduce((sum, e) => sum + (e.sets || 3), 0)
+  const totalSets = template.exercises.reduce((sum, e) => sum + (e.sets || 3) + (extraSets[e.key] || 0), 0)
   const doneSets = Object.keys(completedSets).length
   const totalVolume = Object.values(completedSets).reduce(
     (sum, s) => sum + (s.weightKg || 0) * (s.reps || 0), 0
@@ -159,6 +183,15 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
 
         <div className="flex items-center justify-between mb-2.5">
           <div className="flex items-center gap-2.5">
+            <button
+              onClick={() => setShowCancelConfirm(true)}
+              className="w-7 h-7 -ml-1 rounded-lg flex items-center justify-center text-white/25 hover:text-white/50 hover:bg-white/[0.06] active:scale-90 transition-all"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
             <div className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: template.color }} />
             <span className="text-white font-bold text-sm tracking-tight">{template.name}</span>
           </div>
@@ -216,11 +249,14 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
                     exerciseIndex={gi}
                     completedSets={completedSets}
                     onSetComplete={handleSetComplete}
+                    onSetUncomplete={handleSetUncomplete}
                     supersetLabel={`${group.label}${ei + 1}`}
                     isLastInSuperset={ei === group.exercises.length - 1}
                     templateColor={template.color}
                     pr={exerciseDataMap[ex.key]?.pr || 0}
                     lastWeights={exerciseDataMap[ex.key]?.lastWeights || {}}
+                    extraSets={extraSets[ex.key] || 0}
+                    onAddSet={handleAddSet}
                   />
                 ))}
               </div>
@@ -233,9 +269,12 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
               exerciseIndex={gi}
               completedSets={completedSets}
               onSetComplete={handleSetComplete}
+              onSetUncomplete={handleSetUncomplete}
               templateColor={template.color}
               pr={exerciseDataMap[group.exercise.key]?.pr || 0}
               lastWeights={exerciseDataMap[group.exercise.key]?.lastWeights || {}}
+              extraSets={extraSets[group.exercise.key] || 0}
+              onAddSet={handleAddSet}
             />
           )
         })}
@@ -283,6 +322,43 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
                   style={{ backgroundColor: template.color + '25', color: template.color }}
                 >
                   Finish
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showCancelConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[65] bg-black/60 backdrop-blur-sm flex items-center justify-center p-8"
+            onClick={() => setShowCancelConfirm(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+              className="bg-[#161B22] border border-white/[0.08] rounded-2xl p-5 w-full max-w-xs shadow-2xl"
+            >
+              <h3 className="text-white font-bold text-sm mb-1">Cancel workout?</h3>
+              <p className="text-white/30 text-xs mb-5">All progress will be lost. This cannot be undone.</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowCancelConfirm(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-white/[0.06] text-white/50 text-xs font-medium active:scale-[0.98] transition-all"
+                >
+                  Keep Training
+                </button>
+                <button
+                  onClick={() => { setShowCancelConfirm(false); clearActiveSession(); onFinish() }}
+                  className="flex-1 py-2.5 rounded-xl text-xs font-bold bg-red-500/15 text-red-400 border border-red-500/20 active:scale-[0.98] transition-all"
+                >
+                  Cancel Workout
                 </button>
               </div>
             </motion.div>

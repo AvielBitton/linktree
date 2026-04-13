@@ -3,6 +3,8 @@
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import YouTubeModal from './YouTubeModal'
+import { getSessionToken } from '@/lib/auth-client'
+import { deleteWorkoutSession } from '@/lib/actions/gym'
 
 function estimateDuration(template) {
   let totalSeconds = 0
@@ -29,9 +31,18 @@ function getLastSessionVolume(session) {
   return logs.reduce((s, l) => s + (l.weight_kg || l.weightKg || 0) * (l.reps || 0), 0)
 }
 
-function WorkoutTemplates({ templates = [], sessions = [], onStartWorkout }) {
+function formatDuration(sec) {
+  const m = Math.floor(sec / 60)
+  const s = sec % 60
+  return s > 0 ? `${m}m${s}s` : `${m}m`
+}
+
+function WorkoutTemplates({ templates = [], sessions = [], onStartWorkout, editMode = false }) {
   const [expandedId, setExpandedId] = useState(null)
   const [activeVideo, setActiveVideo] = useState(null)
+  const [showHistory, setShowHistory] = useState({})
+  const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [deleting, setDeleting] = useState(false)
 
   const sessionsByTemplate = useMemo(() => {
     const map = {}
@@ -225,6 +236,71 @@ function WorkoutTemplates({ templates = [], sessions = [], onStartWorkout }) {
                       })}
                     </div>
 
+                    {templateSessions.length > 0 && (
+                      <div className="mt-3 border-t border-white/[0.04] pt-3">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setShowHistory(prev => ({ ...prev, [template.id]: !prev[template.id] })) }}
+                          className="flex items-center gap-1.5 text-[10px] text-white/25 font-medium hover:text-white/40 transition-colors"
+                        >
+                          <motion.svg
+                            animate={{ rotate: showHistory[template.id] ? 90 : 0 }}
+                            transition={{ duration: 0.15 }}
+                            className="w-3 h-3"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                          >
+                            <polyline points="9 18 15 12 9 6" />
+                          </motion.svg>
+                          History ({templateSessions.length})
+                        </button>
+
+                        <AnimatePresence>
+                          {showHistory[template.id] && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="mt-2 space-y-1">
+                                {templateSessions.map(session => {
+                                  const vol = getLastSessionVolume(session)
+                                  const dur = session.duration_sec || session.durationSeconds || 0
+                                  const date = new Date(session.finished_at || session.finishedAt)
+                                  return (
+                                    <div key={session.id} className="flex items-center justify-between py-1.5 px-2 rounded-lg bg-white/[0.02] group">
+                                      <div className="flex items-center gap-3 text-[10px]">
+                                        <span className="text-white/30 tabular-nums">
+                                          {date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' })}
+                                        </span>
+                                        {dur > 0 && (
+                                          <span className="text-white/15 tabular-nums">{formatDuration(dur)}</span>
+                                        )}
+                                        {vol > 0 && (
+                                          <span className="text-white/15 tabular-nums">{vol.toLocaleString()} kg</span>
+                                        )}
+                                      </div>
+                                      {editMode && (
+                                        <button
+                                          onClick={(e) => { e.stopPropagation(); setDeleteConfirm(session.id) }}
+                                          className="w-6 h-6 rounded-md flex items-center justify-center text-white/15 hover:text-red-400 hover:bg-red-500/10 transition-all active:scale-90"
+                                        >
+                                          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <polyline points="3 6 5 6 21 6" />
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                          </svg>
+                                        </button>
+                                      )}
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    )}
+
                     {onStartWorkout ? (
                       <button
                         onClick={(e) => { e.stopPropagation(); onStartWorkout(template) }}
@@ -249,6 +325,53 @@ function WorkoutTemplates({ templates = [], sessions = [], onStartWorkout }) {
           </motion.div>
         )
       })}
+
+      <AnimatePresence>
+        {deleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[65] bg-black/60 backdrop-blur-sm flex items-center justify-center p-8"
+            onClick={() => setDeleteConfirm(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+              className="bg-[#161B22] border border-white/[0.08] rounded-2xl p-5 w-full max-w-xs shadow-2xl"
+            >
+              <h3 className="text-white font-bold text-sm mb-1">Delete session?</h3>
+              <p className="text-white/30 text-xs mb-5">This workout session will be permanently deleted.</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setDeleteConfirm(null)}
+                  disabled={deleting}
+                  className="flex-1 py-2.5 rounded-xl bg-white/[0.06] text-white/50 text-xs font-medium active:scale-[0.98] transition-all disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    setDeleting(true)
+                    const token = getSessionToken()
+                    if (token) {
+                      await deleteWorkoutSession(token, deleteConfirm)
+                    }
+                    setDeleting(false)
+                    setDeleteConfirm(null)
+                  }}
+                  disabled={deleting}
+                  className="flex-1 py-2.5 rounded-xl text-xs font-bold bg-red-500/15 text-red-400 border border-red-500/20 active:scale-[0.98] transition-all disabled:opacity-50"
+                >
+                  {deleting ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
