@@ -27,16 +27,35 @@ function SectionCard({ children, delay = 0, className = '' }) {
   )
 }
 
-function pctColor(pct) {
+function isCutForDate(dateStr, plans) {
+  const plan = plans.find(p => p.start_date && p.end_date && dateStr >= p.start_date && dateStr <= p.end_date)
+  return plan ? /cut/i.test(plan.id || plan.name) : false
+}
+
+function pctColor(pct, isCut = false) {
   if (pct === null || pct === undefined) return 'text-white/30'
+  if (isCut) {
+    const abs = Math.abs(pct)
+    if (pct <= 0 && abs >= 0.5 && abs <= 1.0) return 'text-emerald-400'
+    if (pct <= 0 && abs < 0.5) return 'text-yellow-400'
+    if (pct <= 0 && abs > 1.0) return 'text-orange-400'
+    return 'text-red-400'
+  }
   if (pct >= 0.5 && pct <= 1.0) return 'text-emerald-400'
   if (pct > 0 && pct < 0.5) return 'text-yellow-400'
   if (pct > 1.0) return 'text-orange-400'
   return 'text-red-400'
 }
 
-function pctBg(pct) {
+function pctBg(pct, isCut = false) {
   if (pct === null || pct === undefined) return 'bg-white/[0.03]'
+  if (isCut) {
+    const abs = Math.abs(pct)
+    if (pct <= 0 && abs >= 0.5 && abs <= 1.0) return 'bg-emerald-500/[0.06]'
+    if (pct <= 0 && abs < 0.5) return 'bg-yellow-500/[0.06]'
+    if (pct <= 0 && abs > 1.0) return 'bg-orange-500/[0.06]'
+    return 'bg-red-500/[0.06]'
+  }
   if (pct >= 0.5 && pct <= 1.0) return 'bg-emerald-500/[0.06]'
   if (pct > 0 && pct < 0.5) return 'bg-yellow-500/[0.06]'
   if (pct > 1.0) return 'bg-orange-500/[0.06]'
@@ -100,25 +119,28 @@ function WeightChart({ data }) {
   )
 }
 
-function WeightProgressBar({ avg, prevAvg, targetLow, targetHigh, deltaPct, deltaKg }) {
+function WeightProgressBar({ avg, prevAvg, targetLow, targetHigh, deltaPct, deltaKg, isCut = false }) {
   const margin = 0.6
   const barMin = Math.min(prevAvg, avg, targetLow || prevAvg) - margin
   const barMax = Math.max(prevAvg, avg, targetHigh || prevAvg) + margin
   const barRange = barMax - barMin || 1
   const w = 300, h = 50, padL = 8, padR = 8
   const trackY = 16, trackH = 6, trackW = w - padL - padR
-  const toX = val => padL + ((val - barMin) / barRange) * trackW
+  const toX = isCut
+    ? val => padL + ((barMax - val) / barRange) * trackW
+    : val => padL + ((val - barMin) / barRange) * trackW
   const prevX = toX(prevAvg)
   const avgX = toX(avg)
   const goalLX = targetLow ? toX(targetLow) : null
   const goalHX = targetHigh ? toX(targetHigh) : null
+  const fillWidth = Math.max(0, avgX - padL)
 
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
         <p className="text-[10px] text-white/30 font-medium uppercase tracking-wider">Weekly Goal</p>
         {deltaPct !== null && (
-          <span className={`text-[10px] font-bold tabular-nums px-1.5 py-0.5 rounded ${pctBg(deltaPct)} ${pctColor(deltaPct)}`}>
+          <span className={`text-[10px] font-bold tabular-nums px-1.5 py-0.5 rounded ${pctBg(deltaPct, isCut)} ${pctColor(deltaPct, isCut)}`}>
             {deltaPct > 0 ? '+' : ''}{deltaPct}%
           </span>
         )}
@@ -132,16 +154,16 @@ function WeightProgressBar({ avg, prevAvg, targetLow, targetHigh, deltaPct, delt
         </defs>
         <rect x={padL} y={trackY} width={trackW} height={trackH} rx={trackH / 2} fill="white" fillOpacity="0.04" />
         {goalLX !== null && (
-          <rect x={goalLX} y={trackY - 1} width={goalHX - goalLX} height={trackH + 2} rx={2} fill="rgb(52,211,153)" fillOpacity="0.12" stroke="rgb(52,211,153)" strokeOpacity="0.2" strokeWidth="0.5" />
+          <rect x={Math.min(goalLX, goalHX)} y={trackY - 1} width={Math.abs(goalHX - goalLX)} height={trackH + 2} rx={2} fill="rgb(52,211,153)" fillOpacity="0.12" stroke="rgb(52,211,153)" strokeOpacity="0.2" strokeWidth="0.5" />
         )}
-        <rect x={padL} y={trackY} width={Math.max(0, avgX - padL)} height={trackH} rx={trackH / 2} fill="url(#dashProgFill)" />
+        <rect x={padL} y={trackY} width={fillWidth} height={trackH} rx={trackH / 2} fill="url(#dashProgFill)" />
         <line x1={prevX} y1={trackY - 3} x2={prevX} y2={trackY + trackH + 3} stroke="white" strokeOpacity="0.15" strokeWidth="1" strokeDasharray="2 2" />
         <text x={prevX} y={trackY + trackH + 13} textAnchor="middle" fill="white" fillOpacity="0.2" fontSize="7" fontFamily="monospace">{prevAvg}</text>
         <circle cx={avgX} cy={trackY + trackH / 2} r="5" fill="rgb(96,165,250)" />
         <circle cx={avgX} cy={trackY + trackH / 2} r="7" fill="none" stroke="rgb(96,165,250)" strokeOpacity="0.2" strokeWidth="1" />
         <text x={avgX} y={trackY - 5} textAnchor="middle" fill="white" fillOpacity="0.8" fontSize="9" fontWeight="bold" fontFamily="monospace">{avg}</text>
         {goalLX !== null && (
-          <text x={(goalLX + goalHX) / 2} y={trackY + trackH + 13} textAnchor="middle" fill="rgb(52,211,153)" fillOpacity="0.4" fontSize="7" fontFamily="monospace">{targetLow}-{targetHigh}</text>
+          <text x={(goalLX + goalHX) / 2} y={trackY + trackH + 13} textAnchor="middle" fill="rgb(52,211,153)" fillOpacity="0.4" fontSize="7" fontFamily="monospace">{targetLow}–{targetHigh}</text>
         )}
       </svg>
     </div>
@@ -178,6 +200,7 @@ function DashboardTab({
   useEffect(() => { setMounted(true) }, [])
 
   const todayStr = new Date().toISOString().slice(0, 10)
+  const isCutMode = useMemo(() => isCutForDate(todayStr, mealPlans), [todayStr, mealPlans])
 
   // ── Weight data ──
   const weightLogs = useMemo(() =>
@@ -245,10 +268,10 @@ function DashboardTab({
       avg: current.avg,
       deltaKg: +(current.avg - prev.avg).toFixed(1),
       deltaPct: +((current.avg - prev.avg) / prev.avg * 100).toFixed(2),
-      targetLow: +(prev.avg * 1.005).toFixed(1),
-      targetHigh: +(prev.avg * 1.01).toFixed(1),
+      targetLow: +(prev.avg * (isCutMode ? 0.99 : 1.005)).toFixed(1),
+      targetHigh: +(prev.avg * (isCutMode ? 0.995 : 1.01)).toFixed(1),
     }
-  }, [weeklyBreakdown])
+  }, [weeklyBreakdown, isCutMode])
 
   const currentWeekView = useMemo(() => {
     if (!thisWeekStats) return null
@@ -286,10 +309,10 @@ function DashboardTab({
     const curr = weeks[weeks.length - 1]
     const deltaKg = +(curr.avg - prev.avg).toFixed(1)
     const deltaPct = +((curr.avg - prev.avg) / prev.avg * 100).toFixed(2)
-    const targetLow = +(prev.avg * 1.005).toFixed(1)
-    const targetHigh = +(prev.avg * 1.01).toFixed(1)
+    const targetLow = +(prev.avg * (isCutMode ? 0.99 : 1.005)).toFixed(1)
+    const targetHigh = +(prev.avg * (isCutMode ? 0.995 : 1.01)).toFixed(1)
     return { avg: curr.avg, prevAvg: prev.avg, deltaKg, deltaPct, targetLow, targetHigh }
-  }, [weightLogs])
+  }, [weightLogs, isCutMode])
 
   async function handleWeightSubmit(e) {
     e.preventDefault()
@@ -492,6 +515,26 @@ function DashboardTab({
   return (
     <div className="space-y-3">
 
+      {/* ═══ Active Plan Indicator ═══ */}
+      {activePlan && (
+        <div className={`flex items-center justify-between px-3.5 py-1.5 rounded-xl border ${isCutMode ? 'bg-amber-500/[0.04] border-amber-500/[0.08]' : 'bg-blue-500/[0.04] border-blue-500/[0.08]'}`}>
+          <div className="flex items-center gap-2 text-[11px]">
+            <span className={isCutMode ? 'text-amber-400' : 'text-blue-400'}>
+              {isCutMode ? '↓' : '↑'}
+            </span>
+            <span className={`font-semibold ${isCutMode ? 'text-amber-400/90' : 'text-blue-400/90'}`}>{activePlan.name}</span>
+            {activePlan.start_date && activePlan.end_date && (
+              <span className="text-white/15 text-[10px] tabular-nums">
+                {activePlan.start_date.slice(5).replace('-', '/')}–{activePlan.end_date.slice(5).replace('-', '/')}
+              </span>
+            )}
+          </div>
+          <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${isCutMode ? 'bg-amber-500/15 text-amber-400/70' : 'bg-blue-500/15 text-blue-400/70'}`}>
+            {isCutMode ? 'Cut' : 'Bulk'}
+          </span>
+        </div>
+      )}
+
       {/* ═══ SECTION 1: Weight Hero ═══ */}
       <SectionCard delay={0.05}>
         <div className="flex items-center justify-between mb-1">
@@ -504,7 +547,7 @@ function DashboardTab({
             <p className="text-white/40 text-[11px] font-medium uppercase tracking-wider">Body Weight</p>
           </div>
           {weeklyWeightStats?.deltaPct !== null && weeklyWeightStats?.deltaPct !== undefined && (
-            <span className={`text-[10px] font-bold tabular-nums px-1.5 py-0.5 rounded ${pctBg(weeklyWeightStats.deltaPct)} ${pctColor(weeklyWeightStats.deltaPct)}`}>
+            <span className={`text-[10px] font-bold tabular-nums px-1.5 py-0.5 rounded ${pctBg(weeklyWeightStats.deltaPct, isCutMode)} ${pctColor(weeklyWeightStats.deltaPct, isCutMode)}`}>
               {weeklyWeightStats.deltaPct > 0 ? '+' : ''}{weeklyWeightStats.deltaPct}%/w
             </span>
           )}
@@ -580,24 +623,31 @@ function DashboardTab({
         {weightRange === 'week' ? (
           currentWeekView && currentWeekView.prevAvg && (
             <div className="mt-3 pt-3 border-t border-white/[0.04]">
-              <WeightProgressBar {...currentWeekView} />
+              <WeightProgressBar {...currentWeekView} isCut={isCutMode} />
             </div>
           )
         ) : (
           <>
             {weeklyBreakdown.length > 0 && (() => {
-              const visible = [...weeklyBreakdown].filter(w => w.days >= 2).reverse()
+              const visible = [...weeklyBreakdown].filter(w => w.days >= 2).reverse().map(week => {
+                const lastLog = week.logs[week.logs.length - 1]
+                const weekIsCut = lastLog ? isCutForDate(lastLog.date, mealPlans) : isCutMode
+                return { ...week, isCut: weekIsCut }
+              })
               return (
                 <div className="mt-3 pt-3 border-t border-white/[0.04]">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-[10px] text-white/30 font-medium uppercase tracking-wider">Weekly Breakdown</p>
-                    <p className="text-[9px] text-white/15">Target: 0.5–1%/week</p>
+                    <p className="text-[9px] text-white/15">Target: {isCutMode ? '-0.5 to -1' : '0.5–1'}%/week</p>
                   </div>
                   <div className="space-y-1">
                     {visible.map((week, i) => (
-                      <div key={i} className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg ${pctBg(week.deltaPct)}`}>
+                      <div key={i} className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg ${pctBg(week.deltaPct, week.isCut)}`}>
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] text-white/25 tabular-nums w-[70px]">{week.range}</span>
+                          <span className={`text-[8px] font-bold px-1 py-0.5 rounded ${week.isCut ? 'bg-amber-500/10 text-amber-400/60' : 'bg-blue-500/10 text-blue-400/60'}`}>
+                            {week.isCut ? 'C' : 'B'}
+                          </span>
                           <span className="text-xs text-white font-semibold tabular-nums">{week.avg} kg</span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -607,7 +657,7 @@ function DashboardTab({
                             </span>
                           )}
                           {week.deltaPct !== undefined ? (
-                            <span className={`text-[10px] font-bold tabular-nums min-w-[42px] text-right ${pctColor(week.deltaPct)}`}>
+                            <span className={`text-[10px] font-bold tabular-nums min-w-[42px] text-right ${pctColor(week.deltaPct, week.isCut)}`}>
                               {week.deltaPct > 0 ? '+' : ''}{week.deltaPct}%
                             </span>
                           ) : (
@@ -633,8 +683,8 @@ function DashboardTab({
                   </p>
                   <p className="text-[9px] text-white/20">vs Last Week</p>
                 </div>
-                <div className={`text-center rounded-lg py-1.5 ${pctBg(thisWeekStats.deltaPct)}`}>
-                  <p className={`font-bold text-xs tabular-nums ${pctColor(thisWeekStats.deltaPct)}`}>
+                <div className={`text-center rounded-lg py-1.5 ${pctBg(thisWeekStats.deltaPct, isCutMode)}`}>
+                  <p className={`font-bold text-xs tabular-nums ${pctColor(thisWeekStats.deltaPct, isCutMode)}`}>
                     {thisWeekStats.deltaPct !== null ? `${thisWeekStats.deltaPct > 0 ? '+' : ''}${thisWeekStats.deltaPct}%` : '—'}
                   </p>
                   <p className="text-[9px] text-white/20">Weekly %</p>
