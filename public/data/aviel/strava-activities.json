@@ -1,7 +1,116 @@
 {
-  "last_sync": "2026-04-13T20:29:12.721124",
-  "last_activity_ts": 1776061935,
+  "last_sync": "2026-04-14T09:04:26.813476",
+  "last_activity_ts": 1776142466,
   "activities": [
+    {
+      "id": 18100098165,
+      "name": "Morning Run",
+      "type": "Run",
+      "sport_type": "Run",
+      "date": "2026-04-14",
+      "start_time": "07:54:26",
+      "distance": 5469.0,
+      "moving_time": 2401,
+      "elapsed_time": 2505,
+      "moving_time_formatted": "40:01",
+      "elapsed_time_formatted": "41:45",
+      "total_elevation_gain": 54.0,
+      "average_speed": 2.278,
+      "max_speed": 4.24,
+      "average_heartrate": 143.9,
+      "max_heartrate": 158.0,
+      "average_cadence": 82.7,
+      "calories": 395.0,
+      "suffer_score": 31.0,
+      "has_heartrate": true,
+      "map_polyline": "}oldEunvsEKGg@Q{A[i@Ss@MkBi@[EYOaAUm@UY?q@I_BIy@AaBMGBCF@f@EXA`AMlAK\\EDKHGMMHWDUTMBS@q@Qk@YYI]COGYEkAYUCQBQNM?EIQIKCSAa@KUBYTY?IE[]YOk@SqAWe@KMI{@ImAUuAOgAe@c@Kc@Bg@Ca@Bq@UUC_@QcAS]?w@J[JUPWBe@WWEMGWa@e@]sAU]A]KY?GE]Gq@AUDOCWMYAWD]P[LI@OA_@SUEK?YHYAM@ECMYWOIMQIQAY@SCq@YYA[M[Ae@DMCm@Wa@Ic@Ue@EUISEOIYDK?WGc@Eu@[SCO@QK]A[BSAgAOQEu@EMIOA]MMAk@YBBVBb@X^Ln@NLBn@@NDp@Hz@CVDBA_@a@_@KKEAIBIDGJE`@@XIXYr@mCNC\\K@@RMDB@LR?~@PH?NCH@f@JJ?ZHj@R~Bp@bAb@fDx@lCt@~@HjDFbAF^Hr@TvCn@~Br@VJj@LxARv@PnDXfABt@FlBZfD~@`ARNO@IJcBA_@F}@AcBGcABSZCv@Hp@DdA?\\Ef@SLALJNd@|@hBLNHHJBXj@BADBf@f@Zp@Pv@Vl@Xb@XPb@HdAFl@HtERtBh@VJJ?VGd@B~Ab@h@DVAHCBGFkD",
+      "splits_metric": [
+        {
+          "distance": 1000.9,
+          "elapsed_time": 447,
+          "moving_time": 447,
+          "elevation_difference": -32.2,
+          "average_speed": 2.24,
+          "average_heartrate": 130.98398169336383,
+          "pace": "7:26",
+          "split": 1
+        },
+        {
+          "distance": 1000.8,
+          "elapsed_time": 432,
+          "moving_time": 432,
+          "elevation_difference": 0.2,
+          "average_speed": 2.32,
+          "average_heartrate": 146.80787037037038,
+          "pace": "7:11",
+          "split": 2
+        },
+        {
+          "distance": 999.2,
+          "elapsed_time": 603,
+          "moving_time": 499,
+          "elevation_difference": 25.6,
+          "average_speed": 2.0,
+          "average_heartrate": 149.78383838383837,
+          "pace": "8:20",
+          "split": 3
+        },
+        {
+          "distance": 1000.1,
+          "elapsed_time": 402,
+          "moving_time": 402,
+          "elevation_difference": -14.4,
+          "average_speed": 2.49,
+          "average_heartrate": 144.7625,
+          "pace": "6:41",
+          "split": 4
+        },
+        {
+          "distance": 1000.4,
+          "elapsed_time": 419,
+          "moving_time": 419,
+          "elevation_difference": 2.8,
+          "average_speed": 2.39,
+          "average_heartrate": 144.73684210526315,
+          "pace": "6:58",
+          "split": 5
+        },
+        {
+          "distance": 467.6,
+          "elapsed_time": 203,
+          "moving_time": 203,
+          "elevation_difference": 3.6,
+          "average_speed": 2.3,
+          "average_heartrate": 147.57142857142858,
+          "pace": "7:14",
+          "split": 6
+        }
+      ],
+      "laps": [
+        {
+          "name": "Lap 1",
+          "distance": 5463.6,
+          "elapsed_time": 2504,
+          "moving_time": 2400,
+          "average_speed": 2.28,
+          "average_heartrate": 143.9,
+          "max_heartrate": 158.0,
+          "average_cadence": 82.7,
+          "pace": "7:18"
+        },
+        {
+          "name": "Lap 2",
+          "distance": 5.4,
+          "elapsed_time": 1,
+          "moving_time": 1,
+          "average_speed": 5.41,
+          "average_heartrate": 136.0,
+          "max_heartrate": 136.0,
+          "average_cadence": 79.0,
+          "pace": "3:04"
+        }
+      ]
+    },
     {
       "id": 18087985372,
       "name": "Morning Run",
