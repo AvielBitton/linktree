@@ -1,7 +1,101 @@
 {
-  "last_sync": "2026-04-16T09:04:15.662259",
-  "last_activity_ts": 1776186587,
+  "last_sync": "2026-04-16T20:09:16.644648",
+  "last_activity_ts": 1776361012,
   "activities": [
+    {
+      "id": 18134857250,
+      "name": "Evening Weight Training",
+      "type": "WeightTraining",
+      "sport_type": "WeightTraining",
+      "date": "2026-04-16",
+      "start_time": "19:10:30",
+      "distance": 0.0,
+      "moving_time": 4546,
+      "elapsed_time": 4546,
+      "moving_time_formatted": "1:15:46",
+      "elapsed_time_formatted": "1:15:46",
+      "total_elevation_gain": 0,
+      "average_speed": 0.0,
+      "max_speed": 0.0,
+      "average_heartrate": 110.4,
+      "max_heartrate": 141.0,
+      "average_cadence": null,
+      "calories": 374.0,
+      "suffer_score": 13.0,
+      "has_heartrate": true,
+      "map_polyline": "",
+      "laps": [
+        {
+          "name": "Lap 1",
+          "distance": 0.0,
+          "elapsed_time": 4546,
+          "moving_time": 4546,
+          "average_speed": 0.0,
+          "average_heartrate": 110.4,
+          "max_heartrate": 141.0,
+          "average_cadence": null,
+          "pace": null
+        }
+      ]
+    },
+    {
+      "id": 18135692788,
+      "name": "Evening Ride",
+      "type": "Ride",
+      "sport_type": "Ride",
+      "date": "2026-04-16",
+      "start_time": "20:36:52",
+      "distance": 0.0,
+      "moving_time": 1812,
+      "elapsed_time": 1812,
+      "moving_time_formatted": "30:12",
+      "elapsed_time_formatted": "30:12",
+      "total_elevation_gain": 0,
+      "average_speed": 0.0,
+      "max_speed": 0.0,
+      "average_heartrate": 113.1,
+      "max_heartrate": 125.0,
+      "average_cadence": null,
+      "calories": 175.0,
+      "suffer_score": 5.0,
+      "has_heartrate": true,
+      "map_polyline": "",
+      "laps": [
+        {
+          "name": "Lap 1",
+          "distance": 0.0,
+          "elapsed_time": 85,
+          "moving_time": 85,
+          "average_speed": 0.0,
+          "average_heartrate": 104.3,
+          "max_heartrate": 112.0,
+          "average_cadence": null,
+          "pace": null
+        },
+        {
+          "name": "Lap 2",
+          "distance": 0.0,
+          "elapsed_time": 5,
+          "moving_time": 5,
+          "average_speed": 0.0,
+          "average_heartrate": 107.8,
+          "max_heartrate": 109.0,
+          "average_cadence": null,
+          "pace": null
+        },
+        {
+          "name": "Lap 3",
+          "distance": 0.0,
+          "elapsed_time": 1721,
+          "moving_time": 1721,
+          "average_speed": 0.0,
+          "average_heartrate": 113.5,
+          "max_heartrate": 125.0,
+          "average_cadence": null,
+          "pace": null
+        }
+      ]
+    },
     {
       "id": 18100098165,
       "name": "Morning Run",
