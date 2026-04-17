@@ -105,6 +105,21 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
     return `${targetMin}%`
   }
 
+  function speedToPace(speed) {
+    if (!speed || speed <= 0) return null
+    const secsPerKm = 1000 / speed
+    const m = Math.floor(secsPerKm / 60)
+    const s = Math.round(secsPerKm % 60)
+    return `${m}:${s.toString().padStart(2, '0')}`
+  }
+
+  function paceLabel(step) {
+    if (step.targetMin != null) return targetLabel(step.targetMin, step.targetMax, structure?.metric)
+    if (step.targetSpeed) return `${speedToPace(step.targetSpeed)} /km`
+    if (step.targetSpeedMin && step.targetSpeedMax) return `${speedToPace(step.targetSpeedMax)}–${speedToPace(step.targetSpeedMin)} /km`
+    return null
+  }
+
   const structDist = calcStructureDistance(structure, thresholdSpeed)
   const distDisplay = completed && actualDist > 0
     ? `${Math.round(actualDist / 100) / 10} km`
@@ -399,6 +414,9 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
                   const maxPct = step.targetMax || step.targetMin
                   targetFast = 1000 / (thresholdSpeed * (maxPct / 100)) / 60
                   targetSlow = 1000 / (thresholdSpeed * (step.targetMin / 100)) / 60
+                } else if (step.targetSpeed) {
+                  targetFast = 1000 / step.targetSpeed / 60
+                  targetSlow = targetFast
                 }
                 blockTimeline.push({
                   start: cumValue,
@@ -618,9 +636,9 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
                                       }} />
                                       <span className="text-white/80 text-xs font-medium truncate flex-1">{step.name}</span>
                                       <span className="text-white/40 text-[11px] font-mono flex-shrink-0">{formatDur(step.value, step.unit)}</span>
-                                      {step.targetMin != null && (
+                                      {paceLabel(step) && (
                                         <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-white/[0.05] flex-shrink-0" style={{ color }}>
-                                          {targetLabel(step.targetMin, step.targetMax, structure.metric)}
+                                          {paceLabel(step)}
                                         </span>
                                       )}
                                     </div>
@@ -639,9 +657,9 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
                             }} />
                             <span className="text-white/80 text-xs font-medium truncate flex-1">{block.name}</span>
                             <span className="text-white/40 text-[11px] font-mono flex-shrink-0">{formatDur(block.value, block.unit)}</span>
-                            {block.targetMin != null && (
+                            {paceLabel(block) && (
                               <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-white/[0.05] flex-shrink-0" style={{ color }}>
-                                {targetLabel(block.targetMin, block.targetMax, structure.metric)}
+                                {paceLabel(block)}
                               </span>
                             )}
                           </div>
