@@ -116,6 +116,7 @@ export function assignGymTemplates(workouts, gymTemplates, gymSessions = []) {
       const tmpl = templateById[session.template_id]
       return {
         ...w,
+        PlannedDuration: '1.5',
         _gymTemplate: tmpl,
         _gymSessionLogs: session.exercise_logs || [],
         _originalTitle: w.Title,
@@ -136,6 +137,7 @@ export function assignGymTemplates(workouts, gymTemplates, gymSessions = []) {
     const tmpl = templateById[templateId]
     return {
       ...w,
+      PlannedDuration: '1.5',
       _gymTemplate: tmpl,
       _originalTitle: w.Title,
       Title: tmpl.name,

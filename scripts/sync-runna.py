@@ -382,6 +382,21 @@ def _parse_run_steps(text):
                     if total_secs > 0:
                         step[key] = round(1000.0 / total_secs, 4)
 
+        if "targetSpeed" not in step:
+            max_pace = re.search(r"no faster than\s+([\d:]+)/km", line)
+            if max_pace:
+                parts = max_pace.group(1).split(":")
+                if len(parts) == 2:
+                    total_secs = int(parts[0]) * 60 + int(parts[1])
+                    if total_secs > 0:
+                        step["targetSpeed"] = round(1000.0 / total_secs, 4)
+
+        if "targetSpeed" not in step:
+            for label in ["comfortable pace", "conversational pace", "easy pace"]:
+                if label in line.lower():
+                    step["paceLabel"] = label.replace(" pace", "")
+                    break
+
         if "warm" in line.lower():
             step["name"] = "Warm-up"
             step["intensityClass"] = "warmUp"

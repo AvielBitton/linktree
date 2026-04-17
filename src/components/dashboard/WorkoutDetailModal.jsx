@@ -117,6 +117,7 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
     if (step.targetMin != null) return targetLabel(step.targetMin, step.targetMax, structure?.metric)
     if (step.targetSpeed) return `${speedToPace(step.targetSpeed)} /km`
     if (step.targetSpeedMin && step.targetSpeedMax) return `${speedToPace(step.targetSpeedMax)}–${speedToPace(step.targetSpeedMin)} /km`
+    if (step.paceLabel) return step.paceLabel
     return null
   }
 
