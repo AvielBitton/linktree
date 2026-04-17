@@ -9,6 +9,15 @@ import { saveActiveSession, clearActiveSession, getActiveSession, generateId } f
 import { getSessionToken } from '@/lib/auth-client'
 import { saveWorkoutSession } from '@/lib/actions/gym'
 
+function parseRepRange(reps) {
+  if (!reps) return null
+  const str = String(reps)
+  const match = str.match(/^(\d+)\s*-\s*(\d+)$/)
+  if (match) return { min: parseInt(match[1]), max: parseInt(match[2]) }
+  const single = parseInt(str)
+  return isNaN(single) ? null : { min: single, max: single }
+}
+
 function WorkoutSession({ template, sessions = [], onFinish }) {
   const [startTime] = useState(() => Date.now())
   const [elapsed, setElapsed] = useState(0)
@@ -22,6 +31,11 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
   const scrollRef = useRef(null)
 
   const exerciseDataMap = useMemo(() => {
+    const repRangeMap = {}
+    for (const ex of template.exercises) {
+      repRangeMap[ex.key] = parseRepRange(ex.reps)
+    }
+
     const map = {}
     for (const session of sessions) {
       const logs = session.exercise_logs || session.exerciseLogs || []
@@ -30,7 +44,10 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
         if (!key) continue
         if (!map[key]) map[key] = { pr: 0, lastWeights: {} }
         const w = log.weight_kg || log.weightKg || 0
-        if (w > map[key].pr) map[key].pr = w
+        const r = log.reps || 0
+        const range = repRangeMap[key]
+        const inRange = !range || (r >= range.min && r <= range.max)
+        if (w > map[key].pr && inRange) map[key].pr = w
       }
     }
     const latestSession = sessions[0]
@@ -41,11 +58,14 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
         const setNum = log.set_number || log.setNumber
         if (!key || !setNum) continue
         if (!map[key]) map[key] = { pr: 0, lastWeights: {} }
-        map[key].lastWeights[setNum] = log.weight_kg || log.weightKg || 0
+        map[key].lastWeights[setNum] = {
+          weight: log.weight_kg || log.weightKg || 0,
+          reps: log.reps || 0,
+        }
       }
     }
     return map
-  }, [sessions])
+  }, [sessions, template.exercises])
 
   useEffect(() => {
     const saved = getActiveSession()

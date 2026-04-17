@@ -14,6 +14,15 @@ function formatRest(seconds) {
   return `${seconds}s`
 }
 
+function parseRepRange(reps) {
+  if (!reps) return null
+  const str = String(reps)
+  const match = str.match(/^(\d+)\s*-\s*(\d+)$/)
+  if (match) return { min: parseInt(match[1]), max: parseInt(match[2]) }
+  const single = parseInt(str)
+  return isNaN(single) ? null : { min: single, max: single }
+}
+
 function ExerciseCard({ exercise, exerciseIndex, onSetComplete, onSetUncomplete, completedSets = {}, supersetLabel, isLastInSuperset, templateColor = '#10B981', pr = 0, lastWeights = {}, extraSets = 0, onAddSet }) {
   const setCount = (exercise.sets || 3) + extraSets
   const sets = Array.from({ length: setCount }, (_, i) => i + 1)
@@ -153,7 +162,9 @@ function SetRow({ setNum, lastWeight, pr, targetReps, completed, templateColor, 
     }
     const w = parseFloat(weight) || 0
     const r = parseInt(reps) || 0
-    if (pr && w > pr) setShowPR(true)
+    const range = parseRepRange(targetReps)
+    const inRange = !range || (r >= range.min && r <= range.max)
+    if (pr && w > pr && inRange) setShowPR(true)
     setEditing(false)
     onComplete(w, r)
   }
@@ -179,7 +190,7 @@ function SetRow({ setNum, lastWeight, pr, targetReps, completed, templateColor, 
 
       <div className="text-center">
         <span className="text-[10px] text-white/15 tabular-nums">
-          {lastWeight ? `${lastWeight}` : '—'}
+          {lastWeight ? `${lastWeight.weight}×${lastWeight.reps}` : '—'}
         </span>
       </div>
 
@@ -188,7 +199,7 @@ function SetRow({ setNum, lastWeight, pr, targetReps, completed, templateColor, 
         inputMode="decimal"
         value={weight}
         onChange={e => setWeight(e.target.value)}
-        placeholder={lastWeight ? String(lastWeight) : '—'}
+        placeholder={lastWeight ? String(lastWeight.weight) : '—'}
         disabled={isLocked}
         className="w-full bg-white/[0.06] rounded-lg px-2 py-2 text-sm text-white text-center font-medium tabular-nums placeholder:text-white/10 focus:outline-none focus:ring-1 focus:ring-white/20 disabled:opacity-40 disabled:cursor-default [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
