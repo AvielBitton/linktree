@@ -16,20 +16,23 @@ export default async function HomePage() {
   let gymTemplates = WORKOUT_TEMPLATES
   let gymSessions = []
   let gymWeights = []
+  let customExercises = []
   let mealPlans = MEAL_PLANS
   let mealCompletions = []
 
   try {
-    const [templatesRes, sessionsRes, weightsRes, mealPlansRes, mealCompletionsRes] = await Promise.all([
+    const [templatesRes, sessionsRes, weightsRes, customExRes, mealPlansRes, mealCompletionsRes] = await Promise.all([
       supabase.from('workout_templates').select('*').order('sort_order'),
       supabase.from('workout_sessions').select('*, exercise_logs(*)').order('started_at', { ascending: false }),
       supabase.from('weight_logs').select('*').order('date', { ascending: false }),
+      supabase.from('custom_exercises').select('*').order('created_at', { ascending: false }),
       supabase.from('meal_plans').select('*').order('created_at', { ascending: false }),
       supabase.from('meal_completions').select('*').order('date', { ascending: false }).limit(200),
     ])
     if (templatesRes.data?.length > 0) gymTemplates = templatesRes.data
     if (sessionsRes.data) gymSessions = sessionsRes.data
     if (weightsRes.data) gymWeights = weightsRes.data
+    if (customExRes.data) customExercises = customExRes.data
     if (mealPlansRes.data?.length > 0) mealPlans = mealPlansRes.data
     if (mealCompletionsRes.data) mealCompletions = mealCompletionsRes.data
   } catch {
@@ -54,6 +57,7 @@ export default async function HomePage() {
       gymTemplates={gymTemplates}
       gymSessions={gymSessions}
       gymWeights={gymWeights}
+      customExercises={customExercises}
       mealPlans={mealPlans}
       mealCompletions={mealCompletions}
     />

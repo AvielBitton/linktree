@@ -21,7 +21,7 @@ import { hydrateWorkouts, mergeStravaActivities, assignGymTemplates } from './ut
 import { getWeekSunday, buildWeekData } from './utils/dashboard'
 import RUNNA_PLAN from './utils/runna-plan'
 
-function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], archiveWorkouts = [], gymTemplates = [], gymSessions = [], gymWeights = [], mealPlans = [], mealCompletions = [] }) {
+function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], archiveWorkouts = [], gymTemplates = [], gymSessions = [], gymWeights = [], customExercises = [], mealPlans = [], mealCompletions = [] }) {
   const allWorkouts = useMemo(
     () => assignGymTemplates(mergeStravaActivities(hydrateWorkouts(initialWorkouts), stravaActivities), gymTemplates, gymSessions),
     [initialWorkouts, stravaActivities, gymTemplates, gymSessions]
@@ -289,7 +289,7 @@ function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], arch
 
         {/* Gym Tab */}
         <TabsContent value="gym" className="mt-0">
-          <GymTab templates={gymTemplates} sessions={gymSessions} />
+          <GymTab templates={gymTemplates} sessions={gymSessions} customExercises={customExercises} />
         </TabsContent>
 
         {/* PRs Tab */}

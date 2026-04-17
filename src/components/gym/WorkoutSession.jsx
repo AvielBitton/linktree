@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ExerciseCard from './ExerciseCard'
+import ExerciseSwapModal from './ExerciseSwapModal'
 import RestTimer from './RestTimer'
 import SessionSummary from './SessionSummary'
 import { saveActiveSession, clearActiveSession, getActiveSession, generateId } from '@/lib/gym-store'
@@ -18,7 +19,7 @@ function parseRepRange(reps) {
   return isNaN(single) ? null : { min: single, max: single }
 }
 
-function WorkoutSession({ template, sessions = [], onFinish }) {
+function WorkoutSession({ template, allTemplates = [], customExercises = [], sessions = [], onFinish }) {
   const [startTime] = useState(() => Date.now())
   const [elapsed, setElapsed] = useState(0)
   const [completedSets, setCompletedSets] = useState({})
@@ -28,11 +29,31 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
   const [showFinishConfirm, setShowFinishConfirm] = useState(false)
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
   const [sessionId] = useState(() => generateId())
+  const [swappedExercises, setSwappedExercises] = useState({})
+  const [swapTarget, setSwapTarget] = useState(null)
   const scrollRef = useRef(null)
+
+  const sessionExercises = useMemo(() =>
+    template.exercises.map((ex, i) => swappedExercises[i] || ex),
+    [template.exercises, swappedExercises]
+  )
+
+  const exercisePool = useMemo(() => {
+    const map = new Map()
+    for (const t of allTemplates) {
+      for (const ex of (t.exercises || [])) {
+        if (!map.has(ex.key)) map.set(ex.key, ex)
+      }
+    }
+    for (const ex of customExercises) {
+      if (!map.has(ex.key)) map.set(ex.key, { ...ex, sets: 3, reps: '8-12', rest: 60, superset: null })
+    }
+    return Array.from(map.values())
+  }, [allTemplates, customExercises])
 
   const exerciseDataMap = useMemo(() => {
     const repRangeMap = {}
-    for (const ex of template.exercises) {
+    for (const ex of sessionExercises) {
       repRangeMap[ex.key] = parseRepRange(ex.reps)
     }
 
@@ -65,13 +86,14 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
       }
     }
     return map
-  }, [sessions, template.exercises])
+  }, [sessions, sessionExercises])
 
   useEffect(() => {
     const saved = getActiveSession()
     if (saved && saved.templateId === template.id) {
       setCompletedSets(saved.completedSets || {})
       setExtraSets(saved.extraSets || {})
+      if (saved.swappedExercises) setSwappedExercises(saved.swappedExercises)
     }
   }, [template.id])
 
@@ -81,10 +103,10 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
   }, [startTime])
 
   useEffect(() => {
-    if (Object.keys(completedSets).length > 0 || Object.keys(extraSets).length > 0) {
-      saveActiveSession({ templateId: template.id, completedSets, extraSets, startTime })
+    if (Object.keys(completedSets).length > 0 || Object.keys(extraSets).length > 0 || Object.keys(swappedExercises).length > 0) {
+      saveActiveSession({ templateId: template.id, completedSets, extraSets, swappedExercises, startTime })
     }
-  }, [completedSets, extraSets, template.id, startTime])
+  }, [completedSets, extraSets, swappedExercises, template.id, startTime])
 
   const handleSetComplete = useCallback((exerciseKey, setNum, weightKg, reps) => {
     const key = `${exerciseKey}_${setNum}`
@@ -96,10 +118,10 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
       if (!wasAlreadyCompleted) {
         try { navigator.vibrate?.(50) } catch {}
 
-        const exercise = template.exercises.find(e => e.key === exerciseKey)
+        const exercise = sessionExercises.find(e => e.key === exerciseKey)
         if (exercise) {
           if (exercise.superset) {
-            const ssGroup = template.exercises.filter(e => e.superset === exercise.superset)
+            const ssGroup = sessionExercises.filter(e => e.superset === exercise.superset)
             const isLast = ssGroup.indexOf(exercise) === ssGroup.length - 1
             if (isLast && exercise.rest) setRestTimer(exercise.rest)
           } else if (exercise.rest) {
@@ -110,7 +132,7 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
 
       return next
     })
-  }, [template.exercises])
+  }, [sessionExercises])
 
   const handleSetUncomplete = useCallback((exerciseKey, setNum) => {
     const key = `${exerciseKey}_${setNum}`
@@ -127,6 +149,26 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
       [exerciseKey]: (prev[exerciseKey] || 0) + 1,
     }))
   }, [])
+
+  const handleSwapExercise = useCallback((originalIndex, newExercise) => {
+    const oldKey = sessionExercises[originalIndex]?.key
+    if (oldKey) {
+      setCompletedSets(prev => {
+        const next = {}
+        for (const [k, v] of Object.entries(prev)) {
+          if (!k.startsWith(oldKey + '_')) next[k] = v
+        }
+        return next
+      })
+      setExtraSets(prev => {
+        const next = { ...prev }
+        delete next[oldKey]
+        return next
+      })
+    }
+    setSwappedExercises(prev => ({ ...prev, [originalIndex]: newExercise }))
+    setSwapTarget(null)
+  }, [sessionExercises])
 
   const handleFinish = useCallback(async () => {
     const exerciseLogs = []
@@ -161,12 +203,14 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
       templateName: template.name,
       exerciseLogs: exerciseLogs.map(l => ({
         ...l,
-        exerciseName: template.exercises.find(e => e.key === l.exerciseKey)?.name || l.exerciseKey,
+        exerciseName: sessionExercises.find(e => e.key === l.exerciseKey)?.name_en
+          || sessionExercises.find(e => e.key === l.exerciseKey)?.name
+          || l.exerciseKey,
       })),
     })
-  }, [completedSets, template, sessionId, startTime])
+  }, [completedSets, template, sessionExercises, sessionId, startTime])
 
-  const totalSets = template.exercises.reduce((sum, e) => sum + (e.sets || 3) + (extraSets[e.key] || 0), 0)
+  const totalSets = sessionExercises.reduce((sum, e) => sum + (e.sets || 3) + (extraSets[e.key] || 0), 0)
   const doneSets = Object.keys(completedSets).length
   const totalVolume = Object.values(completedSets).reduce(
     (sum, s) => sum + (s.weightKg || 0) * (s.reps || 0), 0
@@ -175,7 +219,7 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
   const secs = Math.floor((elapsed % 60000) / 1000)
   const pct = totalSets > 0 ? (doneSets / totalSets) * 100 : 0
 
-  const exercisesWithSupersets = groupExercises(template.exercises)
+  const exercisesWithSupersets = groupExercises(sessionExercises)
 
   if (showSummary) {
     return (
@@ -262,21 +306,22 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
                 <div className="absolute -top-2.5 left-3 px-2 py-0.5 rounded-md bg-purple-500/15 border border-purple-500/20">
                   <span className="text-[9px] font-bold text-purple-400 tracking-wider uppercase">Superset {group.label}</span>
                 </div>
-                {group.exercises.map((ex, ei) => (
+                {group.exercises.map((item, ei) => (
                   <ExerciseCard
-                    key={ex.key + '_' + ei}
-                    exercise={ex}
-                    exerciseIndex={gi}
+                    key={item.exercise.key + '_' + ei}
+                    exercise={item.exercise}
+                    exerciseIndex={item.originalIndex}
                     completedSets={completedSets}
                     onSetComplete={handleSetComplete}
                     onSetUncomplete={handleSetUncomplete}
                     supersetLabel={`${group.label}${ei + 1}`}
                     isLastInSuperset={ei === group.exercises.length - 1}
                     templateColor={template.color}
-                    pr={exerciseDataMap[ex.key]?.pr || 0}
-                    lastWeights={exerciseDataMap[ex.key]?.lastWeights || {}}
-                    extraSets={extraSets[ex.key] || 0}
+                    pr={exerciseDataMap[item.exercise.key]?.pr || 0}
+                    lastWeights={exerciseDataMap[item.exercise.key]?.lastWeights || {}}
+                    extraSets={extraSets[item.exercise.key] || 0}
                     onAddSet={handleAddSet}
+                    onSwap={() => setSwapTarget(item.originalIndex)}
                   />
                 ))}
               </div>
@@ -286,7 +331,7 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
             <ExerciseCard
               key={group.exercise.key + '_' + gi}
               exercise={group.exercise}
-              exerciseIndex={gi}
+              exerciseIndex={group.originalIndex}
               completedSets={completedSets}
               onSetComplete={handleSetComplete}
               onSetUncomplete={handleSetUncomplete}
@@ -295,6 +340,7 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
               lastWeights={exerciseDataMap[group.exercise.key]?.lastWeights || {}}
               extraSets={extraSets[group.exercise.key] || 0}
               onAddSet={handleAddSet}
+              onSwap={() => setSwapTarget(group.originalIndex)}
             />
           )
         })}
@@ -307,6 +353,19 @@ function WorkoutSession({ template, sessions = [], onFinish }) {
             templateColor={template.color}
             onDismiss={() => setRestTimer(null)}
             onFinish={() => setRestTimer(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {swapTarget !== null && (
+          <ExerciseSwapModal
+            exercisePool={exercisePool}
+            allTemplates={allTemplates}
+            currentExercise={sessionExercises[swapTarget]}
+            templateColor={template.color}
+            onSelect={ex => handleSwapExercise(swapTarget, ex)}
+            onClose={() => setSwapTarget(null)}
           />
         )}
       </AnimatePresence>
@@ -398,12 +457,12 @@ function groupExercises(exercises) {
       const label = ex.superset
       const ssExercises = []
       while (i < exercises.length && exercises[i].superset === label) {
-        ssExercises.push(exercises[i])
+        ssExercises.push({ exercise: exercises[i], originalIndex: i })
         i++
       }
       groups.push({ isSuperset: true, label, exercises: ssExercises })
     } else {
-      groups.push({ isSuperset: false, exercise: ex })
+      groups.push({ isSuperset: false, exercise: ex, originalIndex: i })
       i++
     }
   }

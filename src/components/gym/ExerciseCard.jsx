@@ -23,7 +23,7 @@ function parseRepRange(reps) {
   return isNaN(single) ? null : { min: single, max: single }
 }
 
-function ExerciseCard({ exercise, exerciseIndex, onSetComplete, onSetUncomplete, completedSets = {}, supersetLabel, isLastInSuperset, templateColor = '#10B981', pr = 0, lastWeights = {}, extraSets = 0, onAddSet }) {
+function ExerciseCard({ exercise, exerciseIndex, onSetComplete, onSetUncomplete, completedSets = {}, supersetLabel, isLastInSuperset, templateColor = '#10B981', pr = 0, lastWeights = {}, extraSets = 0, onAddSet, onSwap }) {
   const setCount = (exercise.sets || 3) + extraSets
   const sets = Array.from({ length: setCount }, (_, i) => i + 1)
   const [showVideo, setShowVideo] = useState(false)
@@ -70,6 +70,20 @@ function ExerciseCard({ exercise, exerciseIndex, onSetComplete, onSetUncomplete,
                 >
                   <svg className="w-2.5 h-2.5 ml-[1px]" viewBox="0 0 24 24" fill="currentColor">
                     <polygon points="5 3 19 12 5 21 5 3" />
+                  </svg>
+                </button>
+              )}
+              {onSwap && (
+                <button
+                  onClick={onSwap}
+                  className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center bg-white/[0.06] text-white/25 hover:bg-white/[0.12] hover:text-white/50 transition-colors"
+                  title="Swap exercise"
+                >
+                  <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="17 1 21 5 17 9" />
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                    <polyline points="7 23 3 19 7 15" />
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3" />
                   </svg>
                 </button>
               )}
