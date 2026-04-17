@@ -209,6 +209,39 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
               </button>
             </div>
 
+            {(() => {
+              const stravaLink = matchedStrava?.id || workout._stravaId
+              if (!stravaLink && !workout.runnaUrl) return null
+              return (
+                <div className="flex items-center gap-4 mb-3">
+                  {stravaLink && (
+                    <a
+                      href={`https://www.strava.com/activities/${stravaLink}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[#FC4C02]/70 hover:text-[#FC4C02] transition-colors"
+                    >
+                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" /></svg>
+                      <span className="text-[11px] font-medium">View on Strava</span>
+                      <span className="text-[9px]">&rsaquo;</span>
+                    </a>
+                  )}
+                  {workout.runnaUrl && (
+                    <a
+                      href={workout.runnaUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-pink-400/70 hover:text-pink-400 transition-colors"
+                    >
+                      <svg className="w-3 h-3" viewBox="0 0 147 221" fill="currentColor"><circle cx="119.8" cy="26.9" r="26.9"/><path d="M89.2 160.7c18.3-10.8 30.9-30.8 30.9-53.1 0-36.4-28.4-61.6-65.7-61.6H.7l27.1 35.1h23.7c15.4 0 25.8 10.5 25.8 26.5 0 9.6-4.2 18-11.5 22.7L48.3 107.6H0l83.3 110.4h50.2L89.2 160.7z"/></svg>
+                      <span className="text-[11px] font-medium">View on Runna</span>
+                      <span className="text-[9px]">&rsaquo;</span>
+                    </a>
+                  )}
+                </div>
+              )
+            })()}
+
             {(distDisplay || durationDisplay) && (
               <div className="flex gap-2 mb-3">
                 {distDisplay && (
@@ -270,28 +303,6 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
                     <p className="text-white/30 text-[10px] font-medium">RPE{feeling ? ` · ${feelingLabels[feeling] || feeling}` : ''}</p>
                   </div>
                 )}
-                {matchedStrava?.id && (
-                  <a
-                    href={`https://www.strava.com/activities/${matchedStrava.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-[#FC4C02]/10 rounded-lg p-2 flex items-center justify-center gap-1.5 hover:bg-[#FC4C02]/20 transition-colors"
-                  >
-                    <svg className="w-3.5 h-3.5 text-[#FC4C02]" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" /></svg>
-                    <span className="text-[#FC4C02] text-[11px] font-semibold">Strava</span>
-                  </a>
-                )}
-                {workout.runnaUrl && (
-                  <a
-                    href={workout.runnaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-pink-500/10 rounded-lg p-2 flex items-center justify-center gap-1.5 hover:bg-pink-500/20 transition-colors"
-                  >
-                    <span className="text-pink-400 text-sm font-bold">R</span>
-                    <span className="text-pink-400 text-[11px] font-semibold">Runna</span>
-                  </a>
-                )}
               </div>
             )}
 
@@ -322,31 +333,10 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
                       <p className="text-white/30 text-[10px] font-medium">Suffer Score</p>
                     </div>
                   )}
-                  {stravaId && (
-                    <a
-                      href={`https://www.strava.com/activities/${stravaId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-[#FC4C02]/10 rounded-lg p-2 flex items-center justify-center gap-1.5 hover:bg-[#FC4C02]/20 transition-colors"
-                    >
-                      <svg className="w-3.5 h-3.5 text-[#FC4C02]" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" /></svg>
-                      <span className="text-[#FC4C02] text-[11px] font-semibold">Strava</span>
-                    </a>
-                  )}
-                  {workout.runnaUrl && (
-                    <a
-                      href={workout.runnaUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-pink-500/10 rounded-lg p-2 flex items-center justify-center gap-1.5 hover:bg-pink-500/20 transition-colors"
-                    >
-                      <span className="text-pink-400 text-sm font-bold">R</span>
-                      <span className="text-pink-400 text-[11px] font-semibold">Runna</span>
-                    </a>
-                  )}
                 </div>
               )
             })()}
+
 
             {workout._gymTemplate && workout._gymTemplate.exercises && workout._gymTemplate.exercises.length > 0 && (() => {
               const logs = workout._gymSessionLogs || []
@@ -762,17 +752,6 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
               </div>
             )}
 
-            {!completed && workout.runnaUrl && (
-              <a
-                href={workout.runnaUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1.5 bg-pink-500/10 rounded-lg px-3 py-2 hover:bg-pink-500/20 transition-colors mb-2"
-              >
-                <span className="text-pink-400 text-sm font-bold">R</span>
-                <span className="text-pink-400 text-[11px] font-semibold">Open in Runna</span>
-              </a>
-            )}
           </div>
         </motion.div>
       </motion.div>
