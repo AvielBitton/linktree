@@ -14,13 +14,18 @@ import {
 
 function findMatchingStravaActivity(workout, stravaActivities) {
   if (!workout || !stravaActivities || stravaActivities.length === 0) return null
+
+  if (workout._stravaId) {
+    return stravaActivities.find(a => a.id === workout._stravaId) || null
+  }
+
   if (!workout.date) return null
 
   const wDate = workout.date
   const dateStr = `${wDate.getFullYear()}-${String(wDate.getMonth() + 1).padStart(2, '0')}-${String(wDate.getDate()).padStart(2, '0')}`
   const wType = (workout.WorkoutType || '').toLowerCase()
 
-  const typeMap = { run: 'Run', bike: 'Ride', swim: 'Swim' }
+  const typeMap = { run: 'Run', bike: 'Ride', swim: 'Swim', strength: 'WeightTraining' }
   const stravaType = typeMap[wType]
 
   return stravaActivities.find(a => {
@@ -32,9 +37,14 @@ function findMatchingStravaActivity(workout, stravaActivities) {
 }
 
 export default function WorkoutDetailModal({ workout, stravaActivities = [], onClose }) {
+  const completed = workout ? isWorkoutCompleted(workout) : false
+  const matchedStrava = useMemo(
+    () => (workout && (completed || workout._stravaId)) ? findMatchingStravaActivity(workout, stravaActivities) : null,
+    [workout, stravaActivities, completed]
+  )
+
   if (!workout) return null
 
-  const completed = isWorkoutCompleted(workout)
   const color = getTypeColor(workout.WorkoutType)
   const isRun = (workout.WorkoutType || '').toLowerCase() === 'run'
 
@@ -58,15 +68,11 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
   const compliance = workout.compliance || null
   const thresholdSpeed = workout.thresholdSpeed || null
 
-  const matchedStrava = useMemo(
-    () => completed ? findMatchingStravaActivity(workout, stravaActivities) : null,
-    [workout, stravaActivities, completed]
-  )
   const stravaSplits = matchedStrava?.splits_metric || []
   const tssActual = parseFloat(workout.TSS) || null
   const tssPlanned = workout.tssPlanned || null
   const ifActual = parseFloat(workout.IF) || null
-  const ifPlanned = workout.ifPlanned || null
+  const ifPlanned = parseFloat(workout.ifPlanned) || null
 
   function pctToPace(pct) {
     if (!thresholdSpeed || !pct) return null
@@ -153,6 +159,11 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
                 <h2 className="text-white font-bold text-lg tracking-tight leading-tight">
                   {workout.Title}
                 </h2>
+                {workout._originalTitle && (
+                  <p className="text-white/25 text-[11px] mt-0.5">
+                    Runna: {workout._originalTitle}
+                  </p>
+                )}
                 <div className="flex items-center gap-1.5 mt-1">
                   <span
                     className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
@@ -238,8 +249,125 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
                     <p className="text-white/30 text-[10px] font-medium">RPE{feeling ? ` · ${feelingLabels[feeling] || feeling}` : ''}</p>
                   </div>
                 )}
+                {matchedStrava?.id && (
+                  <a
+                    href={`https://www.strava.com/activities/${matchedStrava.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-[#FC4C02]/10 rounded-lg p-2 flex items-center justify-center gap-1.5 hover:bg-[#FC4C02]/20 transition-colors"
+                  >
+                    <svg className="w-3.5 h-3.5 text-[#FC4C02]" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" /></svg>
+                    <span className="text-[#FC4C02] text-[11px] font-semibold">View on Strava</span>
+                  </a>
+                )}
               </div>
             )}
+
+            {completed && !isRun && (avgHR || workout._stravaCalories > 0 || matchedStrava) && (() => {
+              const hr = avgHR || (matchedStrava?.average_heartrate ? matchedStrava.average_heartrate : null)
+              const hrMax2 = maxHR || (matchedStrava?.max_heartrate ? matchedStrava.max_heartrate : null)
+              const cal = workout._stravaCalories || matchedStrava?.calories || 0
+              const suffer = workout._stravaSufferScore || matchedStrava?.suffer_score || null
+              const stravaId = workout._stravaId || matchedStrava?.id
+              if (!hr && !cal && !suffer) return null
+              return (
+                <div className="grid grid-cols-2 gap-1.5 mb-3">
+                  {hr && (
+                    <div className="bg-white/[0.04] rounded-lg p-2">
+                      <p className="text-white font-bold text-sm">{Math.round(hr)}{hrMax2 ? <span className="text-white/25 font-normal text-[11px]"> / {Math.round(hrMax2)}</span> : ''}</p>
+                      <p className="text-white/30 text-[10px] font-medium">Avg / Max HR</p>
+                    </div>
+                  )}
+                  {cal > 0 && (
+                    <div className="bg-white/[0.04] rounded-lg p-2">
+                      <p className="text-white font-bold text-sm">{Math.round(cal)}</p>
+                      <p className="text-white/30 text-[10px] font-medium">Calories</p>
+                    </div>
+                  )}
+                  {suffer && (
+                    <div className="bg-white/[0.04] rounded-lg p-2">
+                      <p className="text-white font-bold text-sm">{suffer}</p>
+                      <p className="text-white/30 text-[10px] font-medium">Suffer Score</p>
+                    </div>
+                  )}
+                  {stravaId && (
+                    <a
+                      href={`https://www.strava.com/activities/${stravaId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-[#FC4C02]/10 rounded-lg p-2 flex items-center justify-center gap-1.5 hover:bg-[#FC4C02]/20 transition-colors"
+                    >
+                      <svg className="w-3.5 h-3.5 text-[#FC4C02]" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" /></svg>
+                      <span className="text-[#FC4C02] text-[11px] font-semibold">View on Strava</span>
+                    </a>
+                  )}
+                </div>
+              )
+            })()}
+
+            {workout._gymTemplate && workout._gymTemplate.exercises && workout._gymTemplate.exercises.length > 0 && (() => {
+              const logs = workout._gymSessionLogs || []
+              const logsByKey = {}
+              for (const l of logs) {
+                const k = l.exercise_key || l.exerciseKey
+                if (!k) continue
+                if (!logsByKey[k]) logsByKey[k] = []
+                logsByKey[k].push(l)
+              }
+              for (const k of Object.keys(logsByKey)) {
+                logsByKey[k].sort((a, b) => a.set_number - b.set_number)
+              }
+              const hasLogs = logs.length > 0
+
+              return (
+                <div className="mb-3">
+                  <p className="text-white/25 text-[10px] uppercase tracking-wider mb-1.5 font-semibold">
+                    {workout._gymTemplate.name} — {hasLogs ? 'Actual' : 'Exercises'}
+                  </p>
+                  <div className="bg-white/[0.03] rounded-xl overflow-hidden divide-y divide-white/[0.04]">
+                    {workout._gymTemplate.exercises.map((ex, i) => {
+                      const isSupersetStart = ex.superset && (!workout._gymTemplate.exercises[i - 1] || workout._gymTemplate.exercises[i - 1].superset !== ex.superset)
+                      const exLogs = logsByKey[ex.key] || []
+
+                      return (
+                        <div key={ex.key || i}>
+                          {isSupersetStart && (
+                            <div className="px-3 pt-2 pb-0.5">
+                              <span className="text-white/20 text-[9px] font-semibold uppercase tracking-wide">Superset</span>
+                            </div>
+                          )}
+                          <div className={`px-3 py-1.5 ${ex.superset ? 'pl-5' : ''}`}>
+                            <div className="flex items-center gap-2">
+                              <div className="w-1 h-5 rounded-full flex-shrink-0" style={{ backgroundColor: workout._gymTemplate.color || color, opacity: 0.7 }} />
+                              <span className="text-white/80 text-xs font-medium truncate flex-1">
+                                {ex.name_en || ex.name}
+                              </span>
+                              {!hasLogs && (
+                                <span className="text-white/40 text-[11px] font-mono flex-shrink-0">
+                                  {ex.sets}×{ex.reps}
+                                </span>
+                              )}
+                            </div>
+                            {hasLogs && exLogs.length > 0 && (
+                              <div className="flex gap-1.5 mt-1 ml-3 flex-wrap">
+                                {exLogs.map((l, j) => (
+                                  <span key={j} className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.05] text-white/50">
+                                    {l.weight_kg}<span className="text-white/25">kg</span>×{l.reps}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                            {hasLogs && exLogs.length === 0 && (
+                              <p className="text-white/20 text-[10px] mt-0.5 ml-3">skipped</p>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })()}
 
             {(() => {
               const hasStructure = structure && structure.blocks && structure.blocks.length > 0
@@ -567,24 +695,24 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
               </div>
             )}
 
-            {description && (
-              <div className="mb-3" dir="rtl">
-                <p className="text-white/25 text-[10px] uppercase tracking-wider mb-1 font-semibold text-right">פרטי אימון</p>
-                <p className="text-white/45 text-xs leading-relaxed whitespace-pre-line text-right">{description}</p>
+            {description && !workout._gymTemplate && (
+              <div className="mb-3">
+                <p className="text-white/25 text-[10px] uppercase tracking-wider mb-1 font-semibold">Description</p>
+                <p className="text-white/45 text-xs leading-relaxed whitespace-pre-line">{description}</p>
               </div>
             )}
 
-            {coachComments && (
-              <div className="mb-3" dir="rtl">
-                <p className="text-white/25 text-[10px] uppercase tracking-wider mb-1 font-semibold text-right">הערות מאמן</p>
-                <p className="text-white/45 text-xs leading-relaxed whitespace-pre-line text-right">{coachComments}</p>
+            {coachComments && !workout._gymTemplate && (
+              <div className="mb-3">
+                <p className="text-white/25 text-[10px] uppercase tracking-wider mb-1 font-semibold">Coach Notes</p>
+                <p className="text-white/45 text-xs leading-relaxed whitespace-pre-line">{coachComments}</p>
               </div>
             )}
 
             {completed && athleteComments && (
-              <div className="mb-2" dir="rtl">
-                <p className="text-white/25 text-[10px] uppercase tracking-wider mb-1 font-semibold text-right">סיכום אישי</p>
-                <p className="text-white/45 text-xs leading-relaxed whitespace-pre-line text-right">{athleteComments}</p>
+              <div className="mb-2">
+                <p className="text-white/25 text-[10px] uppercase tracking-wider mb-1 font-semibold">Personal Notes</p>
+                <p className="text-white/45 text-xs leading-relaxed whitespace-pre-line">{athleteComments}</p>
               </div>
             )}
           </div>

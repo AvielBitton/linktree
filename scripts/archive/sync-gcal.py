@@ -2,7 +2,6 @@
 """
 Sync workout data from CSV to Google Calendar.
 Creates/updates calendar events for future workouts.
-Works with data produced by sync-runna.py (Runna iCal -> CSV/JSON).
 
 Reads credentials from env vars:
   GOOGLE_SERVICE_ACCOUNT_JSON  – JSON key content (or path to .json file)
@@ -32,9 +31,6 @@ DEFAULT_START_HOUR = 8
 DEFAULT_DURATION_HOURS = 2
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
-EVENT_ID_PREFIX = "rn"
-OLD_EVENT_ID_PREFIX = "tp"
-
 SKIP_TYPES = {"Day Off"}
 
 COLOR_MAP = {
@@ -49,30 +45,10 @@ def load_credentials():
     """Load Google service account credentials from env var (JSON string or file path)."""
     raw = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "")
     if not raw:
-        env_file = PROJECT_ROOT / ".env"
-        if env_file.exists():
-            for line in env_file.read_text().splitlines():
-                line = line.strip()
-                if "=" in line and not line.startswith("#"):
-                    key, val = line.split("=", 1)
-                    if key.strip() == "GOOGLE_SERVICE_ACCOUNT_JSON" and not raw:
-                        raw = val.strip()
-
-    if not raw:
         print("Error: GOOGLE_SERVICE_ACCOUNT_JSON not set")
         sys.exit(1)
 
     calendar_id = os.environ.get("GOOGLE_CALENDAR_ID", "")
-    if not calendar_id:
-        env_file = PROJECT_ROOT / ".env"
-        if env_file.exists():
-            for line in env_file.read_text().splitlines():
-                line = line.strip()
-                if "=" in line and not line.startswith("#"):
-                    key, val = line.split("=", 1)
-                    if key.strip() == "GOOGLE_CALENDAR_ID" and not calendar_id:
-                        calendar_id = val.strip()
-
     if not calendar_id:
         print("Error: GOOGLE_CALENDAR_ID not set")
         sys.exit(1)
@@ -93,7 +69,7 @@ def make_event_id(date_str, title):
     Hex chars (0-9, a-f) are a valid subset, so a hex digest works directly.
     """
     key = f"{date_str}_{title}"
-    return EVENT_ID_PREFIX + hashlib.sha256(key.encode()).hexdigest()[:30]
+    return "tp" + hashlib.sha256(key.encode()).hexdigest()[:30]
 
 
 def parse_duration_hours(planned_duration_str):
@@ -131,11 +107,15 @@ def load_workouts():
         with open(EXTRA_JSON_PATH, "r", encoding="utf-8") as f:
             extra = json.load(f)
 
+    threshold_speed = extra.get("_thresholdSpeed")
+
     for w in workouts:
         day = (w.get("WorkoutDay") or "")[:10]
         title = w.get("Title", "")
         key = f"{day}_{title}"
         w.update(extra.get(key, {}))
+        if threshold_speed:
+            w["_thresholdSpeed"] = threshold_speed
 
     return workouts
 
@@ -167,21 +147,29 @@ def format_duration_or_distance(value, unit):
     return str(value)
 
 
-def format_pace_target(step):
-    """Format the target pace for a step (Runna format with targetSpeed)."""
-    speed = step.get("targetSpeed")
-    if speed:
-        return f" @ {speed_to_pace(speed)}/km"
+def format_pace_target(step, metric, threshold_speed):
+    """Format the target pace/power/rpe for a step."""
+    t_min = step.get("targetMin")
+    t_max = step.get("targetMax")
+    if t_min is None and t_max is None:
+        return ""
 
-    speed_min = step.get("targetSpeedMin")
-    speed_max = step.get("targetSpeedMax")
-    if speed_min and speed_max:
-        return f" @ {speed_to_pace(speed_max)} - {speed_to_pace(speed_min)}/km"
-    if speed_min:
-        return f" @ {speed_to_pace(speed_min)}/km"
-    if speed_max:
-        return f" @ {speed_to_pace(speed_max)}/km"
-
+    if metric == "percentOfThresholdPace" and threshold_speed:
+        paces = []
+        if t_max:
+            paces.append(speed_to_pace(threshold_speed * t_max / 100))
+        if t_min:
+            paces.append(speed_to_pace(threshold_speed * t_min / 100))
+        pace_str = " - ".join(paces)
+        return f" @ {pace_str}/km"
+    elif metric == "percentOfFtp":
+        if t_min and t_max:
+            return f" @ {t_min}-{t_max}% FTP"
+        return f" @ {t_min or t_max}% FTP"
+    elif metric == "rpe":
+        if t_min and t_max:
+            return f" @ RPE {t_min}-{t_max}"
+        return f" @ RPE {t_min or t_max}"
     return ""
 
 
@@ -191,7 +179,9 @@ def format_structure(workout):
     if not structure:
         return ""
 
+    metric = structure.get("metric", "")
     blocks = structure.get("blocks", [])
+    threshold_speed = workout.get("_thresholdSpeed")
 
     lines = ["\nWorkout Plan:"]
     for block in blocks:
@@ -202,12 +192,12 @@ def format_structure(workout):
             lines.append(f"  {reps}x:")
             for step in steps:
                 dur = format_duration_or_distance(step.get("value", 0), step.get("unit", ""))
-                pace = format_pace_target(step)
+                pace = format_pace_target(step, metric, threshold_speed)
                 name = step.get("name", "")
                 lines.append(f"    - {name} {dur}{pace}")
         else:
             dur = format_duration_or_distance(block.get("value", 0), block.get("unit", ""))
-            pace = format_pace_target(block)
+            pace = format_pace_target(block, metric, threshold_speed)
             name = block.get("name", "")
             lines.append(f"  {name} {dur}{pace}")
 
@@ -248,9 +238,9 @@ def build_description(workout):
     if structure_text:
         parts.append(structure_text)
 
-    runna_url = workout.get("runnaUrl", "")
-    if runna_url:
-        parts.append(f"\n📲 View in Runna: {runna_url}")
+    coach = workout.get("CoachComments", "")
+    if coach and coach.strip():
+        parts.append(f"\nCoach Comments:\n{coach}")
 
     return "\n".join(parts)
 
@@ -266,14 +256,14 @@ def build_event(workout):
 
     duration = parse_duration_hours(workout.get("PlannedDuration", ""))
     start = datetime.strptime(day, "%Y-%m-%d").replace(hour=DEFAULT_START_HOUR)
-    end_time = start + duration
+    end = start + duration
 
     event = {
         "id": event_id,
         "summary": summary,
         "description": build_description(workout),
         "start": {"dateTime": start.isoformat(), "timeZone": TIMEZONE},
-        "end": {"dateTime": end_time.isoformat(), "timeZone": TIMEZONE},
+        "end": {"dateTime": end.isoformat(), "timeZone": TIMEZONE},
         "reminders": {"useDefault": False, "overrides": []},
     }
 
@@ -303,9 +293,7 @@ def upsert_event(service, calendar_id, event):
 
 
 def cleanup_orphaned_events(service, calendar_id, valid_event_ids, today):
-    """Delete future calendar events created by this script that no longer exist in the CSV.
-    Also cleans up old TP-prefixed events from the previous TrainingPeaks integration.
-    """
+    """Delete future calendar events created by this script that no longer exist in the CSV."""
     today_rfc = datetime.strptime(today, "%Y-%m-%d").isoformat() + "Z"
 
     all_events = []
@@ -326,8 +314,7 @@ def cleanup_orphaned_events(service, calendar_id, valid_event_ids, today):
     deleted = 0
     for event in all_events:
         eid = event.get("id", "")
-        is_ours = eid.startswith(EVENT_ID_PREFIX) or eid.startswith(OLD_EVENT_ID_PREFIX)
-        if not is_ours:
+        if not eid.startswith("tp"):
             continue
         if eid in valid_event_ids:
             continue
@@ -344,7 +331,7 @@ def cleanup_orphaned_events(service, calendar_id, valid_event_ids, today):
 
 
 def main():
-    print("Google Calendar Sync (Runna)")
+    print("Google Calendar Sync")
     print("=" * 40)
 
     creds, calendar_id = load_credentials()

@@ -1,0 +1,60 @@
+name: Sync Runna Data
+
+on:
+  schedule:
+    - cron: '0 7 * * *'   # 10:00 Israel time
+    - cron: '0 19 * * *'  # 22:00 Israel time
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Sync workout data from Runna iCal feed
+        env:
+          RUNNA_ICAL_URL: ${{ secrets.RUNNA_ICAL_URL }}
+        run: python3 scripts/sync-runna.py
+
+      - name: Commit and push if changed
+        run: |
+          if git diff --quiet public/data/aviel/2026.csv public/data/aviel/2026-extra.json; then
+            echo "No changes detected"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/data/aviel/2026.csv public/data/aviel/2026-extra.json
+          git commit -m "Auto-sync Runna data"
+          git pull --rebase origin main
+          git push
+
+  sync-gcal:
+    runs-on: ubuntu-latest
+    needs: sync
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements-gcal.txt
+
+      - name: Sync workouts to Google Calendar
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_CALENDAR_ID: ${{ secrets.GOOGLE_CALENDAR_ID }}
+        run: python3 scripts/sync-gcal.py

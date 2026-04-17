@@ -1,3 +1,5 @@
+import STRENGTH_MAP from './strength-map'
+
 export function hydrateWorkouts(workouts) {
   return workouts.map(w => ({
     ...w,
@@ -5,6 +7,141 @@ export function hydrateWorkouts(workouts) {
   })).filter(w => w.date && !isNaN(w.date.getTime()))
 }
 
+const STRAVA_TYPE_MAP = {
+  WeightTraining: 'Strength',
+  Yoga: 'Custom',
+  Swim: 'Swim',
+  Ride: 'Bike',
+  Walk: 'Walk',
+}
+
+function mapStravaSportType(activity) {
+  if (activity.sport_type === 'Pilates') return 'Custom'
+  return STRAVA_TYPE_MAP[activity.type] || null
+}
+
+export function mergeStravaActivities(workouts, stravaActivities) {
+  if (!stravaActivities || stravaActivities.length === 0) return workouts
+
+  const existingKeys = new Set()
+  for (const w of workouts) {
+    if (!w.WorkoutDay) continue
+    const day = w.WorkoutDay.slice(0, 10)
+    const type = (w.WorkoutType || '').toLowerCase()
+    existingKeys.add(`${day}|${type}`)
+  }
+
+  const synthetic = []
+  for (const a of stravaActivities) {
+    if (a.type === 'Run') continue
+
+    const workoutType = mapStravaSportType(a)
+    if (!workoutType) continue
+
+    const key = `${a.date}|${workoutType.toLowerCase()}`
+    if (existingKeys.has(key)) continue
+    existingKeys.add(key)
+
+    synthetic.push({
+      Title: a.name || workoutType,
+      WorkoutType: workoutType,
+      WorkoutDay: a.date,
+      WorkoutDescription: '',
+      TimeTotalInHours: a.moving_time ? String(a.moving_time / 3600) : '',
+      DistanceInMeters: a.distance ? String(a.distance) : '',
+      HeartRateAverage: a.average_heartrate ? String(a.average_heartrate) : '',
+      HeartRateMax: a.max_heartrate ? String(a.max_heartrate) : '',
+      PlannedDuration: '',
+      PlannedDistanceInMeters: '',
+      _stravaId: a.id,
+      _stravaCalories: a.calories || 0,
+      _stravaSufferScore: a.suffer_score || null,
+      _stravaSportType: a.sport_type || a.type,
+      _source: 'strava',
+      date: new Date(a.date),
+    })
+  }
+
+  return [...workouts, ...synthetic]
+}
+
+export function assignGymTemplates(workouts, gymTemplates, gymSessions = []) {
+  if (!gymTemplates || gymTemplates.length === 0) return workouts
+
+  const templateById = {}
+  for (const t of gymTemplates) {
+    templateById[t.id] = t
+  }
+
+  // Build date -> sessions lookup from actual gym sessions (DB)
+  const sessionsByDate = new Map()
+  for (const s of gymSessions) {
+    if (!s.started_at || !s.template_id) continue
+    const day = new Date(s.started_at).toISOString().slice(0, 10)
+    if (!sessionsByDate.has(day)) sessionsByDate.set(day, [])
+    sessionsByDate.get(day).push(s)
+  }
+
+  // Ordinal map for future/planned workouts (static fallback)
+  const today = new Date().toISOString().slice(0, 10)
+
+  const plannedStrength = workouts
+    .filter(w =>
+      (w.WorkoutType || '').toLowerCase() === 'strength' &&
+      w._source !== 'strava' &&
+      w.WorkoutDay?.slice(0, 10) >= today
+    )
+    .sort((a, b) => (a.WorkoutDay || '').localeCompare(b.WorkoutDay || ''))
+
+  const ordinalMap = new Map()
+  plannedStrength.forEach((w, i) => {
+    const key = `${w.WorkoutDay?.slice(0, 10)}|${w.Title || ''}`
+    ordinalMap.set(key, i + 1)
+  })
+
+  const usedSessionIds = new Set()
+
+  return workouts.map(w => {
+    const wType = (w.WorkoutType || '').toLowerCase()
+    if (wType !== 'strength') return w
+
+    const day = w.WorkoutDay?.slice(0, 10)
+    if (!day) return w
+
+    // 1) Completed: check actual gym session from DB (pick first unused for this day)
+    const daySessions = sessionsByDate.get(day) || []
+    const session = daySessions.find(s => !usedSessionIds.has(s.id) && templateById[s.template_id])
+    if (session) {
+      usedSessionIds.add(session.id)
+      const tmpl = templateById[session.template_id]
+      return {
+        ...w,
+        _gymTemplate: tmpl,
+        _gymSessionLogs: session.exercise_logs || [],
+        _originalTitle: w.Title,
+        Title: tmpl.name,
+      }
+    }
+
+    // 2) Planned: use ordinal map (skip Strava-sourced workouts)
+    if (w._source === 'strava') return w
+
+    const key = `${day}|${w.Title || ''}`
+    const ordinal = ordinalMap.get(key)
+    if (!ordinal) return w
+
+    const templateId = STRENGTH_MAP[ordinal]
+    if (!templateId || !templateById[templateId]) return w
+
+    const tmpl = templateById[templateId]
+    return {
+      ...w,
+      _gymTemplate: tmpl,
+      _originalTitle: w.Title,
+      Title: tmpl.name,
+    }
+  })
+}
 
 function isRunType(workout) {
   const type = (workout.WorkoutType || '').toLowerCase()
@@ -268,6 +405,7 @@ export function formatWorkoutDate(date) {
 
 export default {
   hydrateWorkouts,
+  mergeStravaActivities,
   groupByWeek,
   getCurrentWeekStats,
   getAllWeeksStats,

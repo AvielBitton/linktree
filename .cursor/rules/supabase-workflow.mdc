@@ -25,9 +25,10 @@ When a feature requires new Supabase tables:
 
 | Table | Purpose |
 |-------|---------|
-| `gym_templates` | Workout template definitions |
-| `gym_sessions` | Completed workout sessions |
-| `gym_weights` | Body weight tracking entries |
+| `workout_templates` | Workout template definitions (exercises as JSONB) |
+| `workout_sessions` | Completed workout sessions (with exercise_logs) |
+| `exercise_logs` | Per-set weight/reps logs for each session |
+| `weight_logs` | Body weight tracking entries |
 | `meal_plans` | Meal plan definitions (id, name, active, dates, meals jsonb) |
 | `meal_completions` | Daily meal completion tracking (plan_id, date, meal_id) |
 

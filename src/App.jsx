@@ -17,11 +17,52 @@ import GymTab from './components/GymTab'
 import NutritionTab from './components/NutritionTab'
 import TelAviv2026Content from './components/TelAviv2026Content'
 import DashboardTab from './components/DashboardTab'
-import { hydrateWorkouts } from './utils/workouts'
+import { hydrateWorkouts, mergeStravaActivities, assignGymTemplates } from './utils/workouts'
 import { getWeekSunday, buildWeekData } from './utils/dashboard'
+import RUNNA_PLAN from './utils/runna-plan'
 
 function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], archiveWorkouts = [], gymTemplates = [], gymSessions = [], gymWeights = [], mealPlans = [], mealCompletions = [] }) {
-  const allWorkouts = useMemo(() => hydrateWorkouts(initialWorkouts), [initialWorkouts])
+  const allWorkouts = useMemo(
+    () => assignGymTemplates(mergeStravaActivities(hydrateWorkouts(initialWorkouts), stravaActivities), gymTemplates, gymSessions),
+    [initialWorkouts, stravaActivities, gymTemplates, gymSessions]
+  )
+
+  const planData = useMemo(() => {
+    const plan = { ...RUNNA_PLAN }
+    const today = new Date().toISOString().slice(0, 10)
+    const planStart = plan.weekRanges[1]?.start
+    const planEnd = plan.weekRanges[plan.totalWeeks]?.end
+
+    let currentWeek = null
+    for (const [w, range] of Object.entries(plan.weekRanges)) {
+      if (today >= range.start && today <= range.end) {
+        currentWeek = parseInt(w)
+        break
+      }
+    }
+    if (!currentWeek && planStart && today < planStart) currentWeek = 0
+    if (!currentWeek && planEnd && today > planEnd) currentWeek = plan.totalWeeks
+    plan.currentWeek = currentWeek
+
+    if (plan.raceDate) {
+      const race = new Date(plan.raceDate + 'T00:00:00')
+      plan.daysToRace = Math.ceil((race - new Date()) / (1000 * 60 * 60 * 24))
+    }
+
+    let completedKm = 0
+    if (planStart && planEnd) {
+      for (const w of allWorkouts) {
+        const d = (w.WorkoutDay || '').slice(0, 10)
+        if (!d || d < planStart || d > planEnd) continue
+        if (w.WorkoutType !== 'Run') continue
+        const actual = parseFloat(w.DistanceInMeters) || 0
+        if (actual > 0) completedKm += actual / 1000
+      }
+    }
+    plan.completedKm = Math.round(completedKm * 10) / 10
+
+    return plan
+  }, [allWorkouts])
 
   const { firstDate, lastDate } = useMemo(() => {
     const sorted = [...allWorkouts].sort((a, b) => a.date - b.date)
@@ -117,6 +158,7 @@ function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], arch
             gymWeights={gymWeights}
             mealPlans={mealPlans}
             mealCompletions={mealCompletions}
+            runnaPlan={planData}
             onTabChange={setActiveTab}
           />
         </TabsContent>
@@ -133,9 +175,29 @@ function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], arch
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2.5">
                 <h2 className="text-white font-bold text-base tracking-tight">{weekData?.dateRange}</h2>
-                <span className="bg-white/[0.08] text-white/60 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                  Week {weekData?.weekNum}
-                </span>
+                {(() => {
+                  if (!planData?.weekRanges || !weekData) return (
+                    <span className="bg-white/[0.08] text-white/60 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      Week {weekData?.weekNum}
+                    </span>
+                  )
+                  const weekSun = currentSunday.toISOString().slice(0, 10)
+                  const weekSat = new Date(currentSunday.getTime() + 6 * 86400000).toISOString().slice(0, 10)
+                  for (const [w, range] of Object.entries(planData.weekRanges)) {
+                    if (weekSat >= range.start && weekSun <= range.end) {
+                      return (
+                        <span className="bg-pink-500/15 text-pink-400 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                          Plan {w}/{planData.totalWeeks}
+                        </span>
+                      )
+                    }
+                  }
+                  return (
+                    <span className="bg-white/[0.08] text-white/60 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      Week {weekData?.weekNum}
+                    </span>
+                  )
+                })()}
               </div>
               <div className="flex items-center gap-0.5">
                 <NavArrow direction="left" onClick={() => navigateWeek(-1)} disabled={!canGoBack} />

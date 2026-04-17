@@ -189,6 +189,7 @@ function DashboardTab({
   gymWeights = [],
   mealPlans = [],
   mealCompletions = [],
+  runnaPlan = null,
   onTabChange,
 }) {
   const { editMode } = useEditMode()
@@ -515,12 +516,43 @@ function DashboardTab({
   return (
     <div className="space-y-3">
 
+      {/* ═══ Runna Plan Indicator ═══ */}
+      {runnaPlan && (
+        <div className="flex items-center justify-between px-3.5 py-1.5 rounded-xl border bg-pink-500/[0.04] border-pink-500/[0.08]">
+          <div className="flex items-center gap-2 text-[11px]">
+            <p className="text-pink-400/50 text-[9px] font-bold uppercase tracking-wider">Run</p>
+            <p className="text-pink-400/90 font-semibold">{runnaPlan.name}</p>
+            <p className="text-white/15 text-[10px] tabular-nums">
+              {runnaPlan.raceDate ? runnaPlan.raceDate.slice(5).replace('-', '/') : ''}
+              {runnaPlan.daysToRace > 0 ? ` · ${runnaPlan.daysToRace}d` : ''}
+              {runnaPlan.totalPlannedKm > 0 ? ` · ${runnaPlan.completedKm || 0}/${runnaPlan.totalPlannedKm} km` : ''}
+            </p>
+          </div>
+          {runnaPlan.totalWeeks && (
+            <div className="flex items-center gap-1.5">
+              <div className="flex gap-0.5">
+                {Array.from({ length: runnaPlan.totalWeeks }, (_, i) => (
+                  <div
+                    key={i}
+                    className={`h-1.5 rounded-full ${runnaPlan.currentWeek && i < runnaPlan.currentWeek ? 'bg-pink-400' : 'bg-white/10'}`}
+                    style={{ width: `${Math.max(12, 36 / runnaPlan.totalWeeks)}px` }}
+                  />
+                ))}
+              </div>
+              <span className="text-pink-400/60 text-[9px] font-bold tabular-nums">
+                {runnaPlan.currentWeek || 0}/{runnaPlan.totalWeeks}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ═══ Active Plan Indicator ═══ */}
       {activePlan && (
         <div className={`flex items-center justify-between px-3.5 py-1.5 rounded-xl border ${isCutMode ? 'bg-amber-500/[0.04] border-amber-500/[0.08]' : 'bg-blue-500/[0.04] border-blue-500/[0.08]'}`}>
           <div className="flex items-center gap-2 text-[11px]">
-            <span className={isCutMode ? 'text-amber-400' : 'text-blue-400'}>
-              {isCutMode ? '↓' : '↑'}
+            <span className={`text-[9px] font-bold uppercase tracking-wider ${isCutMode ? 'text-amber-400/50' : 'text-blue-400/50'}`}>
+              Diet
             </span>
             <span className={`font-semibold ${isCutMode ? 'text-amber-400/90' : 'text-blue-400/90'}`}>{activePlan.name}</span>
             {activePlan.start_date && activePlan.end_date && (

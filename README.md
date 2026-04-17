@@ -1,14 +1,14 @@
 # Running Dashboard
 
-A personal running dashboard that displays:
+A personal training dashboard that displays:
 
-- **Race countdown** - Live countdown timer to your next race
-- **Running stats** - Track total distance, time, and completed runs
-- **Race calendar** - View upcoming and past races
-- **Training plan** - Weekly workout schedule loaded from CSV files
-- **Gear showcase** - Display your running gear with affiliate links
-- **Spotify playlist** - Link to your running music
-- **Team pages** - Support for multiple athletes with their own stats
+- **Weekly schedule** - All workouts (runs, strength, pilates, stretch) from Runna + Strava
+- **Training stats** - Track distance, duration, HR, calories across all activity types
+- **Workout details** - Planned intervals with target paces, actual splits from Strava
+- **Personal records** - Strava best efforts from 400m to Marathon
+- **Gym tracker** - Custom workout templates with exercise logging (Supabase)
+- **Nutrition** - Meal plans with daily tracking
+- **Activity log** - Full Strava activity history with splits visualization
 
 ## Tech Stack
 
@@ -37,43 +37,90 @@ Deployed automatically via Vercel on every push to `main`.
 3. **Update DNS**: Point `aviel.club` to Vercel:
    - **Option A** (CNAME): `aviel.club` → `cname.vercel-dns.com`
    - **Option B** (A record): `aviel.club` → `76.76.21.21`
-4. **Environment variables** (if needed for future API routes): Add `TP_AUTH_COOKIE` and `TP_ATHLETE_ID` in Vercel project settings > Environment Variables
+4. **Environment variables**: Add `RUNNA_ICAL_URL`, `GOOGLE_SERVICE_ACCOUNT_JSON`, `GOOGLE_CALENDAR_ID` in Vercel project settings > Environment Variables
 
-## Data Sync
+## Data Sync — Runna
 
-TrainingPeaks data is synced automatically via GitHub Actions (`.github/workflows/sync-tp.yml`).
-The workflow commits updated CSV/JSON files, and Vercel auto-deploys on push.
+Training data is synced from the **Runna** app via a Google Calendar iCal feed.
 
-## Google Calendar Sync
+```
+Runna App → (native sync) → Runna Google Calendar → (iCal feed) → sync-runna.py → CSV/JSON
+CSV/JSON → sync-gcal.py → Your Google Calendar (editable)
+Strava → sync-strava-activities.py → strava-activities.json
+```
 
-Future workouts are synced to Google Calendar automatically after each TrainingPeaks sync (`.github/workflows/sync-gcal.yml`).
+The GitHub Actions workflow (`.github/workflows/sync-runna.yml`) runs twice daily:
+1. Fetches the Runna iCal feed and writes `2026.csv` + `2026-extra.json`
+2. Pushes future workouts to your editable Google Calendar
+3. Commits data files and Vercel auto-deploys
 
-Each workout creates a calendar event at **08:00 Israel time** with the planned duration, workout description, coach comments, and **calculated target paces** (converted from threshold pace percentages).
+### Data sources and merge strategy
 
-Duplicate prevention uses deterministic event IDs — the script is idempotent and safe to run multiple times.
+The app merges data from **Runna** and **Strava** at hydration time in the frontend (`mergeStravaActivities()` in `src/utils/workouts.js`). Each source provides complementary data:
 
-### Setup
+| Data | Runna (iCal) | Strava (API) |
+|------|-------------|-------------|
+| **Planned workouts** (runs, strength, pilates, stretch) | Full details, intervals, pace targets | N/A |
+| **Completed runs** | Distance, pace, lap splits | HR, cadence, calories, suffer score, km splits |
+| **Completed strength/pilates/yoga** | Not exported by Runna | Duration, HR, calories, suffer score |
+| **Completed walks/rides/swims** | N/A | Full activity data |
 
-Uses a Google Cloud **Service Account** shared with the target calendar with "Make changes to events" permission.
+Strava non-run activities (WeightTraining, Pilates, Yoga, Walk, Ride, Swim) are automatically injected into the workout schedule. Run activities are matched to Runna workouts by date to enrich the detail modal with Strava splits and HR data. All workout detail modals include a "View on Strava" link when a matching activity exists.
 
-**Required GitHub Secrets:**
+**Not available from Runna (was in TrainingPeaks):** HR zones, TSS/IF, RPE/Feeling, compliance %, threshold speed.
+
+### Required GitHub Secrets
 
 | Secret | Value |
 |--------|-------|
+| `RUNNA_ICAL_URL` | Secret iCal URL from Google Calendar settings (Runna calendar) |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | Full JSON key content from the service account |
-| `GOOGLE_CALENDAR_ID` | Target calendar ID (your Google Calendar ID) |
+| `GOOGLE_CALENDAR_ID` | Target calendar ID (your editable Google Calendar) |
 
-**Local testing:**
+### Local testing
 
 ```bash
+# Sync Runna data to CSV/JSON
+python3 scripts/sync-runna.py
+
+# Push to Google Calendar
+pip install -r scripts/requirements-gcal.txt
 export GOOGLE_SERVICE_ACCOUNT_JSON=/path/to/service-account-key.json
 export GOOGLE_CALENDAR_ID=your-calendar-id@gmail.com
 python3 scripts/sync-gcal.py
 ```
 
-## Strava Personal Records
+### Google Calendar Sync
 
-Personal Records (PRs) are fetched from Strava and displayed on the main dashboard.
+Future workouts are pushed to your editable Google Calendar after each Runna sync.
+
+Each workout creates a calendar event at **08:00 Israel time** with the planned duration, workout description, interval structure, and a deep link to the workout in the Runna app.
+
+Duplicate prevention uses deterministic event IDs — the script is idempotent and safe to run multiple times. Old TrainingPeaks events (prefixed `tp`) are automatically cleaned up.
+
+Uses a Google Cloud **Service Account** shared with the target calendar with "Make changes to events" permission.
+
+### Archive
+
+The previous TrainingPeaks integration scripts are archived in `scripts/archive/` and `.github/workflows/archive/` for reference. The old secrets (`TP_AUTH_COOKIE`, `TP_ATHLETE_ID`) can be removed from GitHub.
+
+## Strava Integration
+
+### Activities Sync
+
+All Strava activities (runs, strength, walks, rides, swims, yoga, etc.) are fetched with detailed data including splits, laps, HR, and map polylines. The GitHub Actions workflow (`.github/workflows/sync-strava-activities.yml`) runs twice daily.
+
+Non-run activities from Strava are merged into the workout schedule automatically by the frontend, filling the gap for completed strength sessions, walks, rides, and other activity types that Runna doesn't export.
+
+**Run locally:**
+
+```bash
+python3 scripts/sync-strava-activities.py
+```
+
+### Personal Records
+
+PRs are fetched from Strava and displayed on the main dashboard.
 
 The sync script scans all run activities, extracts `best_efforts` for standard distances (400m through Marathon), and saves the all-time bests to `public/data/aviel/strava-prs.json`.
 
