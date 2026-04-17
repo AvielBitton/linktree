@@ -192,6 +192,11 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
                       Completed
                     </span>
                   )}
+                  {workout.location && (
+                    <span className="text-white/25 text-[10px] truncate max-w-[140px]" title={workout.location}>
+                      {workout.location}
+                    </span>
+                  )}
                 </div>
               </div>
               <button
@@ -273,7 +278,18 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
                     className="bg-[#FC4C02]/10 rounded-lg p-2 flex items-center justify-center gap-1.5 hover:bg-[#FC4C02]/20 transition-colors"
                   >
                     <svg className="w-3.5 h-3.5 text-[#FC4C02]" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" /></svg>
-                    <span className="text-[#FC4C02] text-[11px] font-semibold">View on Strava</span>
+                    <span className="text-[#FC4C02] text-[11px] font-semibold">Strava</span>
+                  </a>
+                )}
+                {workout.runnaUrl && (
+                  <a
+                    href={workout.runnaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-pink-500/10 rounded-lg p-2 flex items-center justify-center gap-1.5 hover:bg-pink-500/20 transition-colors"
+                  >
+                    <span className="text-pink-400 text-sm font-bold">R</span>
+                    <span className="text-pink-400 text-[11px] font-semibold">Runna</span>
                   </a>
                 )}
               </div>
@@ -314,7 +330,18 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
                       className="bg-[#FC4C02]/10 rounded-lg p-2 flex items-center justify-center gap-1.5 hover:bg-[#FC4C02]/20 transition-colors"
                     >
                       <svg className="w-3.5 h-3.5 text-[#FC4C02]" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" /></svg>
-                      <span className="text-[#FC4C02] text-[11px] font-semibold">View on Strava</span>
+                      <span className="text-[#FC4C02] text-[11px] font-semibold">Strava</span>
+                    </a>
+                  )}
+                  {workout.runnaUrl && (
+                    <a
+                      href={workout.runnaUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-pink-500/10 rounded-lg p-2 flex items-center justify-center gap-1.5 hover:bg-pink-500/20 transition-colors"
+                    >
+                      <span className="text-pink-400 text-sm font-bold">R</span>
+                      <span className="text-pink-400 text-[11px] font-semibold">Runna</span>
                     </a>
                   )}
                 </div>
@@ -733,6 +760,18 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
                 <p className="text-white/25 text-[10px] uppercase tracking-wider mb-1 font-semibold">Personal Notes</p>
                 <p className="text-white/45 text-xs leading-relaxed whitespace-pre-line">{athleteComments}</p>
               </div>
+            )}
+
+            {!completed && workout.runnaUrl && (
+              <a
+                href={workout.runnaUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-1.5 bg-pink-500/10 rounded-lg px-3 py-2 hover:bg-pink-500/20 transition-colors mb-2"
+              >
+                <span className="text-pink-400 text-sm font-bold">R</span>
+                <span className="text-pink-400 text-[11px] font-semibold">Open in Runna</span>
+              </a>
             )}
           </div>
         </motion.div>

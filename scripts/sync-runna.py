@@ -472,7 +472,10 @@ def build_extra_entry(event):
         if parsed.get("pbs"):
             entry["pbs"] = parsed["pbs"]
 
-    uid = event.get("UID", "")
+    location = event.get("LOCATION", "")
+    if location:
+        entry["location"] = unescape_ical(location).strip()
+
     runna_link = re.search(r"https://club\.runna\.com/\S+", desc_raw)
     if runna_link:
         entry["runnaUrl"] = runna_link.group(0)
