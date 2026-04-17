@@ -32,7 +32,13 @@ function ExerciseCard({ exercise, exerciseIndex, onSetComplete, onSetUncomplete,
   const borderColor = supersetLabel ? 'border-l-2 border-l-purple-500/30' : ''
 
   return (
-    <div className={`bg-white/[0.03] rounded-xl overflow-hidden border border-white/[0.05] ${borderColor} ${allCompleted ? 'opacity-60' : ''}`}>
+    <div
+      className={`rounded-xl overflow-hidden border ${borderColor}`}
+      style={{
+        backgroundColor: allCompleted ? templateColor + '0A' : 'rgba(255,255,255,0.03)',
+        borderColor: allCompleted ? templateColor + '30' : 'rgba(255,255,255,0.05)',
+      }}
+    >
       {showVideo && exercise.videoId && (
         <YouTubeModal
           videoId={exercise.videoId}
@@ -45,9 +51,17 @@ function ExerciseCard({ exercise, exerciseIndex, onSetComplete, onSetUncomplete,
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <p className="text-white font-semibold text-[13px] leading-tight">
+              <p className={`font-semibold text-[13px] leading-tight ${allCompleted ? 'text-white/50' : 'text-white'}`}>
                 {exercise.name_en || exercise.key.replace(/_/g, ' ')}
               </p>
+              {allCompleted && (
+                <span className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md" style={{ backgroundColor: templateColor + '20', color: templateColor }}>
+                  <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Done
+                </span>
+              )}
               {exercise.videoId && (
                 <button
                   onClick={() => setShowVideo(true)}
@@ -173,13 +187,14 @@ function SetRow({ setNum, lastWeight, pr, targetReps, completed, templateColor, 
 
   return (
     <motion.div
-      className={`grid grid-cols-[24px_1fr_1fr_1fr_36px] gap-x-1.5 items-center py-1 px-0.5 rounded-lg transition-colors relative ${completed ? 'bg-white/[0.03]' : ''}`}
+      className={`grid grid-cols-[24px_1fr_1fr_1fr_36px] gap-x-1.5 items-center py-1 px-0.5 rounded-lg transition-colors relative`}
       initial={false}
       animate={completed ? { scale: [1, 1.02, 1] } : {}}
       transition={{ duration: 0.15 }}
+      style={completed ? { backgroundColor: templateColor + '14' } : undefined}
     >
       {completed && (
-        <div className="absolute left-0 top-1 bottom-1 w-[2px] rounded-full" style={{ backgroundColor: templateColor + '60' }} />
+        <div className="absolute left-0 top-1 bottom-1 w-[3px] rounded-full" style={{ backgroundColor: templateColor + '90' }} />
       )}
 
       <span className={`text-xs font-bold text-center tabular-nums ${completed ? 'text-white/40' : 'text-white/20'}`}
@@ -194,25 +209,35 @@ function SetRow({ setNum, lastWeight, pr, targetReps, completed, templateColor, 
         </span>
       </div>
 
-      <input
-        type="number"
-        inputMode="decimal"
-        value={weight}
-        onChange={e => setWeight(e.target.value)}
-        placeholder={lastWeight ? String(lastWeight.weight) : '—'}
-        disabled={isLocked}
-        className="w-full bg-white/[0.06] rounded-lg px-2 py-2 text-sm text-white text-center font-medium tabular-nums placeholder:text-white/10 focus:outline-none focus:ring-1 focus:ring-white/20 disabled:opacity-40 disabled:cursor-default [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-      />
+      {isLocked ? (
+        <div className="w-full rounded-lg px-2 py-2 text-sm text-center font-semibold tabular-nums" style={{ backgroundColor: templateColor + '12', color: templateColor }}>
+          {weight || '0'}
+        </div>
+      ) : (
+        <input
+          type="number"
+          inputMode="decimal"
+          value={weight}
+          onChange={e => setWeight(e.target.value)}
+          placeholder={lastWeight ? String(lastWeight.weight) : '—'}
+          className="w-full bg-white/[0.06] rounded-lg px-2 py-2 text-sm text-white text-center font-medium tabular-nums placeholder:text-white/10 focus:outline-none focus:ring-1 focus:ring-white/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        />
+      )}
 
-      <input
-        type="number"
-        inputMode="numeric"
-        value={reps}
-        onChange={e => setReps(e.target.value)}
-        placeholder={targetReps || '—'}
-        disabled={isLocked}
-        className="w-full bg-white/[0.06] rounded-lg px-2 py-2 text-sm text-white text-center font-medium tabular-nums placeholder:text-white/10 focus:outline-none focus:ring-1 focus:ring-white/20 disabled:opacity-40 disabled:cursor-default [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-      />
+      {isLocked ? (
+        <div className="w-full rounded-lg px-2 py-2 text-sm text-center font-semibold tabular-nums" style={{ backgroundColor: templateColor + '12', color: templateColor }}>
+          {reps || '0'}
+        </div>
+      ) : (
+        <input
+          type="number"
+          inputMode="numeric"
+          value={reps}
+          onChange={e => setReps(e.target.value)}
+          placeholder={targetReps || '—'}
+          className="w-full bg-white/[0.06] rounded-lg px-2 py-2 text-sm text-white text-center font-medium tabular-nums placeholder:text-white/10 focus:outline-none focus:ring-1 focus:ring-white/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        />
+      )}
 
       <button
         onClick={handleCheck}
@@ -220,20 +245,14 @@ function SetRow({ setNum, lastWeight, pr, targetReps, completed, templateColor, 
           editing
             ? 'bg-white/[0.06] text-white/20 hover:bg-white/[0.1] hover:text-white/40 active:scale-90 ring-1 ring-amber-500/40'
             : completed
-              ? 'text-white/60'
+              ? 'scale-105'
               : 'bg-white/[0.06] text-white/20 hover:bg-white/[0.1] hover:text-white/40 active:scale-90'
         }`}
-        style={completed && !editing ? { backgroundColor: templateColor + '20', color: templateColor } : undefined}
+        style={completed && !editing ? { backgroundColor: templateColor + '35', color: templateColor } : undefined}
       >
-        {editing ? (
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        ) : (
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        )}
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
       </button>
 
       <AnimatePresence>
