@@ -37,6 +37,19 @@ OLD_EVENT_ID_PREFIX = "tp"
 
 SKIP_TYPES = {"Day Off"}
 
+# Must stay in sync with src/utils/strength-map.js
+STRENGTH_MAP = {
+    1: "Lower",    # Sat  Apr 18
+    2: "Pull",     # Mon  Apr 21
+    3: "Push",     # Tue  Apr 22
+    4: "Upper",    # Wed  Apr 23
+    5: "Lower",    # Fri  Apr 25
+    6: "Push",     # Mon  Apr 28
+    7: "Upper",    # Tue  Apr 29
+    8: "Pull",     # Wed  Apr 30
+    9: "Lower",    # Fri  May 2
+}
+
 COLOR_MAP = {
     "Run": "2",        # Sage (green)
     "Strength": "8",   # Graphite (dark/black)
@@ -255,6 +268,26 @@ def build_description(workout):
     return "\n".join(parts)
 
 
+def apply_strength_map(workouts, today):
+    """Replace Runna's generic strength titles and descriptions with actual gym info."""
+    future_strength = [
+        w for w in workouts
+        if (w.get("WorkoutType") or "").lower() == "strength"
+        and (w.get("WorkoutDay") or "")[:10] >= today
+    ]
+    future_strength.sort(key=lambda w: (w.get("WorkoutDay") or "")[:10])
+
+    for i, w in enumerate(future_strength):
+        ordinal = i + 1
+        name = STRENGTH_MAP.get(ordinal)
+        if name:
+            w["Title"] = name
+            w["WorkoutDescription"] = ""
+            w["PlannedDuration"] = "1.5"
+
+    return workouts
+
+
 def build_event(workout):
     """Build a Google Calendar event body from a workout row."""
     day = (workout.get("WorkoutDay") or "")[:10]
@@ -355,6 +388,7 @@ def main():
     print(f"Loaded {len(workouts)} workouts from CSV")
 
     today = datetime.now().strftime("%Y-%m-%d")
+    apply_strength_map(workouts, today)
 
     created = 0
     updated = 0
