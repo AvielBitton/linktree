@@ -211,6 +211,7 @@ function DashboardTab({
   const [weightInput, setWeightInput] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [weightRange, setWeightRange] = useState('week')
+  const [distanceRange, setDistanceRange] = useState(12)
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -516,12 +517,13 @@ function DashboardTab({
       const key = `${year}-${week.toString().padStart(2, '0')}`
       gymByWeek.set(key, (gymByWeek.get(key) || 0) + 1)
     }
-    return [...weekStats].slice(0, 8).reverse().map(week => ({
+    const sliced = distanceRange === 'all' ? [...weekStats] : [...weekStats].slice(0, distanceRange)
+    return sliced.reverse().map(week => ({
       week: week.weekKey.split('-')[1],
       distance: week.distanceKm,
       gym: gymByWeek.get(week.weekKey) || 0,
     }))
-  }, [weekStats, gymSessions])
+  }, [weekStats, gymSessions, distanceRange])
 
 
 
@@ -1245,7 +1247,7 @@ function DashboardTab({
       {/* Weekly Distance */}
       {volumeChartData.length > 0 && (
         <SectionCard delay={0.28}>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-2">
             <p className="text-white/50 text-[13px] font-medium">Weekly Distance</p>
             {weekStats[0] && (
               <div className="flex items-center gap-2">
@@ -1260,6 +1262,19 @@ function DashboardTab({
                 })()}
               </div>
             )}
+          </div>
+          <div className="flex gap-1 mb-3">
+            {[12, 'all'].map(d => (
+              <button
+                key={d}
+                onClick={() => setDistanceRange(d)}
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-medium transition-colors ${
+                  distanceRange === d ? 'bg-amber-500/15 text-amber-400' : 'bg-white/[0.04] text-white/25'
+                }`}
+              >
+                {d === 'all' ? 'All' : `${d}w`}
+              </button>
+            ))}
           </div>
           <div className="h-36">
             <ResponsiveContainer width="100%" height="100%">
