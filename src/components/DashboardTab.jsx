@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart, Area } from 'recharts'
+import { XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart, Area, ReferenceLine } from 'recharts'
 import { toast } from 'sonner'
 import { useEditMode } from '@/src/contexts/EditModeContext'
 import { getSessionToken } from '@/lib/auth-client'
@@ -180,10 +180,24 @@ function VolumeTooltip({ active, payload, label }) {
   )
 }
 
+function SleepTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null
+  const hours = payload[0]?.value
+  const rhr = payload[1]?.value
+  return (
+    <div className="bg-[#1c1c1e] border border-white/10 rounded-xl px-3 py-2">
+      <p className="text-white/40 text-[10px] mb-0.5">{label}</p>
+      {hours != null && <p className="text-white font-semibold text-sm">{hours}h sleep</p>}
+      {rhr != null && <p className="text-red-400/80 text-xs">{rhr} bpm</p>}
+    </div>
+  )
+}
+
 function DashboardTab({
   workouts = [],
   stravaActivities = [],
   stravaPRs = [],
+  garminHealth = [],
   gymSessions = [],
   gymTemplates = [],
   gymWeights = [],
@@ -511,6 +525,44 @@ function DashboardTab({
 
 
 
+  // ── Garmin: Sleep & HR trends ──
+  const [sleepRange, setSleepRange] = useState('week')
+
+  const allSleepData = useMemo(() => {
+    if (!garminHealth?.length) return []
+    return [...garminHealth]
+      .filter(d => d.sleep?.totalSeconds || d.restingHeartRate)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .map(d => ({
+        rawDate: d.date,
+        date: `${new Date(d.date).getDate()}/${new Date(d.date).getMonth() + 1}`,
+        hours: d.sleep?.totalSeconds ? +(d.sleep.totalSeconds / 3600).toFixed(1) : null,
+        rhr: d.restingHeartRate || null,
+      }))
+  }, [garminHealth])
+
+  const sleepRangeDays = sleepRange === 'week' ? 7 : sleepRange
+
+  const sleepChartData = useMemo(() => {
+    if (!allSleepData.length) return []
+    const cutoff = new Date()
+    cutoff.setDate(cutoff.getDate() - sleepRangeDays)
+    const cutoffStr = cutoff.toISOString().slice(0, 10)
+    return allSleepData.filter(d => d.rawDate >= cutoffStr)
+  }, [allSleepData, sleepRangeDays])
+
+  const sleepStats = useMemo(() => {
+    if (!sleepChartData.length) return null
+    const validHours = sleepChartData.filter(d => d.hours != null)
+    const validRhr = sleepChartData.filter(d => d.rhr != null)
+    if (!validHours.length) return null
+    const avgHours = +(validHours.reduce((s, d) => s + d.hours, 0) / validHours.length).toFixed(1)
+    const above7 = validHours.filter(d => d.hours >= 7).length
+    const avgRhr = validRhr.length ? Math.round(validRhr.reduce((s, d) => s + d.rhr, 0) / validRhr.length) : null
+    const latestRhr = validRhr.length ? validRhr[validRhr.length - 1].rhr : null
+    return { avgHours, above7, totalNights: validHours.length, avgRhr, latestRhr }
+  }, [sleepChartData])
+
   const displayW = todayWeight || latestWeight
 
   return (
@@ -727,8 +779,84 @@ function DashboardTab({
         )}
       </SectionCard>
 
+      {/* ═══ Sleep & Recovery ═══ */}
+      {allSleepData.length > 0 && sleepStats && (
+        <SectionCard delay={0.08}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <p className="text-white font-bold text-2xl tabular-nums leading-none">
+                {sleepStats.avgHours}<span className="text-white/30 text-sm ml-0.5">h</span>
+              </p>
+              <div className="flex flex-col">
+                <span className="text-white/40 text-[10px] font-medium uppercase tracking-wider leading-tight">Avg Sleep</span>
+                <span className={`text-[10px] font-medium tabular-nums leading-tight ${sleepStats.avgHours >= 7 ? 'text-emerald-400/70' : sleepStats.avgHours >= 6.5 ? 'text-yellow-400/70' : 'text-red-400/70'}`}>
+                  {sleepStats.avgHours >= 7 ? 'On target' : `${(7 - sleepStats.avgHours).toFixed(1)}h below goal`}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {['week', 30, 90].map(d => (
+                <button
+                  key={d}
+                  onClick={() => setSleepRange(d)}
+                  className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
+                    sleepRange === d ? 'bg-indigo-500/15 text-indigo-400' : 'text-white/20'
+                  }`}
+                >
+                  {d === 'week' ? '7d' : `${d}d`}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {sleepChartData.length > 0 && (() => {
+            const maxH = 10
+            const goalH = 7
+            const bars = sleepChartData.filter(d => d.hours != null)
+            if (!bars.length) return null
+            const gap = bars.length > 30 ? 1 : bars.length > 14 ? 2 : 3
+            return (
+              <div>
+                <div className="relative h-28 flex items-end" style={{ gap: `${gap}px` }}>
+                  <div className="absolute left-0 right-0 border-t border-dashed border-emerald-400/20" style={{ bottom: `${(goalH / maxH) * 100}%` }}>
+                    <span className="absolute -top-3 right-0 text-[8px] text-emerald-400/40 font-medium">7h</span>
+                  </div>
+                  {bars.map((d, i) => {
+                    const pct = Math.min((d.hours / maxH) * 100, 100)
+                    const good = d.hours >= goalH
+                    return (
+                      <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group relative">
+                        <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                          <div className="bg-[#1c1c1e] border border-white/10 rounded-lg px-2 py-1 whitespace-nowrap shadow-lg">
+                            <p className="text-white text-[10px] font-semibold">{d.hours}h</p>
+                            <p className="text-white/40 text-[8px]">{d.date}</p>
+                          </div>
+                        </div>
+                        <motion.div
+                          className={`w-full rounded-sm ${good ? 'bg-indigo-400/60' : 'bg-indigo-400/25'}`}
+                          initial={{ height: 0 }}
+                          animate={{ height: `${pct}%` }}
+                          transition={{ duration: 0.5, delay: i * 0.01 }}
+                        />
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="flex justify-between mt-1.5">
+                  <span className="text-white/15 text-[9px] tabular-nums">{bars[0]?.date}</span>
+                  <span className={`text-[9px] font-medium tabular-nums ${sleepStats.above7 / sleepStats.totalNights >= 0.7 ? 'text-emerald-400/50' : sleepStats.above7 / sleepStats.totalNights >= 0.5 ? 'text-yellow-400/50' : 'text-red-400/50'}`}>
+                    {sleepStats.above7}/{sleepStats.totalNights} above 7h
+                  </span>
+                  <span className="text-white/15 text-[9px] tabular-nums">{bars[bars.length - 1]?.date}</span>
+                </div>
+              </div>
+            )
+          })()}
+        </SectionCard>
+      )}
+
       {/* ═══ SECTION 2: Today's Plan ═══ */}
-      <div className="grid grid-cols-2 gap-2 items-start">
+      <div className="grid grid-cols-2 gap-2 items-stretch">
         {/* Today's Workout */}
         <SectionCard delay={0.12} className="col-span-1">
           <button onClick={() => onTabChange?.('schedule')} className="w-full text-left">
@@ -786,34 +914,54 @@ function DashboardTab({
           </button>
         </SectionCard>
 
-        {/* Today's Meals */}
-        <SectionCard delay={0.16} className="col-span-1">
-          <button onClick={() => onTabChange?.('nutrition')} className="w-full text-left">
-            <p className="text-white/40 text-[11px] font-medium uppercase tracking-wider mb-2">Meals</p>
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-white font-bold text-lg tabular-nums leading-tight">
-                {mealsToday.done}<span className="text-white/20">/{mealsToday.total}</span>
-              </p>
-              {activePlan && (
-                <span className="text-[9px] text-white/25 bg-white/[0.04] px-1.5 py-0.5 rounded">{activePlan.name}</span>
-              )}
-            </div>
-            {mealsToday.total > 0 && (
-              <div className="w-full h-1.5 bg-white/[0.04] rounded-full overflow-hidden mb-2">
-                <motion.div
-                  className="h-full bg-emerald-400/60 rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(mealsToday.done / mealsToday.total) * 100}%` }}
-                  transition={{ duration: 0.8, ease: 'easeOut' }}
-                />
+        {/* Right column: Resting HR + Meals */}
+        <div className="flex flex-col gap-2">
+          {sleepStats?.avgRhr && (
+            <SectionCard delay={0.14}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-white font-bold text-lg tabular-nums leading-tight">
+                    {sleepStats.latestRhr || sleepStats.avgRhr} <span className="text-white/30 text-xs font-normal">bpm</span>
+                  </p>
+                  <p className="text-white/25 text-[10px] tabular-nums">Resting HR · avg {sleepStats.avgRhr}</p>
+                </div>
               </div>
-            )}
-            <div className="flex items-center gap-3 text-[10px] text-white/25 tabular-nums">
-              <span>{mealsToday.totalKcal} kcal</span>
-              <span>{mealsToday.totalProtein}g prot</span>
-            </div>
-          </button>
-        </SectionCard>
+            </SectionCard>
+          )}
+
+          <SectionCard delay={0.16}>
+            <button onClick={() => onTabChange?.('nutrition')} className="w-full text-left">
+              <p className="text-white/40 text-[11px] font-medium uppercase tracking-wider mb-2">Meals</p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-white font-bold text-lg tabular-nums leading-tight">
+                  {mealsToday.done}<span className="text-white/20">/{mealsToday.total}</span>
+                </p>
+                {activePlan && (
+                  <span className="text-[9px] text-white/25 bg-white/[0.04] px-1.5 py-0.5 rounded">{activePlan.name}</span>
+                )}
+              </div>
+              {mealsToday.total > 0 && (
+                <div className="w-full h-1.5 bg-white/[0.04] rounded-full overflow-hidden mb-2">
+                  <motion.div
+                    className="h-full bg-emerald-400/60 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(mealsToday.done / mealsToday.total) * 100}%` }}
+                    transition={{ duration: 0.8, ease: 'easeOut' }}
+                  />
+                </div>
+              )}
+              <div className="flex items-center gap-3 text-[10px] text-white/25 tabular-nums">
+                <span>{mealsToday.totalKcal} kcal</span>
+                <span>{mealsToday.totalProtein}g prot</span>
+              </div>
+            </button>
+          </SectionCard>
+        </div>
       </div>
 
       {/* ═══ SECTION 3: Week Progress ═══ */}
