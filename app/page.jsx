@@ -1,5 +1,6 @@
 import { loadWorkoutsFromDisk } from '@/lib/workouts'
 import { loadStravaPRs, loadStravaActivities } from '@/lib/strava'
+import { loadGarminHealth } from '@/lib/garmin'
 import supabase from '@/lib/supabase'
 import { WORKOUT_TEMPLATES } from '@/lib/gym-data'
 import { MEAL_PLANS } from '@/lib/nutrition-data'
@@ -11,6 +12,7 @@ export default async function HomePage() {
   const workouts = loadWorkoutsFromDisk()
   const stravaPRs = loadStravaPRs()
   const stravaActivities = loadStravaActivities()
+  const garminHealth = loadGarminHealth()
   const archiveWorkouts = loadWorkoutsFromDisk('telaviv2026/aviel')
 
   let gymTemplates = WORKOUT_TEMPLATES
@@ -53,6 +55,7 @@ export default async function HomePage() {
       initialWorkouts={workouts}
       stravaPRs={stravaPRs}
       stravaActivities={stravaActivities}
+      garminHealth={garminHealth}
       archiveWorkouts={archiveWorkouts}
       gymTemplates={gymTemplates}
       gymSessions={gymSessions}

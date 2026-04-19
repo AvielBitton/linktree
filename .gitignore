@@ -32,4 +32,10 @@ dist-ssr
 # Service account keys
 sparta-492117-*.json
 
+# Garmin session tokens
+.garminconnect/
+
+# Python venv
+scripts/.venv/
+
 .vercel

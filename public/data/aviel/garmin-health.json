@@ -1,0 +1,1279 @@
+{
+  "last_sync": "2026-04-19T18:01:25.676419",
+  "days": [
+    {
+      "date": "2026-04-19",
+      "sleep": {
+        "totalSeconds": 21931,
+        "deepSeconds": 3960,
+        "lightSeconds": 12780,
+        "remSeconds": 5220,
+        "awakeSeconds": 0,
+        "score": 83,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 52
+    },
+    {
+      "date": "2026-04-18",
+      "sleep": {
+        "totalSeconds": 22620,
+        "deepSeconds": 4200,
+        "lightSeconds": 13500,
+        "remSeconds": 4920,
+        "awakeSeconds": 0,
+        "score": 85,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 49
+    },
+    {
+      "date": "2026-04-17",
+      "sleep": {
+        "totalSeconds": 24228,
+        "deepSeconds": 3420,
+        "lightSeconds": 15600,
+        "remSeconds": 5220,
+        "awakeSeconds": 240,
+        "score": 85,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 51
+    },
+    {
+      "date": "2026-04-16",
+      "sleep": {
+        "totalSeconds": null,
+        "deepSeconds": null,
+        "lightSeconds": null,
+        "remSeconds": null,
+        "awakeSeconds": null,
+        "score": null,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 58
+    },
+    {
+      "date": "2026-04-15",
+      "sleep": {
+        "totalSeconds": 24720,
+        "deepSeconds": 4140,
+        "lightSeconds": 15120,
+        "remSeconds": 5460,
+        "awakeSeconds": 60,
+        "score": 86,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-04-14",
+      "sleep": {
+        "totalSeconds": 26880,
+        "deepSeconds": 3960,
+        "lightSeconds": 16920,
+        "remSeconds": 6000,
+        "awakeSeconds": 0,
+        "score": 94,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 52
+    },
+    {
+      "date": "2026-04-13",
+      "sleep": {
+        "totalSeconds": null,
+        "deepSeconds": null,
+        "lightSeconds": null,
+        "remSeconds": null,
+        "awakeSeconds": null,
+        "score": null,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 53
+    },
+    {
+      "date": "2026-04-12",
+      "sleep": {
+        "totalSeconds": 22020,
+        "deepSeconds": 4740,
+        "lightSeconds": 14580,
+        "remSeconds": 2700,
+        "awakeSeconds": 180,
+        "score": 76,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-04-11",
+      "sleep": {
+        "totalSeconds": 27360,
+        "deepSeconds": 3840,
+        "lightSeconds": 17340,
+        "remSeconds": 6180,
+        "awakeSeconds": 420,
+        "score": 88,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 52
+    },
+    {
+      "date": "2026-04-10",
+      "sleep": {
+        "totalSeconds": null,
+        "deepSeconds": null,
+        "lightSeconds": null,
+        "remSeconds": null,
+        "awakeSeconds": null,
+        "score": null,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-04-09",
+      "sleep": {
+        "totalSeconds": null,
+        "deepSeconds": null,
+        "lightSeconds": null,
+        "remSeconds": null,
+        "awakeSeconds": null,
+        "score": null,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 57
+    },
+    {
+      "date": "2026-04-08",
+      "sleep": {
+        "totalSeconds": 27240,
+        "deepSeconds": 4080,
+        "lightSeconds": 17640,
+        "remSeconds": 5520,
+        "awakeSeconds": 420,
+        "score": 92,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 53
+    },
+    {
+      "date": "2026-04-07",
+      "sleep": {
+        "totalSeconds": 30900,
+        "deepSeconds": 6900,
+        "lightSeconds": 17340,
+        "remSeconds": 6660,
+        "awakeSeconds": 180,
+        "score": 96,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-04-06",
+      "sleep": {
+        "totalSeconds": null,
+        "deepSeconds": null,
+        "lightSeconds": null,
+        "remSeconds": null,
+        "awakeSeconds": null,
+        "score": null,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 60
+    },
+    {
+      "date": "2026-04-05",
+      "sleep": {
+        "totalSeconds": 20576,
+        "deepSeconds": 5100,
+        "lightSeconds": 14580,
+        "remSeconds": 900,
+        "awakeSeconds": 60,
+        "score": 64,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 56
+    },
+    {
+      "date": "2026-04-04",
+      "sleep": {
+        "totalSeconds": 16779,
+        "deepSeconds": 4740,
+        "lightSeconds": 9480,
+        "remSeconds": 2580,
+        "awakeSeconds": 0,
+        "score": 65,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 58
+    },
+    {
+      "date": "2026-04-03",
+      "sleep": {
+        "totalSeconds": 24420,
+        "deepSeconds": 4080,
+        "lightSeconds": 15420,
+        "remSeconds": 4920,
+        "awakeSeconds": 2100,
+        "score": 76,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 54
+    },
+    {
+      "date": "2026-04-02",
+      "sleep": {
+        "totalSeconds": 28920,
+        "deepSeconds": 2460,
+        "lightSeconds": 22320,
+        "remSeconds": 4140,
+        "awakeSeconds": 1680,
+        "score": 77,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 57
+    },
+    {
+      "date": "2026-04-01",
+      "sleep": {
+        "totalSeconds": 17160,
+        "deepSeconds": 6420,
+        "lightSeconds": 9240,
+        "remSeconds": 1500,
+        "awakeSeconds": 0,
+        "score": 64,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 53
+    },
+    {
+      "date": "2026-03-31",
+      "sleep": {
+        "totalSeconds": 27720,
+        "deepSeconds": 4740,
+        "lightSeconds": 17040,
+        "remSeconds": 5940,
+        "awakeSeconds": 1200,
+        "score": 85,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-03-30",
+      "sleep": {
+        "totalSeconds": 29337,
+        "deepSeconds": 3420,
+        "lightSeconds": 19800,
+        "remSeconds": 6120,
+        "awakeSeconds": 360,
+        "score": 90,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 52
+    },
+    {
+      "date": "2026-03-29",
+      "sleep": {
+        "totalSeconds": 22132,
+        "deepSeconds": 4560,
+        "lightSeconds": 14580,
+        "remSeconds": 3000,
+        "awakeSeconds": 240,
+        "score": 73,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 57
+    },
+    {
+      "date": "2026-03-28",
+      "sleep": {
+        "totalSeconds": 39780,
+        "deepSeconds": 3180,
+        "lightSeconds": 26880,
+        "remSeconds": 9720,
+        "awakeSeconds": 420,
+        "score": 87,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 53
+    },
+    {
+      "date": "2026-03-27",
+      "sleep": {
+        "totalSeconds": 10200,
+        "deepSeconds": 4080,
+        "lightSeconds": 5040,
+        "remSeconds": 1080,
+        "awakeSeconds": 0,
+        "score": 36,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-03-26",
+      "sleep": {
+        "totalSeconds": 23608,
+        "deepSeconds": 3600,
+        "lightSeconds": 14760,
+        "remSeconds": 5280,
+        "awakeSeconds": 120,
+        "score": 83,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-03-25",
+      "sleep": {
+        "totalSeconds": 22020,
+        "deepSeconds": 3420,
+        "lightSeconds": 16980,
+        "remSeconds": 1620,
+        "awakeSeconds": 720,
+        "score": 70,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 56
+    },
+    {
+      "date": "2026-03-24",
+      "sleep": {
+        "totalSeconds": 22760,
+        "deepSeconds": 1320,
+        "lightSeconds": 15840,
+        "remSeconds": 5640,
+        "awakeSeconds": 180,
+        "score": 76,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 53
+    },
+    {
+      "date": "2026-03-23",
+      "sleep": {
+        "totalSeconds": 21840,
+        "deepSeconds": 2880,
+        "lightSeconds": 16020,
+        "remSeconds": 2940,
+        "awakeSeconds": 120,
+        "score": 76,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 56
+    },
+    {
+      "date": "2026-03-22",
+      "sleep": {
+        "totalSeconds": 23940,
+        "deepSeconds": 3960,
+        "lightSeconds": 14040,
+        "remSeconds": 5940,
+        "awakeSeconds": 0,
+        "score": 82,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-03-21",
+      "sleep": {
+        "totalSeconds": 27808,
+        "deepSeconds": 4020,
+        "lightSeconds": 18120,
+        "remSeconds": 5700,
+        "awakeSeconds": 0,
+        "score": 89,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-03-20",
+      "sleep": {
+        "totalSeconds": 22560,
+        "deepSeconds": 5100,
+        "lightSeconds": 13860,
+        "remSeconds": 3600,
+        "awakeSeconds": 60,
+        "score": 74,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 54
+    },
+    {
+      "date": "2026-03-19",
+      "sleep": {
+        "totalSeconds": 25680,
+        "deepSeconds": 2520,
+        "lightSeconds": 20100,
+        "remSeconds": 3060,
+        "awakeSeconds": 1440,
+        "score": 73,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 57
+    },
+    {
+      "date": "2026-03-18",
+      "sleep": {
+        "totalSeconds": 23787,
+        "deepSeconds": 1920,
+        "lightSeconds": 19740,
+        "remSeconds": 2160,
+        "awakeSeconds": 240,
+        "score": 71,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 56
+    },
+    {
+      "date": "2026-03-17",
+      "sleep": {
+        "totalSeconds": 17520,
+        "deepSeconds": 3900,
+        "lightSeconds": 9840,
+        "remSeconds": 3780,
+        "awakeSeconds": 60,
+        "score": 64,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 47
+    },
+    {
+      "date": "2026-03-16",
+      "sleep": {
+        "totalSeconds": 26100,
+        "deepSeconds": 2880,
+        "lightSeconds": 18000,
+        "remSeconds": 5220,
+        "awakeSeconds": 120,
+        "score": 84,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 51
+    },
+    {
+      "date": "2026-03-15",
+      "sleep": {
+        "totalSeconds": 19119,
+        "deepSeconds": 3660,
+        "lightSeconds": 12180,
+        "remSeconds": 3300,
+        "awakeSeconds": 60,
+        "score": 74,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 54
+    },
+    {
+      "date": "2026-03-14",
+      "sleep": {
+        "totalSeconds": 28860,
+        "deepSeconds": 4620,
+        "lightSeconds": 17520,
+        "remSeconds": 6720,
+        "awakeSeconds": 180,
+        "score": 91,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-03-13",
+      "sleep": {
+        "totalSeconds": 26755,
+        "deepSeconds": 3900,
+        "lightSeconds": 17100,
+        "remSeconds": 5760,
+        "awakeSeconds": 0,
+        "score": 86,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 54
+    },
+    {
+      "date": "2026-03-12",
+      "sleep": {
+        "totalSeconds": 29506,
+        "deepSeconds": 4920,
+        "lightSeconds": 18360,
+        "remSeconds": 6240,
+        "awakeSeconds": 360,
+        "score": 91,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 54
+    },
+    {
+      "date": "2026-03-11",
+      "sleep": {
+        "totalSeconds": 25516,
+        "deepSeconds": 3480,
+        "lightSeconds": 16440,
+        "remSeconds": 5640,
+        "awakeSeconds": 600,
+        "score": 86,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 53
+    },
+    {
+      "date": "2026-03-10",
+      "sleep": {
+        "totalSeconds": 27655,
+        "deepSeconds": 2880,
+        "lightSeconds": 18960,
+        "remSeconds": 5820,
+        "awakeSeconds": 60,
+        "score": 86,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-03-09",
+      "sleep": {
+        "totalSeconds": 31655,
+        "deepSeconds": 2520,
+        "lightSeconds": 22440,
+        "remSeconds": 6720,
+        "awakeSeconds": 300,
+        "score": 83,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 53
+    },
+    {
+      "date": "2026-03-08",
+      "sleep": {
+        "totalSeconds": 28440,
+        "deepSeconds": 4620,
+        "lightSeconds": 17820,
+        "remSeconds": 6000,
+        "awakeSeconds": 1140,
+        "score": 87,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 53
+    },
+    {
+      "date": "2026-03-07",
+      "sleep": {
+        "totalSeconds": 19760,
+        "deepSeconds": 480,
+        "lightSeconds": 15180,
+        "remSeconds": 4140,
+        "awakeSeconds": 240,
+        "score": 60,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 52
+    },
+    {
+      "date": "2026-03-06",
+      "sleep": {
+        "totalSeconds": 24103,
+        "deepSeconds": 3840,
+        "lightSeconds": 15240,
+        "remSeconds": 5040,
+        "awakeSeconds": 420,
+        "score": 83,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 52
+    },
+    {
+      "date": "2026-03-05",
+      "sleep": {
+        "totalSeconds": 27420,
+        "deepSeconds": 3660,
+        "lightSeconds": 15720,
+        "remSeconds": 8040,
+        "awakeSeconds": 900,
+        "score": 85,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 53
+    },
+    {
+      "date": "2026-03-04",
+      "sleep": {
+        "totalSeconds": 30237,
+        "deepSeconds": 6360,
+        "lightSeconds": 16980,
+        "remSeconds": 6900,
+        "awakeSeconds": 60,
+        "score": 97,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 52
+    },
+    {
+      "date": "2026-03-03",
+      "sleep": {
+        "totalSeconds": 29700,
+        "deepSeconds": 4320,
+        "lightSeconds": 18420,
+        "remSeconds": 6960,
+        "awakeSeconds": 60,
+        "score": 89,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-03-02",
+      "sleep": {
+        "totalSeconds": 30637,
+        "deepSeconds": 5400,
+        "lightSeconds": 18300,
+        "remSeconds": 6960,
+        "awakeSeconds": 840,
+        "score": 87,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 56
+    },
+    {
+      "date": "2026-03-01",
+      "sleep": {
+        "totalSeconds": 20122,
+        "deepSeconds": 5280,
+        "lightSeconds": 12780,
+        "remSeconds": 2100,
+        "awakeSeconds": 0,
+        "score": 70,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 54
+    },
+    {
+      "date": "2026-02-28",
+      "sleep": {
+        "totalSeconds": 23100,
+        "deepSeconds": 2760,
+        "lightSeconds": 17880,
+        "remSeconds": 2460,
+        "awakeSeconds": 360,
+        "score": 72,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 58
+    },
+    {
+      "date": "2026-02-27",
+      "sleep": {
+        "totalSeconds": 22303,
+        "deepSeconds": 3900,
+        "lightSeconds": 15180,
+        "remSeconds": 3240,
+        "awakeSeconds": 1800,
+        "score": 70,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 52
+    },
+    {
+      "date": "2026-02-26",
+      "sleep": {
+        "totalSeconds": 27540,
+        "deepSeconds": 3960,
+        "lightSeconds": 17640,
+        "remSeconds": 5940,
+        "awakeSeconds": 840,
+        "score": 83,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-02-25",
+      "sleep": {
+        "totalSeconds": 26460,
+        "deepSeconds": 5940,
+        "lightSeconds": 15600,
+        "remSeconds": 4920,
+        "awakeSeconds": 120,
+        "score": 88,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 54
+    },
+    {
+      "date": "2026-02-24",
+      "sleep": {
+        "totalSeconds": 26580,
+        "deepSeconds": 2520,
+        "lightSeconds": 17640,
+        "remSeconds": 6420,
+        "awakeSeconds": 240,
+        "score": 86,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 52
+    },
+    {
+      "date": "2026-02-23",
+      "sleep": {
+        "totalSeconds": 28140,
+        "deepSeconds": 3600,
+        "lightSeconds": 18540,
+        "remSeconds": 6000,
+        "awakeSeconds": 2040,
+        "score": 85,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 51
+    },
+    {
+      "date": "2026-02-22",
+      "sleep": {
+        "totalSeconds": 25860,
+        "deepSeconds": 3900,
+        "lightSeconds": 16500,
+        "remSeconds": 5460,
+        "awakeSeconds": 120,
+        "score": 85,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 51
+    },
+    {
+      "date": "2026-02-21",
+      "sleep": {
+        "totalSeconds": 20580,
+        "deepSeconds": 2400,
+        "lightSeconds": 15120,
+        "remSeconds": 3060,
+        "awakeSeconds": 720,
+        "score": 68,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-02-20",
+      "sleep": {
+        "totalSeconds": 25740,
+        "deepSeconds": 5400,
+        "lightSeconds": 14040,
+        "remSeconds": 6300,
+        "awakeSeconds": 240,
+        "score": 88,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 52
+    },
+    {
+      "date": "2026-02-19",
+      "sleep": {
+        "totalSeconds": 27060,
+        "deepSeconds": 4560,
+        "lightSeconds": 16260,
+        "remSeconds": 6240,
+        "awakeSeconds": 120,
+        "score": 90,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 53
+    },
+    {
+      "date": "2026-02-18",
+      "sleep": {
+        "totalSeconds": 26328,
+        "deepSeconds": 6300,
+        "lightSeconds": 12180,
+        "remSeconds": 7860,
+        "awakeSeconds": 360,
+        "score": 88,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 51
+    },
+    {
+      "date": "2026-02-17",
+      "sleep": {
+        "totalSeconds": 24300,
+        "deepSeconds": 4380,
+        "lightSeconds": 14520,
+        "remSeconds": 5400,
+        "awakeSeconds": 360,
+        "score": 82,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 51
+    },
+    {
+      "date": "2026-02-16",
+      "sleep": {
+        "totalSeconds": 24960,
+        "deepSeconds": 2820,
+        "lightSeconds": 17100,
+        "remSeconds": 5040,
+        "awakeSeconds": 60,
+        "score": 81,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 53
+    },
+    {
+      "date": "2026-02-15",
+      "sleep": {
+        "totalSeconds": 32277,
+        "deepSeconds": 4380,
+        "lightSeconds": 21060,
+        "remSeconds": 6840,
+        "awakeSeconds": 300,
+        "score": 88,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 52
+    },
+    {
+      "date": "2026-02-14",
+      "sleep": {
+        "totalSeconds": 26537,
+        "deepSeconds": 5280,
+        "lightSeconds": 14940,
+        "remSeconds": 6360,
+        "awakeSeconds": 660,
+        "score": 84,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 51
+    },
+    {
+      "date": "2026-02-13",
+      "sleep": {
+        "totalSeconds": 24703,
+        "deepSeconds": 4260,
+        "lightSeconds": 15180,
+        "remSeconds": 5280,
+        "awakeSeconds": 0,
+        "score": 84,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 53
+    },
+    {
+      "date": "2026-02-12",
+      "sleep": {
+        "totalSeconds": 28380,
+        "deepSeconds": 4260,
+        "lightSeconds": 18120,
+        "remSeconds": 6000,
+        "awakeSeconds": 420,
+        "score": 87,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 56
+    },
+    {
+      "date": "2026-02-11",
+      "sleep": {
+        "totalSeconds": 25560,
+        "deepSeconds": 3960,
+        "lightSeconds": 14460,
+        "remSeconds": 7140,
+        "awakeSeconds": 0,
+        "score": 86,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 52
+    },
+    {
+      "date": "2026-02-10",
+      "sleep": {
+        "totalSeconds": 22260,
+        "deepSeconds": 1500,
+        "lightSeconds": 20760,
+        "remSeconds": 0,
+        "awakeSeconds": 300,
+        "score": 55,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 60
+    },
+    {
+      "date": "2026-02-09",
+      "sleep": {
+        "totalSeconds": 26340,
+        "deepSeconds": 3600,
+        "lightSeconds": 17400,
+        "remSeconds": 5340,
+        "awakeSeconds": 60,
+        "score": 86,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 50
+    },
+    {
+      "date": "2026-02-08",
+      "sleep": {
+        "totalSeconds": 26160,
+        "deepSeconds": 4980,
+        "lightSeconds": 15780,
+        "remSeconds": 5400,
+        "awakeSeconds": 300,
+        "score": 88,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 52
+    },
+    {
+      "date": "2026-02-07",
+      "sleep": {
+        "totalSeconds": 27180,
+        "deepSeconds": 3120,
+        "lightSeconds": 18420,
+        "remSeconds": 5640,
+        "awakeSeconds": 300,
+        "score": 81,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 57
+    },
+    {
+      "date": "2026-02-06",
+      "sleep": {
+        "totalSeconds": 26340,
+        "deepSeconds": 3540,
+        "lightSeconds": 16500,
+        "remSeconds": 6300,
+        "awakeSeconds": 360,
+        "score": 82,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 51
+    },
+    {
+      "date": "2026-02-05",
+      "sleep": {
+        "totalSeconds": 23340,
+        "deepSeconds": 2220,
+        "lightSeconds": 17940,
+        "remSeconds": 3180,
+        "awakeSeconds": 60,
+        "score": 75,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-02-04",
+      "sleep": {
+        "totalSeconds": 27840,
+        "deepSeconds": 5040,
+        "lightSeconds": 16980,
+        "remSeconds": 5820,
+        "awakeSeconds": 660,
+        "score": 89,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 51
+    },
+    {
+      "date": "2026-02-03",
+      "sleep": {
+        "totalSeconds": 25852,
+        "deepSeconds": 3660,
+        "lightSeconds": 16920,
+        "remSeconds": 5280,
+        "awakeSeconds": 540,
+        "score": 80,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 53
+    },
+    {
+      "date": "2026-02-02",
+      "sleep": {
+        "totalSeconds": 25140,
+        "deepSeconds": 3240,
+        "lightSeconds": 16020,
+        "remSeconds": 5880,
+        "awakeSeconds": 60,
+        "score": 84,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 51
+    },
+    {
+      "date": "2026-02-01",
+      "sleep": {
+        "totalSeconds": 21720,
+        "deepSeconds": 3060,
+        "lightSeconds": 18060,
+        "remSeconds": 600,
+        "awakeSeconds": 1800,
+        "score": 58,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 54
+    },
+    {
+      "date": "2026-01-31",
+      "sleep": {
+        "totalSeconds": 25200,
+        "deepSeconds": 3660,
+        "lightSeconds": 16020,
+        "remSeconds": 5520,
+        "awakeSeconds": 120,
+        "score": 83,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 51
+    },
+    {
+      "date": "2026-01-30",
+      "sleep": {
+        "totalSeconds": 25620,
+        "deepSeconds": 3780,
+        "lightSeconds": 16440,
+        "remSeconds": 5400,
+        "awakeSeconds": 840,
+        "score": 81,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 54
+    },
+    {
+      "date": "2026-01-29",
+      "sleep": {
+        "totalSeconds": 20144,
+        "deepSeconds": 2040,
+        "lightSeconds": 17580,
+        "remSeconds": 540,
+        "awakeSeconds": 180,
+        "score": 57,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 54
+    },
+    {
+      "date": "2026-01-28",
+      "sleep": {
+        "totalSeconds": 27262,
+        "deepSeconds": 4080,
+        "lightSeconds": 16680,
+        "remSeconds": 6540,
+        "awakeSeconds": 420,
+        "score": 87,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 54
+    },
+    {
+      "date": "2026-01-27",
+      "sleep": {
+        "totalSeconds": 26876,
+        "deepSeconds": 4320,
+        "lightSeconds": 16380,
+        "remSeconds": 6180,
+        "awakeSeconds": 0,
+        "score": 88,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 53
+    },
+    {
+      "date": "2026-01-26",
+      "sleep": {
+        "totalSeconds": 28844,
+        "deepSeconds": 4980,
+        "lightSeconds": 17100,
+        "remSeconds": 6780,
+        "awakeSeconds": 840,
+        "score": 89,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 51
+    },
+    {
+      "date": "2026-01-25",
+      "sleep": {
+        "totalSeconds": 26400,
+        "deepSeconds": 2400,
+        "lightSeconds": 20400,
+        "remSeconds": 3600,
+        "awakeSeconds": 2880,
+        "score": 70,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-01-24",
+      "sleep": {
+        "totalSeconds": 27763,
+        "deepSeconds": 5700,
+        "lightSeconds": 16020,
+        "remSeconds": 6060,
+        "awakeSeconds": 0,
+        "score": 91,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 51
+    },
+    {
+      "date": "2026-01-23",
+      "sleep": {
+        "totalSeconds": 18960,
+        "deepSeconds": 3840,
+        "lightSeconds": 14400,
+        "remSeconds": 720,
+        "awakeSeconds": 60,
+        "score": 58,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 52
+    },
+    {
+      "date": "2026-01-22",
+      "sleep": {
+        "totalSeconds": 11784,
+        "deepSeconds": 1500,
+        "lightSeconds": 8400,
+        "remSeconds": 1920,
+        "awakeSeconds": 60,
+        "score": 44,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 55
+    },
+    {
+      "date": "2026-01-21",
+      "sleep": {
+        "totalSeconds": 20100,
+        "deepSeconds": 2400,
+        "lightSeconds": 13440,
+        "remSeconds": 4260,
+        "awakeSeconds": 0,
+        "score": 69,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 56
+    },
+    {
+      "date": "2026-01-20",
+      "sleep": {
+        "totalSeconds": 18360,
+        "deepSeconds": 3240,
+        "lightSeconds": 12840,
+        "remSeconds": 2280,
+        "awakeSeconds": 60,
+        "score": 63,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 54
+    },
+    {
+      "date": "2026-01-19",
+      "sleep": {
+        "totalSeconds": 21578,
+        "deepSeconds": 3480,
+        "lightSeconds": 15600,
+        "remSeconds": 2520,
+        "awakeSeconds": 3420,
+        "score": 60,
+        "avgHR": null,
+        "avgHRV": null
+      },
+      "restingHeartRate": 57
+    }
+  ]
+}
