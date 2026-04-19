@@ -23,15 +23,20 @@ function mapStravaSportType(activity) {
 export function mergeStravaActivities(workouts, stravaActivities) {
   if (!stravaActivities || stravaActivities.length === 0) return workouts
 
-  const existingKeys = new Set()
+  const workoutsByKey = new Map()
   for (const w of workouts) {
     if (!w.WorkoutDay) continue
     const day = w.WorkoutDay.slice(0, 10)
     const type = (w.WorkoutType || '').toLowerCase()
-    existingKeys.add(`${day}|${type}`)
+    const key = `${day}|${type}`
+    if (!workoutsByKey.has(key)) workoutsByKey.set(key, [])
+    workoutsByKey.get(key).push(w)
   }
 
+  const enrichedSet = new Set()
+  const injectedKeys = new Set()
   const synthetic = []
+
   for (const a of stravaActivities) {
     if (a.type === 'Run') continue
 
@@ -39,8 +44,27 @@ export function mergeStravaActivities(workouts, stravaActivities) {
     if (!workoutType) continue
 
     const key = `${a.date}|${workoutType.toLowerCase()}`
-    if (existingKeys.has(key)) continue
-    existingKeys.add(key)
+    const candidates = workoutsByKey.get(key) || []
+    const sportHint = (a.sport_type || '').toLowerCase()
+    const match =
+      candidates.find(w => !enrichedSet.has(w) && sportHint && (w.Title || '').toLowerCase().includes(sportHint)) ||
+      candidates.find(w => !enrichedSet.has(w))
+
+    if (match) {
+      enrichedSet.add(match)
+      if (a.moving_time) match.TimeTotalInHours = String(a.moving_time / 3600)
+      if (a.distance) match.DistanceInMeters = String(a.distance)
+      if (a.average_heartrate) match.HeartRateAverage = String(a.average_heartrate)
+      if (a.max_heartrate) match.HeartRateMax = String(a.max_heartrate)
+      match._stravaId = a.id
+      match._stravaCalories = a.calories || 0
+      match._stravaSufferScore = a.suffer_score || null
+      match._stravaSportType = a.sport_type || a.type
+      continue
+    }
+
+    if (injectedKeys.has(key)) continue
+    injectedKeys.add(key)
 
     synthetic.push({
       Title: a.name || workoutType,
