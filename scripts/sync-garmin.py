@@ -71,10 +71,17 @@ def safe(fn):
 def extract_day(client, date_str):
     sleep = safe(lambda: client.get_sleep_data(date_str))
     hr = safe(lambda: client.get_heart_rates(date_str))
+    steps = safe(lambda: client.get_steps_data(date_str))
 
     daily = (sleep or {}).get("dailySleepDTO", sleep or {})
     scores = (sleep or {}).get("sleepScores", daily.get("sleepScores", {}))
     overall = scores.get("overall", {})
+
+    total_steps = None
+    if isinstance(steps, list):
+        total_steps = sum(s.get("steps", 0) for s in steps if isinstance(s, dict))
+    elif isinstance(steps, dict):
+        total_steps = steps.get("totalSteps")
 
     return {
         "date": date_str,
@@ -89,12 +96,15 @@ def extract_day(client, date_str):
             "avgHRV": (sleep or {}).get("averageSleepHRV"),
         } if sleep else None,
         "restingHeartRate": (hr or {}).get("restingHeartRate"),
+        "steps": total_steps,
     }
 
 
 def normalize_day(day):
     """Convert old 5-field format to new slim format."""
     if "restingHeartRate" in day:
+        if "steps" not in day:
+            day["steps"] = None
         return day
     rhr = None
     if isinstance(day.get("heartRate"), dict):
@@ -104,7 +114,7 @@ def normalize_day(day):
         sleep = {k: v for k, v in sleep.items() if k != "avgRespiration"}
     if not sleep and isinstance(day.get("hrv"), dict):
         pass
-    return {"date": day["date"], "sleep": sleep, "restingHeartRate": rhr}
+    return {"date": day["date"], "sleep": sleep, "restingHeartRate": rhr, "steps": day.get("steps")}
 
 
 def main():
