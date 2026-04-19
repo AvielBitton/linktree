@@ -1,5 +1,5 @@
 {
-  "last_sync": "2026-04-19T18:01:25.676419",
+  "last_sync": "2026-04-19T21:52:32.108296",
   "days": [
     {
       "date": "2026-04-19",
@@ -13,7 +13,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 52
+      "restingHeartRate": 52,
+      "steps": 13877
     },
     {
       "date": "2026-04-18",
@@ -27,7 +28,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 49
+      "restingHeartRate": 49,
+      "steps": 11553
     },
     {
       "date": "2026-04-17",
@@ -41,7 +43,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 51
+      "restingHeartRate": 51,
+      "steps": 16414
     },
     {
       "date": "2026-04-16",
@@ -55,7 +58,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 58
+      "restingHeartRate": 58,
+      "steps": 10478
     },
     {
       "date": "2026-04-15",
@@ -69,7 +73,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 3778
     },
     {
       "date": "2026-04-14",
@@ -83,7 +88,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 52
+      "restingHeartRate": 52,
+      "steps": 15977
     },
     {
       "date": "2026-04-13",
@@ -97,7 +103,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 53
+      "restingHeartRate": 53,
+      "steps": 15551
     },
     {
       "date": "2026-04-12",
@@ -111,7 +118,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 7458
     },
     {
       "date": "2026-04-11",
@@ -125,7 +133,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 52
+      "restingHeartRate": 52,
+      "steps": 23463
     },
     {
       "date": "2026-04-10",
@@ -139,7 +148,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 6283
     },
     {
       "date": "2026-04-09",
@@ -153,7 +163,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 57
+      "restingHeartRate": 57,
+      "steps": 12519
     },
     {
       "date": "2026-04-08",
@@ -167,7 +178,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 53
+      "restingHeartRate": 53,
+      "steps": 10887
     },
     {
       "date": "2026-04-07",
@@ -181,7 +193,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 22082
     },
     {
       "date": "2026-04-06",
@@ -195,7 +208,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 60
+      "restingHeartRate": 60,
+      "steps": 13390
     },
     {
       "date": "2026-04-05",
@@ -209,7 +223,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 56
+      "restingHeartRate": 56,
+      "steps": 15608
     },
     {
       "date": "2026-04-04",
@@ -223,7 +238,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 58
+      "restingHeartRate": 58,
+      "steps": 14470
     },
     {
       "date": "2026-04-03",
@@ -237,7 +253,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 54
+      "restingHeartRate": 54,
+      "steps": 25905
     },
     {
       "date": "2026-04-02",
@@ -251,7 +268,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 57
+      "restingHeartRate": 57,
+      "steps": 16980
     },
     {
       "date": "2026-04-01",
@@ -265,7 +283,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 53
+      "restingHeartRate": 53,
+      "steps": 10725
     },
     {
       "date": "2026-03-31",
@@ -279,7 +298,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 8127
     },
     {
       "date": "2026-03-30",
@@ -293,7 +313,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 52
+      "restingHeartRate": 52,
+      "steps": 12003
     },
     {
       "date": "2026-03-29",
@@ -307,7 +328,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 57
+      "restingHeartRate": 57,
+      "steps": 6036
     },
     {
       "date": "2026-03-28",
@@ -321,7 +343,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 53
+      "restingHeartRate": 53,
+      "steps": 19644
     },
     {
       "date": "2026-03-27",
@@ -335,7 +358,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 5535
     },
     {
       "date": "2026-03-26",
@@ -349,7 +373,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 11339
     },
     {
       "date": "2026-03-25",
@@ -363,7 +388,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 56
+      "restingHeartRate": 56,
+      "steps": 13920
     },
     {
       "date": "2026-03-24",
@@ -377,7 +403,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 53
+      "restingHeartRate": 53,
+      "steps": 5088
     },
     {
       "date": "2026-03-23",
@@ -391,7 +418,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 56
+      "restingHeartRate": 56,
+      "steps": 14265
     },
     {
       "date": "2026-03-22",
@@ -405,7 +433,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 7782
     },
     {
       "date": "2026-03-21",
@@ -419,7 +448,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 14813
     },
     {
       "date": "2026-03-20",
@@ -433,7 +463,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 54
+      "restingHeartRate": 54,
+      "steps": 17222
     },
     {
       "date": "2026-03-19",
@@ -447,7 +478,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 57
+      "restingHeartRate": 57,
+      "steps": 8555
     },
     {
       "date": "2026-03-18",
@@ -461,7 +493,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 56
+      "restingHeartRate": 56,
+      "steps": 6999
     },
     {
       "date": "2026-03-17",
@@ -475,7 +508,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 47
+      "restingHeartRate": 47,
+      "steps": 15176
     },
     {
       "date": "2026-03-16",
@@ -489,7 +523,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 51
+      "restingHeartRate": 51,
+      "steps": 15256
     },
     {
       "date": "2026-03-15",
@@ -503,7 +538,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 54
+      "restingHeartRate": 54,
+      "steps": 15566
     },
     {
       "date": "2026-03-14",
@@ -517,7 +553,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 13916
     },
     {
       "date": "2026-03-13",
@@ -531,7 +568,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 54
+      "restingHeartRate": 54,
+      "steps": 13573
     },
     {
       "date": "2026-03-12",
@@ -545,7 +583,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 54
+      "restingHeartRate": 54,
+      "steps": 17081
     },
     {
       "date": "2026-03-11",
@@ -559,7 +598,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 53
+      "restingHeartRate": 53,
+      "steps": 7399
     },
     {
       "date": "2026-03-10",
@@ -573,7 +613,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 7972
     },
     {
       "date": "2026-03-09",
@@ -587,7 +628,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 53
+      "restingHeartRate": 53,
+      "steps": 11553
     },
     {
       "date": "2026-03-08",
@@ -601,7 +643,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 53
+      "restingHeartRate": 53,
+      "steps": 10796
     },
     {
       "date": "2026-03-07",
@@ -615,7 +658,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 52
+      "restingHeartRate": 52,
+      "steps": 10225
     },
     {
       "date": "2026-03-06",
@@ -629,7 +673,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 52
+      "restingHeartRate": 52,
+      "steps": 6197
     },
     {
       "date": "2026-03-05",
@@ -643,7 +688,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 53
+      "restingHeartRate": 53,
+      "steps": 9954
     },
     {
       "date": "2026-03-04",
@@ -657,7 +703,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 52
+      "restingHeartRate": 52,
+      "steps": 11037
     },
     {
       "date": "2026-03-03",
@@ -671,7 +718,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 13231
     },
     {
       "date": "2026-03-02",
@@ -685,7 +733,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 56
+      "restingHeartRate": 56,
+      "steps": 4995
     },
     {
       "date": "2026-03-01",
@@ -699,7 +748,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 54
+      "restingHeartRate": 54,
+      "steps": 4980
     },
     {
       "date": "2026-02-28",
@@ -713,7 +763,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 58
+      "restingHeartRate": 58,
+      "steps": 2545
     },
     {
       "date": "2026-02-27",
@@ -727,7 +778,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 52
+      "restingHeartRate": 52,
+      "steps": 56924
     },
     {
       "date": "2026-02-26",
@@ -741,7 +793,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 10368
     },
     {
       "date": "2026-02-25",
@@ -755,7 +808,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 54
+      "restingHeartRate": 54,
+      "steps": 16917
     },
     {
       "date": "2026-02-24",
@@ -769,7 +823,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 52
+      "restingHeartRate": 52,
+      "steps": 10878
     },
     {
       "date": "2026-02-23",
@@ -783,7 +838,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 51
+      "restingHeartRate": 51,
+      "steps": 16885
     },
     {
       "date": "2026-02-22",
@@ -797,7 +853,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 51
+      "restingHeartRate": 51,
+      "steps": 19544
     },
     {
       "date": "2026-02-21",
@@ -811,7 +868,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 13023
     },
     {
       "date": "2026-02-20",
@@ -825,7 +883,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 52
+      "restingHeartRate": 52,
+      "steps": 34979
     },
     {
       "date": "2026-02-19",
@@ -839,7 +898,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 53
+      "restingHeartRate": 53,
+      "steps": 11405
     },
     {
       "date": "2026-02-18",
@@ -853,7 +913,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 51
+      "restingHeartRate": 51,
+      "steps": 18194
     },
     {
       "date": "2026-02-17",
@@ -867,7 +928,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 51
+      "restingHeartRate": 51,
+      "steps": 7688
     },
     {
       "date": "2026-02-16",
@@ -881,7 +943,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 53
+      "restingHeartRate": 53,
+      "steps": 23082
     },
     {
       "date": "2026-02-15",
@@ -895,7 +958,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 52
+      "restingHeartRate": 52,
+      "steps": 15220
     },
     {
       "date": "2026-02-14",
@@ -909,7 +973,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 51
+      "restingHeartRate": 51,
+      "steps": 46000
     },
     {
       "date": "2026-02-13",
@@ -923,7 +988,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 53
+      "restingHeartRate": 53,
+      "steps": 13793
     },
     {
       "date": "2026-02-12",
@@ -937,7 +1003,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 56
+      "restingHeartRate": 56,
+      "steps": 8647
     },
     {
       "date": "2026-02-11",
@@ -951,7 +1018,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 52
+      "restingHeartRate": 52,
+      "steps": 27185
     },
     {
       "date": "2026-02-10",
@@ -965,7 +1033,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 60
+      "restingHeartRate": 60,
+      "steps": 11517
     },
     {
       "date": "2026-02-09",
@@ -979,7 +1048,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 50
+      "restingHeartRate": 50,
+      "steps": 27668
     },
     {
       "date": "2026-02-08",
@@ -993,7 +1063,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 52
+      "restingHeartRate": 52,
+      "steps": 15159
     },
     {
       "date": "2026-02-07",
@@ -1007,7 +1078,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 57
+      "restingHeartRate": 57,
+      "steps": 15451
     },
     {
       "date": "2026-02-06",
@@ -1021,7 +1093,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 51
+      "restingHeartRate": 51,
+      "steps": 40058
     },
     {
       "date": "2026-02-05",
@@ -1035,7 +1108,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 13723
     },
     {
       "date": "2026-02-04",
@@ -1049,7 +1123,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 51
+      "restingHeartRate": 51,
+      "steps": 23083
     },
     {
       "date": "2026-02-03",
@@ -1063,7 +1138,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 53
+      "restingHeartRate": 53,
+      "steps": 8089
     },
     {
       "date": "2026-02-02",
@@ -1077,7 +1153,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 51
+      "restingHeartRate": 51,
+      "steps": 18606
     },
     {
       "date": "2026-02-01",
@@ -1091,7 +1168,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 54
+      "restingHeartRate": 54,
+      "steps": 11817
     },
     {
       "date": "2026-01-31",
@@ -1105,7 +1183,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 51
+      "restingHeartRate": 51,
+      "steps": 41905
     },
     {
       "date": "2026-01-30",
@@ -1119,7 +1198,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 54
+      "restingHeartRate": 54,
+      "steps": 16533
     },
     {
       "date": "2026-01-29",
@@ -1133,7 +1213,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 54
+      "restingHeartRate": 54,
+      "steps": 9352
     },
     {
       "date": "2026-01-28",
@@ -1147,7 +1228,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 54
+      "restingHeartRate": 54,
+      "steps": 20936
     },
     {
       "date": "2026-01-27",
@@ -1161,7 +1243,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 53
+      "restingHeartRate": 53,
+      "steps": 12498
     },
     {
       "date": "2026-01-26",
@@ -1175,7 +1258,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 51
+      "restingHeartRate": 51,
+      "steps": 19734
     },
     {
       "date": "2026-01-25",
@@ -1189,7 +1273,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 7186
     },
     {
       "date": "2026-01-24",
@@ -1203,7 +1288,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 51
+      "restingHeartRate": 51,
+      "steps": 39002
     },
     {
       "date": "2026-01-23",
@@ -1217,7 +1303,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 52
+      "restingHeartRate": 52,
+      "steps": 5929
     },
     {
       "date": "2026-01-22",
@@ -1231,7 +1318,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 55
+      "restingHeartRate": 55,
+      "steps": 7812
     },
     {
       "date": "2026-01-21",
@@ -1245,7 +1333,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 56
+      "restingHeartRate": 56,
+      "steps": 10173
     },
     {
       "date": "2026-01-20",
@@ -1259,7 +1348,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 54
+      "restingHeartRate": 54,
+      "steps": 24594
     },
     {
       "date": "2026-01-19",
@@ -1273,7 +1363,8 @@
         "avgHR": null,
         "avgHRV": null
       },
-      "restingHeartRate": 57
+      "restingHeartRate": 57,
+      "steps": 7519
     }
   ]
 }

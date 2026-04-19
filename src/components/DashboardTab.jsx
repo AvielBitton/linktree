@@ -563,6 +563,79 @@ function DashboardTab({
     return { avgHours, above7, totalNights: validHours.length, avgRhr, latestRhr }
   }, [sleepChartData])
 
+  // ── Garmin: Steps / Activity Pulse ──
+  const [stepsRange, setStepsRange] = useState('week')
+  const stepsRangeDays = stepsRange === 'week' ? 7 : stepsRange
+
+  const allStepsData = useMemo(() => {
+    if (!garminHealth?.length) return []
+    return garminHealth
+      .filter(d => d.steps != null && d.steps > 0)
+      .sort((a, b) => a.date.localeCompare(b.date))
+  }, [garminHealth])
+
+  const stepsData = useMemo(() => {
+    if (!allStepsData.length) return null
+
+    const cutoff = new Date()
+    cutoff.setDate(cutoff.getDate() - stepsRangeDays)
+    const cutoffStr = cutoff.toISOString().slice(0, 10)
+    const rangeData = allStepsData.filter(d => d.date >= cutoffStr)
+    if (!rangeData.length) return null
+
+    const prevCutoff = new Date()
+    prevCutoff.setDate(prevCutoff.getDate() - stepsRangeDays * 2)
+    const prevCutoffStr = prevCutoff.toISOString().slice(0, 10)
+    const prevData = allStepsData.filter(d => d.date >= prevCutoffStr && d.date < cutoffStr)
+
+    const avg = Math.round(rangeData.reduce((s, d) => s + d.steps, 0) / rangeData.length)
+    const prevAvg = prevData.length ? Math.round(prevData.reduce((s, d) => s + d.steps, 0) / prevData.length) : null
+
+    const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+    const maxSteps = Math.max(...rangeData.map(d => d.steps))
+    const dayDots = rangeData.map(d => {
+      const dow = new Date(d.date).getDay()
+      return {
+        day: dayNames[dow],
+        steps: d.steps,
+        date: `${new Date(d.date).getDate()}/${new Date(d.date).getMonth() + 1}`,
+        active: d.steps >= 10000,
+        ratio: maxSteps > 0 ? d.steps / maxSteps : 0,
+      }
+    })
+
+    const goal = 10000
+    const progress = Math.min(avg / goal, 1.3)
+
+    let insight = ''
+    let insightColor = 'text-white/30'
+    if (prevAvg && prevAvg > 0) {
+      const delta = Math.round(((avg - prevAvg) / prevAvg) * 100)
+      const periodLabel = stepsRange === 'week' ? 'last week' : `prev ${stepsRangeDays}d`
+      if (delta > 0) {
+        insight = `↑${delta}% vs ${periodLabel}`
+        insightColor = 'text-emerald-400/60'
+      } else if (delta < 0) {
+        insight = `↓${Math.abs(delta)}% vs ${periodLabel}`
+        insightColor = 'text-red-400/50'
+      } else {
+        insight = `Same as ${periodLabel}`
+      }
+    }
+    if (!insight) {
+      const activeDays = rangeData.filter(d => d.steps >= 10000).length
+      insight = `${activeDays}/${rangeData.length} days above 10K`
+      insightColor = activeDays / rangeData.length >= 0.7 ? 'text-emerald-400/60' : activeDays / rangeData.length >= 0.4 ? 'text-yellow-400/50' : 'text-red-400/50'
+    }
+
+    let arcColor = 'rgb(248,113,113)'
+    if (avg >= 10000) arcColor = 'rgb(34,211,238)'
+    else if (avg >= 7500) arcColor = 'rgb(52,211,153)'
+    else if (avg >= 5000) arcColor = 'rgb(251,191,36)'
+
+    return { avg, prevAvg, dayDots, progress, insight, insightColor, arcColor, maxSteps, totalDays: rangeData.length }
+  }, [allStepsData, stepsRangeDays, stepsRange])
+
   const displayW = todayWeight || latestWeight
 
   return (
@@ -854,6 +927,149 @@ function DashboardTab({
           })()}
         </SectionCard>
       )}
+
+      {/* ═══ Activity Pulse: Steps ═══ */}
+      {stepsData && (() => {
+        const r = 38
+        const circumference = Math.PI * r
+        const strokeDashoffset = circumference * (1 - Math.min(stepsData.progress, 1))
+        const overArc = stepsData.progress > 1 ? circumference * (stepsData.progress - 1) : 0
+        const dots = stepsData.dayDots
+        const dotGap = dots.length > 30 ? 1 : dots.length > 14 ? 2 : 3
+        return (
+          <SectionCard delay={0.1}>
+            {/* Top row: Arc left + stats right */}
+            <div className="flex items-start gap-4">
+              {/* Arc gauge */}
+              <div className="relative shrink-0" style={{ width: 100, height: 58 }}>
+                <svg width="100" height="58" viewBox="0 0 100 58" className="overflow-visible">
+                  <defs>
+                    <linearGradient id="stepsArcGrad" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor={stepsData.arcColor} stopOpacity="0.25" />
+                      <stop offset="100%" stopColor={stepsData.arcColor} stopOpacity="1" />
+                    </linearGradient>
+                    <filter id="stepsGlow">
+                      <feGaussianBlur stdDeviation="2.5" result="blur" />
+                      <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                    </filter>
+                  </defs>
+                  <path
+                    d={`M ${50 - r} 52 A ${r} ${r} 0 0 1 ${50 + r} 52`}
+                    fill="none" stroke="white" strokeOpacity="0.05" strokeWidth="6" strokeLinecap="round"
+                  />
+                  <motion.path
+                    d={`M ${50 - r} 52 A ${r} ${r} 0 0 1 ${50 + r} 52`}
+                    fill="none" stroke="url(#stepsArcGrad)" strokeWidth="6" strokeLinecap="round"
+                    strokeDasharray={circumference}
+                    initial={{ strokeDashoffset: circumference }}
+                    animate={{ strokeDashoffset }}
+                    transition={{ duration: 1.2, ease: 'easeOut' }}
+                    filter={stepsData.progress >= 1 ? 'url(#stepsGlow)' : undefined}
+                  />
+                  {overArc > 0 && (
+                    <motion.path
+                      d={`M ${50 - r} 52 A ${r} ${r} 0 0 1 ${50 + r} 52`}
+                      fill="none" stroke={stepsData.arcColor} strokeOpacity="0.15" strokeWidth="10" strokeLinecap="round"
+                      strokeDasharray={circumference}
+                      initial={{ strokeDashoffset: circumference }}
+                      animate={{ strokeDashoffset: circumference - overArc }}
+                      transition={{ duration: 1.4, ease: 'easeOut', delay: 0.3 }}
+                    />
+                  )}
+                  <text x={50 - r} y={57} textAnchor="middle" fill="white" fillOpacity="0.1" fontSize="6" fontFamily="monospace">0</text>
+                  <text x={50 + r} y={57} textAnchor="middle" fill="white" fillOpacity="0.15" fontSize="6" fontFamily="monospace">10K</text>
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-end pb-0.5">
+                  <motion.p
+                    className="text-white font-bold text-xl tabular-nums leading-none tracking-tight"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
+                  >
+                    {(stepsData.avg / 1000).toFixed(1)}<span className="text-white/25 text-[10px] ml-0.5">k</span>
+                  </motion.p>
+                </div>
+              </div>
+
+              {/* Right side: label, range, insight */}
+              <div className="flex-1 min-w-0 pt-1">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <svg className="w-3 h-3 text-orange-400/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                    </svg>
+                    <p className="text-white/40 text-[10px] font-medium uppercase tracking-wider">Steps</p>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {['week', 30, 90].map(d => (
+                      <button
+                        key={d}
+                        onClick={() => setStepsRange(d)}
+                        className={`px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors ${
+                          stepsRange === d ? 'bg-orange-500/15 text-orange-400' : 'text-white/20'
+                        }`}
+                      >
+                        {d === 'week' ? '7d' : `${d}d`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <p className="text-white/50 text-[11px] font-medium tabular-nums">
+                  {stepsData.avg.toLocaleString()} <span className="text-white/20 text-[10px]">avg/day</span>
+                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className={`text-[10px] font-medium tabular-nums ${stepsData.progress >= 1 ? 'text-cyan-400/60' : 'text-white/20'}`}>
+                    {Math.round(stepsData.progress * 100)}% of goal
+                  </span>
+                  <span className={`text-[10px] font-medium tabular-nums ${stepsData.insightColor}`}>
+                    {stepsData.insight}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Steps bars — same style as sleep chart */}
+            {(() => {
+              const goal = 10000
+              const scale = Math.max(stepsData.maxSteps, goal) * 1.1
+              const goalPct = (goal / scale) * 100
+              const gap = dots.length > 30 ? 1 : dots.length > 14 ? 2 : 3
+              return (
+                <div className="mt-3">
+                  <div className="relative h-24 flex items-end" style={{ gap: `${gap}px` }}>
+                    <div className="absolute left-0 right-0 border-t border-dashed border-white/[0.08]" style={{ bottom: `${goalPct}%` }}>
+                      <span className="absolute -top-3 right-0 text-[7px] text-white/20 font-medium">10K</span>
+                    </div>
+                    {dots.map((d, i) => {
+                      const pct = (d.steps / scale) * 100
+                      return (
+                        <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group relative">
+                          <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                            <div className="bg-[#1c1c1e] border border-white/10 rounded-lg px-2 py-1 whitespace-nowrap shadow-lg">
+                              <p className="text-white text-[10px] font-semibold tabular-nums">{d.steps.toLocaleString()}</p>
+                              <p className="text-white/40 text-[8px]">{d.date}</p>
+                            </div>
+                          </div>
+                          <motion.div
+                            className={`w-full rounded-sm ${d.steps >= goal ? 'bg-cyan-400/40' : 'bg-cyan-400/15'}`}
+                            initial={{ height: 0 }}
+                            animate={{ height: `${pct}%` }}
+                            transition={{ duration: 0.5, delay: i * 0.01 }}
+                          />
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className="flex justify-between mt-1.5">
+                    <span className="text-white/15 text-[9px] tabular-nums">{dots[0]?.date}</span>
+                    <span className="text-white/15 text-[9px] tabular-nums">{dots.at(-1)?.date}</span>
+                  </div>
+                </div>
+              )
+            })()}
+          </SectionCard>
+        )
+      })()}
 
       {/* ═══ SECTION 2: Today's Plan ═══ */}
       <div className="grid grid-cols-2 gap-2 items-stretch">
