@@ -31,6 +31,7 @@ function WorkoutSession({ template, allTemplates = [], customExercises = [], ses
   const [sessionId] = useState(() => generateId())
   const [swappedExercises, setSwappedExercises] = useState({})
   const [swapTarget, setSwapTarget] = useState(null)
+  const [saveError, setSaveError] = useState(null)
   const scrollRef = useRef(null)
 
   const sessionExercises = useMemo(() =>
@@ -193,21 +194,39 @@ function WorkoutSession({ template, allTemplates = [], customExercises = [], ses
     }
 
     const token = getSessionToken()
+    let saved = false
     if (token) {
-      await saveWorkoutSession(token, sessionData, exerciseLogs)
+      try {
+        const result = await saveWorkoutSession(token, sessionData, exerciseLogs)
+        if (result?.error) {
+          setSaveError(result.error === 'Unauthorized'
+            ? 'Session expired – please log in again and retry.'
+            : `Save failed: ${result.error}`)
+          return
+        }
+        saved = true
+      } catch {
+        setSaveError('Network error – check your connection and retry.')
+        return
+      }
+    } else {
+      setSaveError('Not logged in – please log in and retry.')
+      return
     }
 
-    clearActiveSession()
-    setShowSummary({
-      ...sessionData,
-      templateName: template.name,
-      exerciseLogs: exerciseLogs.map(l => ({
-        ...l,
-        exerciseName: sessionExercises.find(e => e.key === l.exerciseKey)?.name_en
-          || sessionExercises.find(e => e.key === l.exerciseKey)?.name
-          || l.exerciseKey,
-      })),
-    })
+    if (saved) {
+      clearActiveSession()
+      setShowSummary({
+        ...sessionData,
+        templateName: template.name,
+        exerciseLogs: exerciseLogs.map(l => ({
+          ...l,
+          exerciseName: sessionExercises.find(e => e.key === l.exerciseKey)?.name_en
+            || sessionExercises.find(e => e.key === l.exerciseKey)?.name
+            || l.exerciseKey,
+        })),
+      })
+    }
   }, [completedSets, template, sessionExercises, sessionId, startTime])
 
   const totalSets = sessionExercises.reduce((sum, e) => sum + (e.sets || 3) + (extraSets[e.key] || 0), 0)
@@ -367,6 +386,41 @@ function WorkoutSession({ template, allTemplates = [], customExercises = [], ses
             onSelect={ex => handleSwapExercise(swapTarget, ex)}
             onClose={() => setSwapTarget(null)}
           />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {saveError && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-8"
+            onClick={() => setSaveError(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+              className="bg-[#161B22] border border-red-500/20 rounded-2xl p-5 w-full max-w-xs shadow-2xl"
+            >
+              <div className="w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center mb-3">
+                <svg className="w-5 h-5 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+              </div>
+              <h3 className="text-white font-bold text-sm mb-1">Workout not saved</h3>
+              <p className="text-white/40 text-xs mb-4">{saveError}</p>
+              <p className="text-white/25 text-[10px] mb-4">Your workout data is still here. Log in and tap Finish again.</p>
+              <button
+                onClick={() => setSaveError(null)}
+                className="w-full py-2.5 rounded-xl bg-white/[0.06] text-white/50 text-xs font-medium active:scale-[0.98] transition-all"
+              >
+                OK
+              </button>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 

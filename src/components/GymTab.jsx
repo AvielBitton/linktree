@@ -7,7 +7,7 @@ import WorkoutSession from './gym/WorkoutSession'
 import EditMode from './gym/EditMode'
 import { useEditMode } from '../contexts/EditModeContext'
 
-function GymTab({ templates = [], sessions = [], customExercises = [] }) {
+function GymTab({ templates = [], sessions = [], customExercises = [], onNavigateHome }) {
   const { editMode } = useEditMode()
   const [activeSession, setActiveSession] = useState(null)
   const [showEdit, setShowEdit] = useState(false)
@@ -19,6 +19,7 @@ function GymTab({ templates = [], sessions = [], customExercises = [] }) {
 
   function handleFinishWorkout() {
     setActiveSession(null)
+    onNavigateHome?.()
   }
 
   function handleEditClose() {
