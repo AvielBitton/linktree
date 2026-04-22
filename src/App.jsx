@@ -290,7 +290,7 @@ function App({ initialWorkouts = [], stravaPRs = [], stravaActivities = [], garm
 
         {/* Gym Tab */}
         <TabsContent value="gym" className="mt-0">
-          <GymTab templates={gymTemplates} sessions={gymSessions} customExercises={customExercises} />
+          <GymTab templates={gymTemplates} sessions={gymSessions} customExercises={customExercises} onNavigateHome={() => setActiveTab('home')} />
         </TabsContent>
 
         {/* PRs Tab */}
