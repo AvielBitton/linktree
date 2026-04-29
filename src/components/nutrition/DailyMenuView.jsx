@@ -46,17 +46,65 @@ function DailyMenuView({ plan, completions = [] }) {
   const completedCount = meals.filter(m => completedMeals.has(m.id)).length
   const allCompleted = completedCount === meals.length
 
+  const savedAlts = useMemo(() => {
+    const map = {}
+    completions
+      .filter(c => c.date === dateStr && c.plan_id === plan.id && c.alternative_id)
+      .forEach(c => { map[c.meal_id] = c.alternative_id })
+    return map
+  }, [completions, dateStr, plan.id])
+
+  const [activeAlts, setActiveAlts] = useState({})
+  const [altsInitialized, setAltsInitialized] = useState(null)
+
+  const altsKey = `${dateStr}-${plan.id}`
+  if (altsInitialized !== altsKey) {
+    setActiveAlts(savedAlts)
+    setAltsInitialized(altsKey)
+  }
+
+  const handleAltChange = useCallback((mealId, altId) => {
+    setActiveAlts(prev => ({ ...prev, [mealId]: altId }))
+  }, [])
+
+  function getMealMacros(m) {
+    const altId = activeAlts[m.id] ?? null
+    const alt = altId && m.alternatives ? m.alternatives.find(a => a.id === altId) : null
+    return alt
+      ? { kcal: alt.target_kcal, protein: alt.target_protein, carbs: alt.target_carbs, fat: alt.target_fat }
+      : { kcal: m.target_kcal, protein: m.target_protein, carbs: m.target_carbs, fat: m.target_fat }
+  }
+
   const totals = useMemo(() => {
     return meals.reduce(
-      (acc, m) => ({
-        kcal: acc.kcal + m.target_kcal,
-        protein: acc.protein + m.target_protein,
-        carbs: acc.carbs + m.target_carbs,
-        fat: acc.fat + m.target_fat,
-      }),
+      (acc, m) => {
+        const macros = getMealMacros(m)
+        return {
+          kcal: acc.kcal + macros.kcal,
+          protein: acc.protein + macros.protein,
+          carbs: acc.carbs + macros.carbs,
+          fat: acc.fat + macros.fat,
+        }
+      },
       { kcal: 0, protein: 0, carbs: 0, fat: 0 }
     )
-  }, [meals])
+  }, [meals, activeAlts])
+
+  const consumed = useMemo(() => {
+    return meals.reduce(
+      (acc, m) => {
+        if (!completedMeals.has(m.id)) return acc
+        const macros = getMealMacros(m)
+        return {
+          kcal: acc.kcal + macros.kcal,
+          protein: acc.protein + macros.protein,
+          carbs: acc.carbs + macros.carbs,
+          fat: acc.fat + macros.fat,
+        }
+      },
+      { kcal: 0, protein: 0, carbs: 0, fat: 0 }
+    )
+  }, [meals, activeAlts, completedMeals])
 
   const navigateDay = useCallback((offset) => {
     setSlideDir(offset)
@@ -83,7 +131,7 @@ function DailyMenuView({ plan, completions = [] }) {
       setOptimisticCompletions(prev => new Set(prev).add(mealId))
     }
 
-    const result = await toggleMealAction(token, plan.id, mealId, dateStr)
+    const result = await toggleMealAction(token, plan.id, mealId, dateStr, activeAlts[mealId] || null)
     if (result.error) {
       toast.error(result.error)
       if (wasCompleted) {
@@ -92,7 +140,7 @@ function DailyMenuView({ plan, completions = [] }) {
         setOptimisticCompletions(prev => { const s = new Set(prev); s.delete(mealId); return s })
       }
     }
-  }, [completedMeals, plan.id, dateStr])
+  }, [completedMeals, plan.id, dateStr, activeAlts])
 
   const handleCompleteDay = useCallback(async () => {
     const token = getSessionToken()
@@ -110,7 +158,7 @@ function DailyMenuView({ plan, completions = [] }) {
       return s
     })
 
-    const result = await completeDayAction(token, plan.id, remaining, dateStr)
+    const result = await completeDayAction(token, plan.id, remaining, dateStr, activeAlts)
     if (result.error) {
       toast.error(result.error)
       setOptimisticCompletions(prev => {
@@ -121,7 +169,7 @@ function DailyMenuView({ plan, completions = [] }) {
     } else {
       toast.success('All meals completed!')
     }
-  }, [meals, completedMeals, plan.id, dateStr])
+  }, [meals, completedMeals, plan.id, dateStr, activeAlts])
 
   return (
     <div className="space-y-4">
@@ -160,7 +208,7 @@ function DailyMenuView({ plan, completions = [] }) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
       >
-        <MacroRing targets={totals} />
+        <MacroRing targets={totals} actuals={consumed} />
       </motion.div>
 
       {/* Compliance Bar (edit mode) */}
@@ -174,12 +222,12 @@ function DailyMenuView({ plan, completions = [] }) {
             <motion.div
               className="h-full rounded-full bg-emerald-500"
               initial={{ width: 0 }}
-              animate={{ width: `${meals.length > 0 ? (completedCount / meals.length) * 100 : 0}%` }}
+              animate={{ width: `${totals.kcal > 0 ? Math.min((consumed.kcal / totals.kcal) * 100, 100) : 0}%` }}
               transition={{ duration: 0.4 }}
             />
           </div>
           <span className="text-xs text-white/40 font-medium flex-shrink-0">
-            {completedCount}/{meals.length}
+            {Math.round(consumed.kcal)}/{Math.round(totals.kcal)}
           </span>
         </motion.div>
       )}
@@ -201,6 +249,8 @@ function DailyMenuView({ plan, completions = [] }) {
               isCompleted={completedMeals.has(meal.id)}
               editMode={editMode}
               onToggleComplete={handleToggle}
+              activeAlt={activeAlts[meal.id] ?? null}
+              onAltChange={handleAltChange}
             />
           ))}
         </motion.div>

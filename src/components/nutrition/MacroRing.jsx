@@ -24,7 +24,7 @@ function MacroRing({ targets, actuals, size = 140 }) {
     const radius = center - strokeWidth / 2 - i * (strokeWidth + gap)
     const circumference = 2 * Math.PI * radius
     const target = targets[cfg.key] || 0
-    const actual = actuals?.[cfg.key] || target
+    const actual = actuals ? (actuals[cfg.key] ?? target) : target
     const progress = target > 0 ? Math.min(actual / target, 1) : 0
     const dashOffset = circumference * (1 - (animated ? progress : 0))
 

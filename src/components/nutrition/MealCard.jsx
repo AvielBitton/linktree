@@ -21,9 +21,20 @@ function getMealColor(mealId) {
   return MEAL_COLORS.snack
 }
 
-function MealCard({ meal, isCompleted, editMode, onToggleComplete }) {
+function MealCard({ meal, isCompleted, editMode, onToggleComplete, activeAlt = null, onAltChange }) {
   const [expanded, setExpanded] = useState(false)
   const color = getMealColor(meal.id)
+
+  const hasAlts = meal.alternatives?.length > 0
+  const currentAlt = hasAlts ? meal.alternatives.find(a => a.id === activeAlt) : null
+  const activeFoods = currentAlt ? currentAlt.foods : meal.foods
+  const activeMacros = currentAlt
+    ? { kcal: currentAlt.target_kcal, protein: currentAlt.target_protein, carbs: currentAlt.target_carbs, fat: currentAlt.target_fat }
+    : { kcal: meal.target_kcal, protein: meal.target_protein, carbs: meal.target_carbs, fat: meal.target_fat }
+
+  const variants = hasAlts
+    ? [{ id: null, name: meal.name }, ...meal.alternatives.map(a => ({ id: a.id, name: a.name }))]
+    : []
 
   return (
     <motion.div
@@ -81,19 +92,22 @@ function MealCard({ meal, isCompleted, editMode, onToggleComplete }) {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <h3 className={`text-sm font-semibold transition-all ${
-              isCompleted ? 'text-white/40 line-through' : 'text-white'
-            }`}>
-              {meal.name}
-            </h3>
-            <MacroBar
-              macros={{
-                kcal: meal.target_kcal,
-                protein: meal.target_protein,
-                carbs: meal.target_carbs,
-                fat: meal.target_fat,
-              }}
-            />
+            <div className="flex items-center gap-1.5 min-w-0">
+              <h3 className={`text-sm font-semibold transition-all ${
+                isCompleted ? 'text-white/40 line-through' : 'text-white'
+              }`}>
+                {meal.name}
+              </h3>
+              {hasAlts && (
+                <svg className="w-3 h-3 text-white/20 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="17 1 21 5 17 9" />
+                  <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                  <polyline points="7 23 3 19 7 15" />
+                  <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+                </svg>
+              )}
+            </div>
+            <MacroBar macros={activeMacros} />
           </div>
         </div>
 
@@ -122,6 +136,23 @@ function MealCard({ meal, isCompleted, editMode, onToggleComplete }) {
             className="overflow-hidden"
           >
             <div className="px-4 pb-3 border-t border-white/[0.04]">
+              {hasAlts && (
+                <div className="flex gap-1 mt-2 mb-1 overflow-x-auto no-scrollbar">
+                  {variants.map(v => (
+                    <button
+                      key={v.id ?? 'default'}
+                      onClick={(e) => { e.stopPropagation(); onAltChange?.(meal.id, v.id) }}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold tracking-wide transition-all whitespace-nowrap ${
+                        activeAlt === v.id
+                          ? 'bg-white/[0.1] text-white'
+                          : 'text-white/30 hover:text-white/50'
+                      }`}
+                    >
+                      {v.name}
+                    </button>
+                  ))}
+                </div>
+              )}
               <table className="w-full mt-2">
                 <thead>
                   <tr className="text-[10px] text-white/25 uppercase tracking-wider">
@@ -133,7 +164,7 @@ function MealCard({ meal, isCompleted, editMode, onToggleComplete }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {meal.foods.map((food, i) => (
+                  {activeFoods.map((food, i) => (
                     <tr key={i} className="text-xs">
                       <td className="py-1 text-white/70 pr-2">
                         <div className="break-words">{food.name}</div>
