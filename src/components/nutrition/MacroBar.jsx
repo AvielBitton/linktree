@@ -16,7 +16,7 @@ function MacroBar({ macros }) {
   ]
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 mt-1">
       {items.map((item) => (
         <div key={item.key} className="flex flex-col items-center gap-0.5">
           <span className="text-[10px] text-white/40 font-medium">{item.label}</span>

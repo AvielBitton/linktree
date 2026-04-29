@@ -2,7 +2,17 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import MacroBar from './MacroBar'
+
+function MacroChip({ color, value, unit, dimmed }) {
+  return (
+    <div className="flex items-center gap-1">
+      <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: color, opacity: dimmed ? 0.3 : 1 }} />
+      <span className={`text-[11px] tabular-nums ${dimmed ? 'text-white/25' : 'text-white/45'}`}>
+        {value}{unit}
+      </span>
+    </div>
+  )
+}
 
 const MEAL_COLORS = {
   'breakfast': '#3B82F6',
@@ -107,7 +117,17 @@ function MealCard({ meal, isCompleted, editMode, onToggleComplete, activeAlt = n
                 </svg>
               )}
             </div>
-            <MacroBar macros={activeMacros} />
+            <span className={`text-xs font-semibold flex-shrink-0 tabular-nums ${
+              isCompleted ? 'text-white/30' : 'text-white/60'
+            }`}>
+              {activeMacros.kcal}
+              <span className="text-white/25 font-normal text-[10px]"> kcal</span>
+            </span>
+          </div>
+          <div className="flex items-center gap-3 mt-1">
+            <MacroChip color="#22C55E" value={activeMacros.protein} unit="g" dimmed={isCompleted} />
+            <MacroChip color="#F97316" value={activeMacros.carbs} unit="g" dimmed={isCompleted} />
+            <MacroChip color="#EC4899" value={activeMacros.fat} unit="g" dimmed={isCompleted} />
           </div>
         </div>
 
