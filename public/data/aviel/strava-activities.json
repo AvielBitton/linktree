@@ -1,7 +1,138 @@
 {
-  "last_sync": "2026-05-04T20:44:41.029592",
-  "last_activity_ts": 1777909850,
+  "last_sync": "2026-05-05T09:29:11.912916",
+  "last_activity_ts": 1777958799,
   "activities": [
+    {
+      "id": 18381096212,
+      "name": "Morning Run",
+      "type": "Run",
+      "sport_type": "Run",
+      "date": "2026-05-05",
+      "start_time": "08:26:39",
+      "distance": 5177.5,
+      "moving_time": 1798,
+      "elapsed_time": 1798,
+      "moving_time_formatted": "29:58",
+      "elapsed_time_formatted": "29:58",
+      "total_elevation_gain": 49.0,
+      "average_speed": 2.88,
+      "max_speed": 3.9,
+      "average_heartrate": 167.1,
+      "max_heartrate": 195.0,
+      "average_cadence": 83.2,
+      "calories": 376.0,
+      "suffer_score": 68.0,
+      "has_heartrate": true,
+      "map_polyline": "i{tbEstisEM[E[?}AGe@?k@O[_@MWMIGCM?_@TUTKDI?IEAoAJYAOGMUAW@kBPs@DKFAJC^Bl@CnALLDXNJLRf@VRb@TNX?`@EbBAxCEn@Bn@CvAHb@C\\JtBKJO@cBIwCYaAYQMEICS?a@JwBHcCAmCDSJQ@MAKQi@@qAJ}@Vg@PGh@Hv@@Z?x@Gl@Bd@LNLBH@bDGxCClGTlDELIHG?iAEi@@e@Co@IoBi@QIQSAW@a@PuE?cDBMN]@GQ{@Am@@k@Lw@N_@HGHCh@?t@JdBEj@@LDLNJVF\\@pBExAA`DCR@d@ClBPxBLz@?VADKDq@C_DUq@OoA]QKISA[LkCBwBDu@C{ABKP_@AUOo@AuAJq@L]LMNEh@@t@HbBEj@BPDHHNlABtAG~@?bABLCh@?dAG^[`@I`@@HK`@Gx@GNQNSCmADs@KKGEMGm@?_@FmBDG`AHf@EdBD^?DF?P@~BCn@GFG@gA@eAF[AWECMFOTIHGNQFQBgADo@AKGCmAIS@EHEXK`C@HNNFZFDl@HxAB~AEHB",
+      "splits_metric": [
+        {
+          "distance": 1002.3,
+          "elapsed_time": 362,
+          "moving_time": 362,
+          "elevation_difference": -1.0,
+          "average_speed": 2.77,
+          "average_heartrate": 152.64166666666668,
+          "pace": "6:01",
+          "split": 1
+        },
+        {
+          "distance": 999.3,
+          "elapsed_time": 358,
+          "moving_time": 358,
+          "elevation_difference": -6.8,
+          "average_speed": 2.79,
+          "average_heartrate": 163.26536312849163,
+          "pace": "5:58",
+          "split": 2
+        },
+        {
+          "distance": 1000.7,
+          "elapsed_time": 288,
+          "moving_time": 288,
+          "elevation_difference": -2.8,
+          "average_speed": 3.47,
+          "average_heartrate": 186.21527777777777,
+          "pace": "4:48",
+          "split": 3
+        },
+        {
+          "distance": 999.7,
+          "elapsed_time": 295,
+          "moving_time": 295,
+          "elevation_difference": 4.0,
+          "average_speed": 3.39,
+          "average_heartrate": 189.72542372881355,
+          "pace": "4:54",
+          "split": 4
+        },
+        {
+          "distance": 1001.2,
+          "elapsed_time": 427,
+          "moving_time": 427,
+          "elevation_difference": -12.4,
+          "average_speed": 2.34,
+          "average_heartrate": 154.45539906103286,
+          "pace": "7:07",
+          "split": 5
+        },
+        {
+          "distance": 175.4,
+          "elapsed_time": 68,
+          "moving_time": 68,
+          "elevation_difference": -1.6,
+          "average_speed": 2.58,
+          "average_heartrate": 163.41176470588235,
+          "pace": "6:27",
+          "split": 6
+        }
+      ],
+      "laps": [
+        {
+          "name": "Lap 1",
+          "distance": 2000.0,
+          "elapsed_time": 720,
+          "moving_time": 720,
+          "average_speed": 2.78,
+          "average_heartrate": 158.0,
+          "max_heartrate": 179.0,
+          "average_cadence": 84.4,
+          "pace": "5:59"
+        },
+        {
+          "name": "Lap 2",
+          "distance": 2000.0,
+          "elapsed_time": 582,
+          "moving_time": 582,
+          "average_speed": 3.44,
+          "average_heartrate": 188.0,
+          "max_heartrate": 195.0,
+          "average_cadence": 87.3,
+          "pace": "4:50"
+        },
+        {
+          "name": "Lap 3",
+          "distance": 173.2,
+          "elapsed_time": 119,
+          "moving_time": 120,
+          "average_speed": 1.44,
+          "average_heartrate": 152.5,
+          "max_heartrate": 193.0,
+          "average_cadence": 57.7,
+          "pace": "11:34"
+        },
+        {
+          "name": "Lap 4",
+          "distance": 1000.0,
+          "elapsed_time": 373,
+          "moving_time": 373,
+          "average_speed": 2.68,
+          "average_heartrate": 156.5,
+          "max_heartrate": 166.0,
+          "average_cadence": 82.5,
+          "pace": "6:13"
+        }
+      ]
+    },
     {
       "id": 18374762144,
       "name": "Evening Weight Training",
