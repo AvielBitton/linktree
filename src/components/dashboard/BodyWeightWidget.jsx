@@ -24,7 +24,7 @@ function formatWeekRange(logs) {
   return `${fmt(first)}–${fmt(last)}`
 }
 
-function BodyWeightWidget({ weights = [] }) {
+function BodyWeightWidget({ weights = [], isCutMode = false }) {
   const { editMode } = useEditMode()
   const [mounted, setMounted] = useState(false)
   const [inputValue, setInputValue] = useState('')
@@ -214,11 +214,15 @@ function BodyWeightWidget({ weights = [] }) {
             ) : todayWeight ? (
               <div className="flex items-center gap-1.5 flex-wrap">
                 <p className="text-white font-bold text-sm tabular-nums">{todayWeight} kg</p>
-                {delta !== null && delta !== 0 && (
-                  <span className={`text-[10px] font-medium tabular-nums whitespace-nowrap ${delta > 0 ? 'text-blue-400/70' : 'text-red-400/60'}`}>
-                    {delta > 0 ? '↑' : '↓'}{Math.abs(delta)} vs yesterday
-                  </span>
-                )}
+                {delta !== null && delta !== 0 && (() => {
+                  const good = isCutMode ? delta < 0 : delta > 0
+                  const cls = good ? 'text-emerald-400/70' : 'text-red-400/60'
+                  return (
+                    <span className={`text-[10px] font-medium tabular-nums whitespace-nowrap ${cls}`}>
+                      {delta > 0 ? '↑' : '↓'}{Math.abs(delta)} vs yesterday
+                    </span>
+                  )
+                })()}
                 {thisWeekStats?.deltaPct !== null && thisWeekStats?.deltaPct !== undefined && (
                   <span className={`text-[9px] font-medium tabular-nums px-1 py-0.5 rounded whitespace-nowrap ${pctBg(thisWeekStats.deltaPct)} ${pctColor(thisWeekStats.deltaPct)}`}>
                     {thisWeekStats.deltaPct > 0 ? '+' : ''}{thisWeekStats.deltaPct}%/w

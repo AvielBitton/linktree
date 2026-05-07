@@ -723,11 +723,15 @@ function DashboardTab({
                   {!todayWeight && (
                     <span className="text-amber-400/70 text-[11px] font-medium">Not logged today</span>
                   )}
-                  {weightDelta !== null && weightDelta !== 0 && (
-                    <span className={`text-[11px] font-medium tabular-nums ${weightDelta > 0 ? 'text-blue-400/70' : 'text-red-400/60'}`}>
-                      {weightDelta > 0 ? '↑' : '↓'}{Math.abs(weightDelta)} vs yesterday
-                    </span>
-                  )}
+                  {weightDelta !== null && weightDelta !== 0 && (() => {
+                    const good = isCutMode ? weightDelta < 0 : weightDelta > 0
+                    const cls = good ? 'text-emerald-400/70' : 'text-red-400/60'
+                    return (
+                      <span className={`text-[11px] font-medium tabular-nums ${cls}`}>
+                        {weightDelta > 0 ? '↑' : '↓'}{Math.abs(weightDelta)} vs yesterday
+                      </span>
+                    )
+                  })()}
                   {weeklyWeightStats && (
                     <span className="text-[11px] text-white/25 tabular-nums">
                       avg {weeklyWeightStats.avg}

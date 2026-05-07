@@ -20,15 +20,15 @@ function parseRepRange(reps) {
 }
 
 function WorkoutSession({ template, allTemplates = [], customExercises = [], sessions = [], onFinish }) {
-  const [startTime] = useState(() => Date.now())
+  const [startTime, setStartTime] = useState(() => Date.now())
   const [elapsed, setElapsed] = useState(0)
   const [completedSets, setCompletedSets] = useState({})
   const [extraSets, setExtraSets] = useState({})
-  const [restTimer, setRestTimer] = useState(null)
+  const [restEndAtMs, setRestEndAtMs] = useState(null)
   const [showSummary, setShowSummary] = useState(false)
   const [showFinishConfirm, setShowFinishConfirm] = useState(false)
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
-  const [sessionId] = useState(() => generateId())
+  const [sessionId, setSessionId] = useState(() => generateId())
   const [swappedExercises, setSwappedExercises] = useState({})
   const [swapTarget, setSwapTarget] = useState(null)
   const [saveError, setSaveError] = useState(null)
@@ -95,6 +95,9 @@ function WorkoutSession({ template, allTemplates = [], customExercises = [], ses
       setCompletedSets(saved.completedSets || {})
       setExtraSets(saved.extraSets || {})
       if (saved.swappedExercises) setSwappedExercises(saved.swappedExercises)
+      if (saved.startTime) setStartTime(saved.startTime)
+      if (saved.sessionId) setSessionId(saved.sessionId)
+      if (saved.restEndAtMs) setRestEndAtMs(saved.restEndAtMs)
     }
   }, [template.id])
 
@@ -104,10 +107,10 @@ function WorkoutSession({ template, allTemplates = [], customExercises = [], ses
   }, [startTime])
 
   useEffect(() => {
-    if (Object.keys(completedSets).length > 0 || Object.keys(extraSets).length > 0 || Object.keys(swappedExercises).length > 0) {
-      saveActiveSession({ templateId: template.id, completedSets, extraSets, swappedExercises, startTime })
+    if (Object.keys(completedSets).length > 0 || Object.keys(extraSets).length > 0 || Object.keys(swappedExercises).length > 0 || restEndAtMs) {
+      saveActiveSession({ templateId: template.id, sessionId, completedSets, extraSets, swappedExercises, startTime, restEndAtMs })
     }
-  }, [completedSets, extraSets, swappedExercises, template.id, startTime])
+  }, [completedSets, extraSets, swappedExercises, template.id, startTime, sessionId, restEndAtMs])
 
   const handleSetComplete = useCallback((exerciseKey, setNum, weightKg, reps) => {
     const key = `${exerciseKey}_${setNum}`
@@ -124,9 +127,9 @@ function WorkoutSession({ template, allTemplates = [], customExercises = [], ses
           if (exercise.superset) {
             const ssGroup = sessionExercises.filter(e => e.superset === exercise.superset)
             const isLast = ssGroup.indexOf(exercise) === ssGroup.length - 1
-            if (isLast && exercise.rest) setRestTimer(exercise.rest)
+            if (isLast && exercise.rest) setRestEndAtMs(Date.now() + exercise.rest * 1000)
           } else if (exercise.rest) {
-            setRestTimer(exercise.rest)
+            setRestEndAtMs(Date.now() + exercise.rest * 1000)
           }
         }
       }
@@ -221,9 +224,10 @@ function WorkoutSession({ template, allTemplates = [], customExercises = [], ses
         templateName: template.name,
         exerciseLogs: exerciseLogs.map(l => ({
           ...l,
-          exerciseName: sessionExercises.find(e => e.key === l.exerciseKey)?.name_en
-            || sessionExercises.find(e => e.key === l.exerciseKey)?.name
-            || l.exerciseKey,
+          exerciseName: (() => {
+            const ex = sessionExercises.find(e => e.key === l.exerciseKey)
+            return ex ? (ex.name_en || ex.name || ex.key || l.exerciseKey) : l.exerciseKey
+          })(),
         })),
       })
     }
@@ -366,12 +370,14 @@ function WorkoutSession({ template, allTemplates = [], customExercises = [], ses
       </div>
 
       <AnimatePresence>
-        {restTimer && (
+        {restEndAtMs && (
           <RestTimer
-            seconds={restTimer}
+            seconds={Math.max(0, Math.ceil((restEndAtMs - Date.now()) / 1000))}
+            endTimeMs={restEndAtMs}
             templateColor={template.color}
-            onDismiss={() => setRestTimer(null)}
-            onFinish={() => setRestTimer(null)}
+            onDismiss={() => setRestEndAtMs(null)}
+            onFinish={() => setRestEndAtMs(null)}
+            onEndTimeChange={(t) => setRestEndAtMs(t)}
           />
         )}
       </AnimatePresence>

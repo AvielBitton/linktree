@@ -202,10 +202,10 @@ function WorkoutTemplates({ templates = [], sessions = [], onStartWorkout, editM
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5">
-                                  <p className="text-[12px] text-white/55 truncate leading-tight">{ex.name_en || ex.key.replace(/_/g, ' ')}</p>
+                                  <p className="text-[12px] text-white/55 truncate leading-tight">{ex.name_en || ex.name || ex.key.replace(/_/g, ' ')}</p>
                                   {ex.videoId && (
                                     <button
-                                      onClick={(e) => { e.stopPropagation(); setActiveVideo({ videoId: ex.videoId, title: ex.name_en || ex.key.replace(/_/g, ' ') }) }}
+                                      onClick={(e) => { e.stopPropagation(); setActiveVideo({ videoId: ex.videoId, title: ex.name_en || ex.name || ex.key.replace(/_/g, ' ') }) }}
                                       className="flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors"
                                       title="Watch tutorial"
                                     >

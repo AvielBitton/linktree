@@ -189,7 +189,7 @@ function ExerciseSwapModal({ exercisePool = [], allTemplates = [], currentExerci
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-white text-[13px] font-medium truncate">
-                  {ex.name_en || ex.key?.replace(/_/g, ' ')}
+                  {ex.name_en || ex.name || ex.key?.replace(/_/g, ' ')}
                 </p>
                 {ex.name && ex.name !== ex.name_en && (
                   <p className="text-white/20 text-[11px] truncate">{ex.name}</p>

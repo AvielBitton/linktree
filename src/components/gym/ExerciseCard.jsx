@@ -42,7 +42,7 @@ function ExerciseCard({ exercise, exerciseIndex, onSetComplete, onSetUncomplete,
       {showVideo && exercise.videoId && (
         <YouTubeModal
           videoId={exercise.videoId}
-          title={exercise.name_en || exercise.key.replace(/_/g, ' ')}
+          title={exercise.name_en || exercise.name || exercise.key.replace(/_/g, ' ')}
           onClose={() => setShowVideo(false)}
         />
       )}
@@ -52,7 +52,7 @@ function ExerciseCard({ exercise, exerciseIndex, onSetComplete, onSetUncomplete,
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <p className={`font-semibold text-[13px] leading-tight ${allCompleted ? 'text-white/50' : 'text-white'}`}>
-                {exercise.name_en || exercise.key.replace(/_/g, ' ')}
+                {exercise.name_en || exercise.name || exercise.key.replace(/_/g, ' ')}
               </p>
               {allCompleted && (
                 <span className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md" style={{ backgroundColor: templateColor + '20', color: templateColor }}>
@@ -188,9 +188,9 @@ function SetRow({ setNum, lastWeight, pr, targetReps, completed, templateColor, 
       onUncomplete()
       return
     }
-    const w = parseFloat(weight) || 0
-    const r = parseInt(reps) || 0
+    const w = weight === '' && lastWeight?.weight ? lastWeight.weight : (parseFloat(weight) || 0)
     const range = parseRepRange(targetReps)
+    const r = reps === '' && range ? range.min : (parseInt(reps) || 0)
     const inRange = !range || (r >= range.min && r <= range.max)
     if (pr && w > pr && inRange) setShowPR(true)
     setEditing(false)

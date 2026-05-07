@@ -1,18 +1,30 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion } from 'framer-motion'
 
-function RestTimer({ seconds, templateColor = '#3B82F6', onDismiss, onFinish }) {
-  const [endTime, setEndTime] = useState(() => Date.now() + seconds * 1000)
-  const [remaining, setRemaining] = useState(seconds)
+function RestTimer({ seconds, endTimeMs, templateColor = '#3B82F6', onDismiss, onFinish, onEndTimeChange }) {
+  const initialEndTime = useMemo(() => {
+    if (typeof endTimeMs === 'number' && isFinite(endTimeMs) && endTimeMs > 0) return endTimeMs
+    return Date.now() + (seconds || 0) * 1000
+  }, [endTimeMs, seconds])
+
+  const [endTime, setEndTime] = useState(() => initialEndTime)
+  const initialRemaining = Math.max(0, Math.ceil((initialEndTime - Date.now()) / 1000))
+  const [remaining, setRemaining] = useState(initialRemaining)
   const [paused, setPaused] = useState(false)
   const pausedRemainingRef = useRef(null)
   const onFinishRef = useRef(onFinish)
   const onDismissRef = useRef(onDismiss)
+  const onEndTimeChangeRef = useRef(onEndTimeChange)
 
   useEffect(() => { onFinishRef.current = onFinish }, [onFinish])
   useEffect(() => { onDismissRef.current = onDismiss }, [onDismiss])
+  useEffect(() => { onEndTimeChangeRef.current = onEndTimeChange }, [onEndTimeChange])
+
+  useEffect(() => {
+    onEndTimeChangeRef.current?.(endTime)
+  }, [endTime])
 
   useEffect(() => {
     if (paused) return
@@ -53,7 +65,7 @@ function RestTimer({ seconds, templateColor = '#3B82F6', onDismiss, onFinish }) 
     }
   }
 
-  const totalSeconds = useRef(seconds).current
+  const totalSeconds = useRef(Math.max(1, initialRemaining || seconds || 1)).current
   const progress = 1 - remaining / totalSeconds
   const mins = Math.floor(remaining / 60)
   const secs = remaining % 60

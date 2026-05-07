@@ -373,7 +373,7 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
                             <div className="flex items-center gap-2">
                               <div className="w-1 h-5 rounded-full flex-shrink-0" style={{ backgroundColor: workout._gymTemplate.color || color, opacity: 0.7 }} />
                               <span className="text-white/80 text-xs font-medium truncate flex-1">
-                                {ex.name_en || ex.name}
+                                {ex.name_en || ex.name || ex.key}
                               </span>
                               {!hasLogs && (
                                 <span className="text-white/40 text-[11px] font-mono flex-shrink-0">
@@ -385,7 +385,7 @@ export default function WorkoutDetailModal({ workout, stravaActivities = [], onC
                               <div className="flex gap-1.5 mt-1 ml-3 flex-wrap">
                                 {exLogs.map((l, j) => (
                                   <span key={j} className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.05] text-white/50">
-                                    {l.weight_kg}<span className="text-white/25">kg</span>×{l.reps}
+                                    {(l.weight_kg ?? l.weightKg ?? 0)}<span className="text-white/25">kg</span>×{(l.reps ?? 0)}
                                   </span>
                                 ))}
                               </div>

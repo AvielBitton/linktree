@@ -38,4 +38,7 @@ sparta-492117-*.json
 # Python venv
 scripts/.venv/
 
+# Grocery list
+grocery-list.md
+
 .vercel

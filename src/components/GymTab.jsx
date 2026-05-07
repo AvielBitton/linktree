@@ -1,17 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import WorkoutTemplates from './gym/WorkoutTemplates'
 import WorkoutSession from './gym/WorkoutSession'
 import EditMode from './gym/EditMode'
+import RecentWorkoutsCard from './gym/RecentWorkoutsCard'
 import { useEditMode } from '../contexts/EditModeContext'
+import { isCompletedRun } from '@/src/utils/workouts'
 
-function GymTab({ templates = [], sessions = [], customExercises = [], onNavigateHome }) {
+function GymTab({ templates = [], sessions = [], workouts = [], customExercises = [], onNavigateHome }) {
   const { editMode } = useEditMode()
   const [activeSession, setActiveSession] = useState(null)
   const [showEdit, setShowEdit] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
+
+  const runWorkouts = useMemo(() => (workouts || []).filter(isCompletedRun), [workouts])
 
   function handleStartWorkout(template) {
     setActiveSession(template)
@@ -46,6 +50,7 @@ function GymTab({ templates = [], sessions = [], customExercises = [], onNavigat
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
+            <RecentWorkoutsCard templates={templates} sessions={sessions} runWorkouts={runWorkouts} count={5} />
             <WorkoutTemplates
               templates={templates}
               sessions={sessions}
