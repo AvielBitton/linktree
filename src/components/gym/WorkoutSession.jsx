@@ -72,7 +72,11 @@ function WorkoutSession({ template, allTemplates = [], customExercises = [], ses
         if (w > map[key].pr && inRange) map[key].pr = w
       }
     }
-    const latestSession = sessions[0]
+    // Use the most recent *finished* session for this specific template for "Prev" weights
+    const latestSession = sessions.find(s =>
+      (s.template_id || s.templateId) === template.id &&
+      (s.finished_at || s.finishedAt)
+    )
     if (latestSession) {
       const logs = latestSession.exercise_logs || latestSession.exerciseLogs || []
       for (const log of logs) {
@@ -87,7 +91,7 @@ function WorkoutSession({ template, allTemplates = [], customExercises = [], ses
       }
     }
     return map
-  }, [sessions, sessionExercises])
+  }, [sessions, sessionExercises, template.id])
 
   useEffect(() => {
     const saved = getActiveSession()

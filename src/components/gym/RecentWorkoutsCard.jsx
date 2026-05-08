@@ -338,9 +338,8 @@ export default function RecentWorkoutsCard({ templates = [], sessions = [], runW
   const activeSession = useMemo(() => recent.find(s => s.id === activeId) || null, [recent, activeId])
   const activeTemplate = activeSession ? templatesById.get(activeSession.template_id || activeSession.templateId) : null
 
-  if (recent.length === 0) return null
-
   // Heatmap: last 8 weeks (strength from DB + runs from other sources)
+  // NOTE: must be called before any early returns to satisfy Rules of Hooks
   const heat = useMemo(() => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -502,6 +501,8 @@ export default function RecentWorkoutsCard({ templates = [], sessions = [], runW
     }
     return labels
   }, [heat.start, heat.weeksCount])
+
+  if (recent.length === 0) return null
 
   return (
     <div className="mb-4">
