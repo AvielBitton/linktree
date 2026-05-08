@@ -1,7 +1,219 @@
 {
-  "last_sync": "2026-05-07T20:45:09.956477",
-  "last_activity_ts": 1778081245,
+  "last_sync": "2026-05-08T08:56:54.670807",
+  "last_activity_ts": 1778215984,
   "activities": [
+    {
+      "id": 18421190752,
+      "name": "Morning Run",
+      "type": "Run",
+      "sport_type": "Run",
+      "date": "2026-05-08",
+      "start_time": "07:53:04",
+      "distance": 12004.3,
+      "moving_time": 4035,
+      "elapsed_time": 4035,
+      "moving_time_formatted": "1:07:15",
+      "elapsed_time_formatted": "1:07:15",
+      "total_elevation_gain": 45.0,
+      "average_speed": 2.975,
+      "max_speed": 4.34,
+      "average_heartrate": 176.8,
+      "max_heartrate": 193.0,
+      "average_cadence": 84.9,
+      "calories": 888.0,
+      "suffer_score": 221.0,
+      "has_heartrate": true,
+      "map_polyline": "_e}bEclgsExAm@|@WL?`AnBjAtBAHGJ_Av@i@\\?TL\\\\TVHp@\\lEfCfCtBXPNPnA`A~AtAT?LKDUBu@Hk@FQHAjCb@lALdAX~ARLFD\\AXQdA@TFFzBb@~@VlARj@DH?FCJ]JKNEVBTLRRXb@f@f@Vd@VDh@?VBj@RdB`@t@HbBXd@R|B~A^RnA`@bCb@`@Fp@Bb@HxAd@fBNdB\\dADpA@j@Fz@VjANnFzAt@Ax@OZ@RBhCp@b@NvAj@^TFJHDb@LdAf@vBr@b@Hh@Bb@Hp@A^DzErAbBVjAHb@Pj@B^F^JVNfAd@`Cz@vEz@zC|@|@b@hBl@nFnAtA`@|@PzBn@pBf@b@H|A`@h@R|A^dD`Ar@PpAPLTj@hBTb@Jb@P`@^l@VP`@Hr@Hv@N`Bf@d@TjA^z@NfBNXHZLb@l@VRpA`@z@^v@Pp@D\\ATCTIl@c@LER@jA^J?TIVYPOX?\\JVR\\l@^LRNl@pATZnAr@\\NlA~@`Ah@RHv@NTBJAROVg@HY@GGKo@_@_@Ye@YKBGF_@JILW~@GHIAo@k@eCmASUa@{@U]s@e@We@KKQKYMIAKBe@XQNSHs@Q_@MQA]NQNk@Ve@BcAGcAYwAe@c@Su@}@SMe@IyDk@sDoAo@O{@Mc@Me@S_@m@Um@c@cBc@kAOIOA}@SeAMMGiBc@wAc@cAUcBi@eCo@e@OwA[kBi@q@McBi@UC}@Ss@S]Ge@Sm@O_A_@gA[UKYE_@Ok@IQ?[KyAWcAYuEqBqAUyBSk@O_AOmA_@iB_@y@G}AUk@Ag@KwAi@iAg@u@Uo@g@UKi@QMGs@WgA[SA[QMASB[RWFMBYAyCs@_@MeBe@gAUu@]_DIs@Gy@Og@GKEcAG_AUm@UYEu@E{@KgB[iBq@wCqBmAMyCk@{@W[OiACQM_AgAU_@[]IEOCQ?ODGHEREHk@?kBSw@Qc@GiAYKGGKAST{AI_@MIKAO@_AQkBa@k@GOGyB]IFKn@Dr@Cn@GPIBEAOG_DgCo@e@mAaAY[_@UgAaAiAm@c@[wBeAc@[GS?Sr@o@p@a@JMBKsBwDSg@CEICeALe@JkA^]Ra@f@c@`@u@b@q@Xa@LqALo@Bm@A",
+      "splits_metric": [
+        {
+          "distance": 1001.7,
+          "elapsed_time": 389,
+          "moving_time": 389,
+          "elevation_difference": 2.4,
+          "average_speed": 2.58,
+          "average_heartrate": 143.89361702127658,
+          "pace": "6:27",
+          "split": 1
+        },
+        {
+          "distance": 999.2,
+          "elapsed_time": 350,
+          "moving_time": 350,
+          "elevation_difference": 3.4,
+          "average_speed": 2.85,
+          "average_heartrate": 163.02985074626866,
+          "pace": "5:50",
+          "split": 2
+        },
+        {
+          "distance": 1000.1,
+          "elapsed_time": 328,
+          "moving_time": 328,
+          "elevation_difference": -4.4,
+          "average_speed": 3.05,
+          "average_heartrate": 173.21967213114755,
+          "pace": "5:27",
+          "split": 3
+        },
+        {
+          "distance": 1001.3,
+          "elapsed_time": 335,
+          "moving_time": 335,
+          "elevation_difference": -3.2,
+          "average_speed": 2.99,
+          "average_heartrate": 176.281045751634,
+          "pace": "5:34",
+          "split": 4
+        },
+        {
+          "distance": 997.9,
+          "elapsed_time": 333,
+          "moving_time": 333,
+          "elevation_difference": 0.8,
+          "average_speed": 3.0,
+          "average_heartrate": 178.6161616161616,
+          "pace": "5:33",
+          "split": 5
+        },
+        {
+          "distance": 1000.8,
+          "elapsed_time": 319,
+          "moving_time": 319,
+          "elevation_difference": -4.4,
+          "average_speed": 3.14,
+          "average_heartrate": 184.94718309859155,
+          "pace": "5:18",
+          "split": 6
+        },
+        {
+          "distance": 999.5,
+          "elapsed_time": 324,
+          "moving_time": 324,
+          "elevation_difference": -0.4,
+          "average_speed": 3.08,
+          "average_heartrate": 185.75778546712803,
+          "pace": "5:24",
+          "split": 7
+        },
+        {
+          "distance": 1002.1,
+          "elapsed_time": 342,
+          "moving_time": 342,
+          "elevation_difference": 2.4,
+          "average_speed": 2.93,
+          "average_heartrate": 183.54882154882154,
+          "pace": "5:41",
+          "split": 8
+        },
+        {
+          "distance": 999.4,
+          "elapsed_time": 340,
+          "moving_time": 340,
+          "elevation_difference": -0.4,
+          "average_speed": 2.94,
+          "average_heartrate": 183.375,
+          "pace": "5:40",
+          "split": 9
+        },
+        {
+          "distance": 999.1,
+          "elapsed_time": 336,
+          "moving_time": 336,
+          "elevation_difference": 3.6,
+          "average_speed": 2.97,
+          "average_heartrate": 183.64383561643837,
+          "pace": "5:36",
+          "split": 10
+        },
+        {
+          "distance": 999.8,
+          "elapsed_time": 320,
+          "moving_time": 320,
+          "elevation_difference": 4.8,
+          "average_speed": 3.12,
+          "average_heartrate": 188.39068100358423,
+          "pace": "5:20",
+          "split": 11
+        },
+        {
+          "distance": 1001.2,
+          "elapsed_time": 317,
+          "moving_time": 317,
+          "elevation_difference": 1.2,
+          "average_speed": 3.16,
+          "average_heartrate": 189.76277372262774,
+          "pace": "5:16",
+          "split": 12
+        },
+        {
+          "distance": 2.2,
+          "elapsed_time": 2,
+          "moving_time": 2,
+          "elevation_difference": 0.2,
+          "average_speed": 1.1,
+          "average_heartrate": 190.0,
+          "pace": "15:09",
+          "split": 13
+        }
+      ],
+      "laps": [
+        {
+          "name": "Lap 1",
+          "distance": 2000.0,
+          "elapsed_time": 739,
+          "moving_time": 739,
+          "average_speed": 2.71,
+          "average_heartrate": 152.9,
+          "max_heartrate": 175.0,
+          "average_cadence": 82.4,
+          "pace": "6:09"
+        },
+        {
+          "name": "Lap 2",
+          "distance": 3000.0,
+          "elapsed_time": 996,
+          "moving_time": 996,
+          "average_speed": 3.01,
+          "average_heartrate": 176.0,
+          "max_heartrate": 186.0,
+          "average_cadence": 85.6,
+          "pace": "5:32"
+        },
+        {
+          "name": "Lap 3",
+          "distance": 2000.0,
+          "elapsed_time": 642,
+          "moving_time": 642,
+          "average_speed": 3.12,
+          "average_heartrate": 185.4,
+          "max_heartrate": 190.0,
+          "average_cadence": 85.9,
+          "pace": "5:20"
+        },
+        {
+          "name": "Lap 4",
+          "distance": 3000.0,
+          "elapsed_time": 1017,
+          "moving_time": 1017,
+          "average_speed": 2.95,
+          "average_heartrate": 183.5,
+          "max_heartrate": 189.0,
+          "average_cadence": 85.3,
+          "pace": "5:38"
+        },
+        {
+          "name": "Lap 5",
+          "distance": 2000.0,
+          "elapsed_time": 636,
+          "moving_time": 636,
+          "average_speed": 3.14,
+          "average_heartrate": 189.1,
+          "max_heartrate": 193.0,
+          "average_cadence": 85.6,
+          "pace": "5:18"
+        }
+      ]
+    },
     {
       "id": 18401512200,
       "name": "Evening Weight Training",
