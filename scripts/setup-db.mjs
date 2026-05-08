@@ -30,6 +30,7 @@ async function run() {
     color: t.color,
     muscles: t.muscles,
     sort_order: t.sort_order,
+    program: t.program || 'classic',
     exercises: t.exercises,
   }))
 
